@@ -1,0 +1,1 @@
+# Dùng để chứa các schema định nghĩa (na ná như DTOs)
