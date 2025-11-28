@@ -1,7 +1,7 @@
 from app import create_app
 from flask import render_template
 from app.extentions.extentions import socketio
-import app.socket.test
+import app.socket.socket
 
 app = create_app()
 
