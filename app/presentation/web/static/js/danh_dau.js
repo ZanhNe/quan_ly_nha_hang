@@ -6,7 +6,7 @@ const dataElement = document.getElementById("table-data-json");
 // Nhận dữ liệu từ Flask (Jinja2 convert sang JSON Object)
 const dsKhuVuc = JSON.parse(dataElement.textContent);
 
-const serverTableData = dsKhuVuc.reduce((acc, val) => {
+let serverTableData = dsKhuVuc.reduce((acc, val) => {
   return [...acc, ...val.ds_ban];
 }, []);
 
@@ -242,7 +242,28 @@ els.btnAction.addEventListener("click", function () {
       }
     })
     .then((data) => {
-      console.log(data);
+      serverTableData = [...serverTableData.filter((ban) => {
+        return data.every((ban_data) => ban_data.id !== ban.id);
+      }), ...data].sort((ban_1, ban_2) => ban_1.id - ban_2.id);
+
+      data.forEach((ban) => {
+        const banEl = document.querySelector(`#table-${ban.id}`);
+        banEl.classList.remove('is-selected');
+        banEl.classList.remove('status-trong');
+        banEl.classList.add('status-cokhach');
+        const tagEl = banEl.querySelector('.warning-tag');
+
+        if (tagEl) {
+          tagEl.classList.toggle('dang-an');
+        tagEl.textContent = 'Đang ăn';
+        }
+        else {
+          banEl.insertAdjacentHTML('beforeend', '<div class="warning-tag dang-an">Đang ăn</div>')
+        }
+
+      })
+      selectedTableIds = [];
+      closeDrawer();
     })
     .catch((error) => {
       console.error("Error:", error);
