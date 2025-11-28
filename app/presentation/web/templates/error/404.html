@@ -1,0 +1,26 @@
+{% extends "base_auth.html" %}
+
+{% block title%}404 - Không tìm thấy trang{% endblock %}
+
+{% block styles%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/error/404.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="ghost-container">👻</div>
+    <div class="ghost-shadow"></div>
+
+    <h1>404</h1>
+    <h2>Ara ara... Lạc đường rồi?</h2>
+    <p>
+        Trang bạn đang tìm không có trong thực đơn của nhà hàng hoặc đã bị di chuyển đi nơi khác.
+    </p>
+
+    <a href="/" class="btn">Về Trang Chủ</a>
+</div>
+</body>
+
+</html>
+
+{% endblock %}

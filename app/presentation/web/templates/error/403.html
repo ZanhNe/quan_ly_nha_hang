@@ -1,0 +1,37 @@
+{% extends "base_auth.html" %}
+
+{% block title %}403 - Không có quyền truy cập{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/error/403.css')}}">
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="icon-container">
+        <div class="angry-mark">💢</div>
+        🔒
+    </div>
+
+    <div class="error-code">403</div>
+    <h1>Dame desu! (Không được phép)</h1>
+
+    <p>
+        Xin lỗi <strong>ZANH</strong>,<br>
+        Bạn đang truy cập với vai trò <span class="role-highlight">VÔ DANH</span>.<br>
+        Chức năng này chỉ dành cho những người có quyền hạn cao hơn (như Admin hoặc Quản lý).
+    </p>
+
+    <div class="actions">
+        <button onclick="history.back()" class="btn btn-back">
+            Quay lại
+        </button>
+
+        <a href="/" class="btn btn-home">
+            Về trang chủ
+        </a>
+    </div>
+</div>
+
+{% endblock %}

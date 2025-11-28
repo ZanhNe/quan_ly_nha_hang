@@ -1,0 +1,198 @@
+:root {
+    --bg-color: #FFF5F5;
+    /* Nền đỏ rất nhạt */
+    --container-bg: #FFFFFF;
+    --primary-red: #E53E3E;
+    /* Đỏ đậm */
+    --accent-red: #FC8181;
+    /* Đỏ nhạt hơn */
+    --text-color: #2D3748;
+    --text-light: #718096;
+    --radius: 24px;
+    --shadow: 0 10px 30px rgba(229, 62, 62, 0.15);
+}
+
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Họa tiết "Dây cảnh báo" chéo (Caution Tape) */
+    background-image: repeating-linear-gradient(45deg,
+            rgba(229, 62, 62, 0.05) 0px,
+            rgba(229, 62, 62, 0.05) 20px,
+            transparent 20px,
+            transparent 40px);
+}
+
+.card {
+    background: var(--container-bg);
+    width: 100%;
+    max-width: 520px;
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    position: relative;
+    border: 2px solid #FFF;
+    overflow: hidden;
+}
+
+/* Trang trí góc trên (Biểu tượng cấm) */
+.card::before {
+    content: '✖';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 8em;
+    color: var(--bg-color);
+    opacity: 0.8;
+    font-weight: 800;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* === ICON KHÓA (ANIMATION) === */
+.icon-container {
+    position: relative;
+    z-index: 1;
+    width: 100px;
+    height: 100px;
+    background: #FFF5F5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: var(--primary-red);
+    font-size: 3.5em;
+    border: 3px solid var(--accent-red);
+    /* Hiệu ứng rung lắc từ chối */
+    animation: shake 0.5s ease-in-out infinite alternate;
+    animation-play-state: paused;
+    /* Chỉ rung khi hover hoặc load */
+}
+
+.card:hover .icon-container {
+    animation-play-state: running;
+}
+
+/* === TYPOGRAPHY === */
+.error-code {
+    font-size: 4em;
+    font-weight: 800;
+    color: var(--primary-red);
+    line-height: 1;
+    margin: 0;
+    text-shadow: 2px 2px 0px #FED7D7;
+}
+
+h1 {
+    font-size: 1.5em;
+    margin: 10px 0 16px;
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+p {
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.role-highlight {
+    background-color: #FED7D7;
+    color: #9B2C2C;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* === BUTTONS === */
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+
+.btn-back {
+    background-color: var(--primary-red);
+    color: white;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+}
+
+.btn-back:hover {
+    background-color: #C53030;
+    transform: translateY(-2px);
+}
+
+.btn-home {
+    background-color: white;
+    color: var(--text-light);
+    border: 2px solid #E2E8F0;
+}
+
+.btn-home:hover {
+    border-color: var(--text-color);
+    color: var(--text-color);
+}
+
+/* === ANIMATION KEYFRAMES === */
+@keyframes shake {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Anime Angry Mark 💢 */
+.angry-mark {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5em;
+    color: var(--primary-red);
+    animation: pop 1s infinite;
+}
+
+@keyframes pop {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Demo SocketIO</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js""></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        #log {
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            height: 200px;
+            overflow-y: scroll;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Test Realtime</h2>
+    <input id=" username" placeholder="Tên user (VD: Bếp)" />
+    <input id="room" placeholder="Mã phòng (VD: order_1)" />
+    <button onclick="joinRoom()">Tham gia phòng</button>
+    <br /><br />
+    <input id="msg" placeholder="Nội dung tin nhắn..." style="width: 300px" />
+    <button onclick="sendMsg()">Gửi tin</button>
+
+    <div id="log"></div>
+
+    <script>
+        // Khởi tạo kết nối tới server
+        const socket = io('http://localhost:5000', { transports: ['websocket'] });
+
+        // 1. Lắng nghe sự kiện connect
+        socket.on('connect', () => {
+            log("Đã kết nối với Server ID: " + socket.id);
+        });
+
+        // 2. Lắng nghe tin nhắn từ Server trả về
+        socket.on('receive_message', (data) => {
+            log(`<strong>${data.user}:</strong> ${data.msg}`);
+        });
+
+        // 3. Lắng nghe thông báo
+        socket.on('notification', (msg) => {
+            log(`<em style="color:blue">${msg}</em>`);
+        });
+
+        // --- Hàm gửi dữ liệu lên Server ---
+
+        function joinRoom() {
+            const user = document.getElementById(' username').value;
+            const room = document.getElementById('room').value;
+            // Emit sự kiện 'join_room'
+            socket.emit('join_room', { username: user, room: room });
+            log(`<i>Đang xin vào phòng ${room}...</i>`);
+        }
+
+        function sendMsg() {
+            const user = document.getElementById(' username').value;
+            const room = document.getElementById('room').value;
+            const msg = document.getElementById('msg').value;
+
+            // Emit sự kiện 'send_message'
+            socket.emit('send_message', { username: user, room: room, message: msg });
+            document.getElementById('msg').value = ''; // Xóa ô nhập
+        }
+
+        function log(html) {
+            const box = document.getElementById('log');
+            box.innerHTML += `<div>${html}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+    </body>
+
+</html>

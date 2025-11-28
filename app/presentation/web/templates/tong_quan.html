@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+Tổng quan
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/tong_quan.css')}}">
+{% endblock%}
+
+{% block scripts %}
+
+{% endblock %}
+
+<main class="main-content">
+
+    {% block content %}
+    <h2 class="content-title">Chào mừng, Hanako! 🌸</h2>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon pink">🍽️</span>
+            <div class="stat-info">
+                <span class="value">12 / 20</span>
+                <span class="label">Bàn đang phục vụ</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon green">🧑‍🤝‍🧑</span>
+            <div class="stat-info">
+                <span class="value">45</span>
+                <span class="label">Khách trong nhà hàng</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon blue">📅</span>
+            <div class="stat-info">
+                <span class="value">8</span>
+                <span class="label">Đặt bàn hôm nay</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon yellow">💰</span>
+            <div class="stat-info">
+                <span class="value">12.5M</span>
+                <span class="label">Doanh thu (ước tính)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h3>Truy cập nhanh</h3>
+        <div class="quick-actions">
+            <a href="#" class="action-button">🗺️ Đánh dấu bàn (UC-01)</a>
+            <a href="#" class="action-button">📅 Thêm Đặt Bàn Mới</a>
+            <a href="#" class="action-button">🧾 Tạo Order Mới</a>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h3>Đặt bàn sắp tới (Hôm nay)</h3>
+        <div class="item-list">
+            <div class="list-item">
+                <div class="info">
+                    <span class="name">Anh Kenji Watanabe</span>
+                    <span class="details">19:00 - 4 người - Bàn T1 (Tatami)</span>
+                </div>
+                <span class="status">Đã xác nhận</span>
+            </div>
+            <div class="list-item">
+                <div class="info">
+                    <span class="name">Chị Emi Sato</span>
+                    <span class="details">19:30 - 2 người - Bàn B2</span>
+                </div>
+                <span class="status">Đã xác nhận</span>
+            </div>
+            <div class="list-item">
+                <div class="info">
+                    <span class="name">Công ty ABC</span>
+                    <span class="details">20:00 - 8 người - Bàn T4 + T3</span>
+                </div>
+                <span class="status" style="color: #D69E2E;">Chờ xác nhận</span>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</main>

@@ -1,0 +1,167 @@
+/* =========================================
+   1. LƯỚI BÀN VÀ THẺ BÀN
+   ========================================= */
+.zone {
+    margin-bottom: 30px;
+}
+
+.zone h3 {
+    margin-bottom: 15px;
+    color: var(--text-light);
+}
+
+.table-map-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 20px;
+}
+
+/* Thẻ bàn (Table Card) */
+.table {
+    border: 2px solid #E2E8F0;
+    background: white;
+    border-radius: 16px;
+    /* Bo góc to hơn chút */
+    padding: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.table:hover {
+    transform: translateY(-3px);
+}
+
+.table-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.table-capacity {
+    font-size: 0.85em;
+    color: #666;
+    display: block;
+}
+
+/* =========================================
+   2. TRẠNG THÁI BÀN (Logic màu sắc)
+   ========================================= */
+/* Trống (Available) */
+.table.status-trong {
+    border-color: #48BB78;
+    background: #F0FFF4;
+}
+
+/* Có khách (Occupied) */
+.table.status-cokhach {
+    border-color: #ECC94B;
+    background: #FFFFF0;
+    opacity: 0.9;
+}
+
+/* Giữ chỗ (Reserved) */
+.table.status-giucho {
+    border-color: #ED8936;
+    background: #FFFAF0;
+}
+
+/* =========================================
+   3. HIỆU ỨNG CHỌN (MULTI-SELECT)
+   ========================================= */
+.table.is-selected {
+    border-color: #3182CE !important;
+    /* Xanh dương đậm */
+    background-color: #EBF8FF !important;
+    /* Xanh dương nhạt */
+    box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.2);
+    /* Glow effect */
+    transform: translateY(-4px);
+}
+
+/* Dấu tick V ở góc */
+.table.is-selected::after {
+    content: '✓';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #3182CE;
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   4. TAG CẢNH BÁO (Visual Cue)
+   ========================================= */
+.warning-tag {
+    font-size: 0.75em;
+    background: #FED7D7;
+    color: #C53030;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: inline-block;
+    font-weight: 700;
+    border: 1px solid #FEB2B2;
+}
+
+/* =========================================
+   5. NỘI DUNG BÊN TRONG DRAWER (TIMELINE)
+   ========================================= */
+/* Timeline chỉ dùng trong Drawer của trang này nên để ở đây */
+.timeline-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Đường nối dọc (trang trí) */
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 85px;
+    top: 30px;
+    bottom: -20px;
+    width: 2px;
+    background: #eee;
+    z-index: 0;
+}
+
+.timeline-time {
+    min-width: 70px;
+    font-weight: 700;
+    color: #555;
+    text-align: right;
+    padding-top: 8px;
+}
+
+.timeline-content {
+    flex: 1;
+    background: #f7fafc;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+    z-index: 1;
+    /* Nổi lên trên đường kẻ dọc */
+}
+
+/* Màu sắc cho timeline content */
+.timeline-content strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #2d3748;
+}

@@ -1,0 +1,147 @@
+/* ===========================================================
+         === CSS CHO "TRANG CHỦ TỔNG QUAN" (MỚI) ===
+         ===========================================================
+        */
+
+/* Lưới thống kê */
+.stats-grid {
+    display: grid;
+    /* Tự động chia cột, mỗi cột tối thiểu 200px */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--container-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
+}
+
+.stat-icon {
+    font-size: 2.5em;
+    padding: 10px;
+    border-radius: 50%;
+    line-height: 1;
+    /* Căn icon cho chuẩn */
+}
+
+.stat-icon.pink {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.stat-icon.green {
+    background-color: #E6FFFA;
+    color: #38A169;
+}
+
+.stat-icon.yellow {
+    background-color: #FFFEEB;
+    color: #D69E2E;
+}
+
+.stat-icon.blue {
+    background-color: #EBF4FF;
+    color: #4299E1;
+}
+
+.stat-info .value {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.stat-info .label {
+    font-size: 0.9em;
+    color: var(--text-light);
+}
+
+/* Container nội dung chung */
+.content-box {
+    background: var(--container-bg);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+.content-box h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Các nút truy cập nhanh */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    /* Cho phép xuống dòng trên mobile */
+    gap: 15px;
+}
+
+.action-button {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.action-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Danh sách (ví dụ: đặt bàn) */
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item .name {
+    font-weight: 700;
+}
+
+.list-item .details {
+    font-size: 0.9em;
+    color: var(--text-light);
+}
+
+.list-item .status {
+    font-weight: 700;
+    font-size: 0.9em;
+    color: #38A169;
+    /* Màu xanh lá (đã xác nhận) */
+}

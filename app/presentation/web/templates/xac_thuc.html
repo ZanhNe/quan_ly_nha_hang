@@ -1,0 +1,85 @@
+{% extends "base_auth.html" %}
+
+{% block title %}
+Xác thực
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/xac_thuc.css')}}">
+{% endblock%}
+
+
+{% block content %}
+<div class="verify-card">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'success' %}
+    <div class="status-icon icon-success">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+    </div>
+
+    <h1>Xác thực thành công! <span style="font-size: 0.8em;">🎉</span></h1>
+    <p>
+        Chào mừng bạn gia nhập <strong>Sakura Restaurant</strong>.<br>
+        Tài khoản của bạn đã sẵn sàng sử dụng.
+    </p>
+
+    <a href="/login" class="btn btn-primary">
+        Đăng nhập ngay
+    </a>
+
+    {% elif category == 'exp_token' %}
+    <div class="status-icon icon-error">
+        <span style="font-family: monospace; font-weight: bold;">!</span>
+    </div>
+
+    <h1>Liên kết hết hạn</h1>
+    <p>
+        Ara ara... Có vẻ như liên kết xác thực này đã <strong>hết hạn</strong>.
+        <br>Vui lòng yêu cầu gửi lại email mới.
+    </p>
+
+    <form id="resendForm" action="/api/resend-verification" method="POST">
+        <input type="hidden" name="email" value="{{ email_param }}">
+
+        <button type="button" class="btn btn-primary" onclick="handleResend(this)">
+            <span>Gửi lại Email xác thực</span>
+            <div class="spinner"></div>
+        </button>
+    </form>
+
+    <a href="/login" class="btn btn-secondary" style="margin-top: 15px; border-radius: 50px;">
+        Quay về trang đăng nhập
+    </a>
+
+    {% else %}
+    <div class="status-icon icon-error">
+        <span style="font-family: monospace; font-weight: bold;">!</span>
+    </div>
+
+    <h1>Liên kết không hợp lệ</h1>
+    <p>
+        Ara ara... Có vẻ như liên kết xác thực này <strong>không hợp lệ</strong>.
+
+    </p>
+
+
+
+    <a href="/login" class="btn btn-secondary" style="margin-top: 15px; border-radius: 50px;">
+        Quay về trang đăng nhập
+    </a>
+
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+</div>
+
+{% endblock %}
