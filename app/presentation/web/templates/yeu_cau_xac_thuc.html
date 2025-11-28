@@ -1,0 +1,48 @@
+{% extends "base_auth.html" %}
+
+{% block title %}
+Chưa xác thực
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/yeu_cau_xac_thuc.css')}}">
+{% endblock%}
+
+{% block scripts %}
+<script defer src="{{url_for('static', filename='js/yeu_cau_xac_thuc.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="mail-icon-wrapper">
+        <div class="glow"></div>
+        <div class="envelope">📩</div>
+    </div>
+
+    <h1>Kiểm tra hộp thư nhé!</h1>
+
+    <p>
+        Chúng tôi đã gửi một liên kết xác thực đến địa chỉ:<br>
+
+    </p>
+
+    <p style="font-size: 0.9em;">
+        Vui lòng nhấn vào liên kết trong email để kích hoạt tài khoản.
+        Nếu không thấy, hãy kiểm tra cả mục <strong>Spam/Rác</strong> nhé.
+    </p>
+
+    <button id="btnResend" class="btn btn-resend">
+        <span>Gửi lại email xác thực</span>
+        <div class="spinner"></div>
+    </button>
+
+    <a href="/logout" class="btn btn-logout">
+        Đăng xuất / Nhập sai email?
+    </a>
+</div>
+
+<div id="toast" class="toast">✅ Đã gửi lại email thành công!</div>
+
+{% endblock %}

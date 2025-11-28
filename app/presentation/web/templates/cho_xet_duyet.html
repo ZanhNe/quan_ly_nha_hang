@@ -1,0 +1,43 @@
+{% extends "base_auth.html"%}
+
+{% block title %}Chờ xét duyệt - Sakura{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/cho_xet_duyet.css')}}">
+{% endblock%}
+
+{% block content %}
+<div class="card">
+    <div class="decor decor-1">🍵</div>
+    <div class="decor decor-2">✨</div>
+
+    <div class="icon-wrapper">
+        <div class="icon-emoji">⏳</div>
+    </div>
+
+    <h1>Chotto matte...! <br><span style="font-size: 0.6em; font-weight: 500; color: #777;">(Xin chờ một chút)</span>
+    </h1>
+
+    <p>
+        Xin chào <strong class="user-name">ZANH</strong>,<br>
+        Bạn đã đăng nhập thành công vào hệ thống.
+    </p>
+
+
+
+    <p>
+        Tuy nhiên, tài khoản của bạn cần được <strong>Quản lý (Admin)</strong> xét duyệt và phân quyền trước khi có thể
+        truy cập các chức năng.
+        <br>
+        <span style="font-size: 0.9em; color: #999;">Vui lòng liên hệ quản lý nhà hàng hoặc quay lại sau nhé.</span>
+    </p>
+
+    <a href="/logout" class="btn btn-logout">
+        Đăng xuất
+    </a>
+
+
+</div>
+
+{% endblock %}

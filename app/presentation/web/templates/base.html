@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Trang chủ{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    {% block styles%}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+    {% endblock %}
+
+    {% block scripts %}
+
+    {% endblock %}
+
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="logo">
+                <span>🌸</span> Sakura Restaurant
+            </a>
+        </div>
+
+        {% include 'components/sidebar.html' %}
+
+        <div class="sidebar-footer">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" style="color: var(--color-error);">
+                        <span class="icon">🚪</span> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        {% include "components/header.html"%}
+
+
+
+
+        {% block content required%}
+
+        {% endblock %}
+
+
+    </div>
+
+</body>
+
+</html>

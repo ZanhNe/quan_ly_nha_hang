@@ -1,0 +1,169 @@
+/* === CONTAINER CHÍNH === */
+.verify-card {
+    background: var(--container-bg);
+    width: 100%;
+    max-width: 480px;
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #FFF0F5;
+}
+
+/* Trang trí cánh hoa rơi (CSS Art) */
+.verify-card::before {
+    content: '🌸';
+    font-size: 2em;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    opacity: 0.2;
+    transform: rotate(15deg);
+}
+
+.verify-card::after {
+    content: '🌸';
+    font-size: 3em;
+    position: absolute;
+    bottom: -20px;
+    left: -10px;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+}
+
+/* === ICON TRẠNG THÁI (ANIMATED) === */
+.status-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 3em;
+}
+
+/* Success Icon Style */
+.icon-success {
+    background-color: #F0FFF4;
+    color: var(--success-color);
+    border: 3px solid #C6F6D5;
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Error Icon Style */
+.icon-error {
+    background-color: #FFF5F5;
+    color: var(--error-color);
+    border: 3px solid #FED7D7;
+    animation: shake 0.5s ease-in-out;
+}
+
+/* === TEXT CONTENT === */
+h1 {
+    font-size: 1.8em;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+}
+
+p {
+    color: var(--text-light);
+    font-size: 1em;
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+}
+
+/* === BUTTONS === */
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--text-light);
+    border: 2px solid #E2E8F0;
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: #FFF5F7;
+}
+
+/* === ANIMATIONS === */
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-10px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(10px);
+    }
+}
+
+/* Loading Spinner cho nút gửi lại */
+.spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

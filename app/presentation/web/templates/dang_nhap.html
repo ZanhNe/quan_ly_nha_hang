@@ -1,0 +1,35 @@
+{% extends "base_auth.html" %}
+
+{% block title%}Đăng nhập{% endblock %}
+
+{% block content%}
+<div class="login-container">
+    <header class="login-header">
+        <div class="logo">🌸</div>
+        <h1>Nhà hàng Sakura</h1>
+        <p>Đăng nhập hệ thống quản lý</p>
+    </header>
+
+    <main>
+        <form class="login-form" action="{{url_for('index.xu_ly_dang_nhap')}}" method="POST">
+            <div class="form-group">
+                <label for="username">Tên đăng nhập (hoặc Email)</label>
+                <input type="text" id="username" name="ten_tai_khoan" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="mat_khau" required>
+            </div>
+
+            <button type="submit" class="login-button">Đăng Nhập</button>
+        </form>
+    </main>
+
+    <footer>
+        <div class="extra-links">
+            <a href="{{url_for('index.trang_dang_ky')}}">Đăng ký</a>
+        </div>
+    </footer>
+</div>
+{% endblock %}

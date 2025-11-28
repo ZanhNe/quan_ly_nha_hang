@@ -1,0 +1,120 @@
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    /* Căn giữa toàn bộ nội dung */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* === KHUNG ĐĂNG NHẬP === */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    /* Giới hạn độ rộng cho form */
+    background: var(--container-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.login-header .logo {
+    font-size: 3em;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.login-header h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+}
+
+.login-header p {
+    font-size: 1em;
+    color: var(--text-light);
+    margin: 0 0 24px 0;
+}
+
+/* === FORM === */
+.login-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    /* Bo góc mềm mại */
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1em;
+    box-sizing: border-box;
+    /* Quan trọng để padding không làm vỡ layout */
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* === NÚT BẤM === */
+.login-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 1.1em;
+    font-weight: 700;
+    border-radius: 50px;
+    /* Bo tròn kiểu "pill" */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
+    width: 100%;
+    /* Full-width */
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.03);
+}
+
+/* === LINK PHỤ === */
+.extra-links {
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.extra-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.extra-links a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}

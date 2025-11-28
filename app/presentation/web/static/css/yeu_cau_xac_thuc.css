@@ -1,0 +1,206 @@
+:root {
+    --bg-color: #EBF8FF;
+    /* Xanh trời rất nhạt */
+    --container-bg: #FFFFFF;
+    --primary-blue: #4299E1;
+    /* Xanh dương chủ đạo */
+    --accent-blue: #90CDF4;
+    --text-color: #2C5282;
+    /* Xanh đen (cho chữ dễ đọc) */
+    --text-light: #718096;
+    --radius: 24px;
+    --shadow: 0 10px 30px rgba(66, 153, 225, 0.2);
+}
+
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Họa tiết máy bay giấy */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20 L30 10 L20 0 L10 10 Z' fill='%234299E1' fill-opacity='0.1'/%3E%3C/svg%3E");
+}
+
+.card {
+    background: var(--container-bg);
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    position: relative;
+    border: 2px solid white;
+}
+
+/* === ICON ENVELOPE (MAIL) === */
+.mail-icon-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.envelope {
+    font-size: 5em;
+    animation: float 3s ease-in-out infinite;
+    z-index: 2;
+}
+
+/* Hiệu ứng tỏa sáng phía sau */
+.glow {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    opacity: 0.3;
+    filter: blur(15px);
+    z-index: 1;
+    animation: pulse 2s infinite;
+}
+
+/* === CONTENT === */
+h1 {
+    color: var(--primary-blue);
+    font-size: 1.8em;
+    margin: 0 0 10px;
+    font-weight: 800;
+}
+
+p {
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.email-highlight {
+    background-color: #EBF8FF;
+    color: var(--primary-blue);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px dashed var(--primary-blue);
+    display: inline-block;
+    margin-top: 5px;
+}
+
+/* === ACTIONS === */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-resend {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
+    margin-bottom: 12px;
+}
+
+.btn-resend:hover:not(:disabled) {
+    background-color: #3182CE;
+    transform: translateY(-2px);
+}
+
+.btn-resend:disabled {
+    background-color: #CBD5E0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-logout {
+    background-color: white;
+    color: var(--text-light);
+    border: 2px solid #E2E8F0;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-logout:hover {
+    border-color: var(--text-color);
+    color: var(--text-color);
+}
+
+/* === SPINNER & ANIMATIONS === */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s linear infinite;
+    display: none;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.1;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Notification Toast (Thông báo nhỏ góc dưới) */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #48BB78;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
