@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo Tổng quan{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quan_ly_bao_cao.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script defer id="chart-data" type="application/json">
+    {{ chart_data | default('[]') | tojson }}
+</script>
+<script defer id="thong-ke-gio-data" type="application/json">
+    {{ thong_ke_gio | default('[]') | tojson }}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/quan_ly/bao_cao.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <!-- Header với filter -->
+    <div class="report-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <span class="title-icon">📊</span>
+                Báo cáo Tổng quan
+            </h1>
+            <p class="page-subtitle">Tổng hợp hoạt động kinh doanh</p>
+        </div>
+        <div class="header-right">
+            <div class="date-filter">
+                <div class="date-input-group">
+                    <label>Từ ngày</label>
+                    <input type="text" id="tu-ngay" class="date-picker" value="{{ tu_ngay }}">
+                </div>
+                <span class="date-separator">→</span>
+                <div class="date-input-group">
+                    <label>Đến ngày</label>
+                    <input type="text" id="den-ngay" class="date-picker" value="{{ den_ngay }}">
+                </div>
+                <button class="btn-filter" id="btn-filter">
+                    <span>🔍</span> Lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="{{ url_for('index.quan_ly_dashboard') }}" class="quick-link">
+            <span class="link-icon">📋</span>
+            <span>Xử lý Yêu cầu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_tong_quan') }}" class="quick-link active">
+            <span class="link-icon">📊</span>
+            <span>Tổng quan</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_doanh_thu') }}" class="quick-link">
+            <span class="link-icon">💰</span>
+            <span>Doanh thu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_nhan_vien') }}" class="quick-link">
+            <span class="link-icon">👥</span>
+            <span>Nhân viên</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_mon_an') }}" class="quick-link">
+            <span class="link-icon">🍽️</span>
+            <span>Món ăn</span>
+        </a>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+        <div class="stat-card stat-revenue">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ "{:,.0f}".format(thong_ke.thuc_thu) }} đ</div>
+                <div class="stat-label">Thực thu</div>
+            </div>
+        </div>
+        <div class="stat-card stat-orders">
+            <div class="stat-icon">🧾</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ thong_ke.tong_don }}</div>
+                <div class="stat-label">Đơn hoàn thành</div>
+            </div>
+        </div>
+        <div class="stat-card stat-customers">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ thong_ke.tong_khach }}</div>
+                <div class="stat-label">Lượt khách</div>
+            </div>
+        </div>
+        <div class="stat-card stat-pending">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ thong_ke.yeu_cau_cho }}</div>
+                <div class="stat-label">Yêu cầu chờ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <!-- Chart Doanh thu theo ngày -->
+        <div class="chart-container chart-main">
+            <div class="chart-header">
+                <h3 class="chart-title">📈 Doanh thu theo ngày</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart Theo giờ -->
+        <div class="chart-container chart-side">
+            <div class="chart-header">
+                <h3 class="chart-title">⏰ Phân bố theo giờ</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="hourlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+        <!-- Top món bán chạy -->
+        <div class="panel-container">
+            <div class="panel-header">
+                <h3 class="panel-title">🏆 Top món bán chạy</h3>
+            </div>
+            <div class="panel-body">
+                {% if top_mon %}
+                <div class="top-items-list">
+                    {% for mon in top_mon %}
+                    <div class="top-item">
+                        <div class="item-rank">{{ loop.index }}</div>
+                        <div class="item-info">
+                            <div class="item-name">{{ mon.ten }}</div>
+                            <div class="item-meta">
+                                <span class="item-qty">{{ mon.so_luong }} phần</span>
+                                <span class="item-revenue">{{ "{:,.0f}".format(mon.doanh_thu) }} đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-panel">
+                    <span>📭</span>
+                    <p>Chưa có dữ liệu món ăn</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Thống kê nhanh -->
+        <div class="panel-container">
+            <div class="panel-header">
+                <h3 class="panel-title">📋 Thống kê chi tiết</h3>
+            </div>
+            <div class="panel-body">
+                <div class="detail-stats">
+                    <div class="detail-row">
+                        <span class="detail-label">Tổng doanh thu:</span>
+                        <span class="detail-value">{{ "{:,.0f}".format(thong_ke.tong_doanh_thu) }} đ</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Giảm giá:</span>
+                        <span class="detail-value discount">-{{ "{:,.0f}".format(thong_ke.tong_giam_gia) }} đ</span>
+                    </div>
+                    <div class="detail-row total">
+                        <span class="detail-label">Thực thu:</span>
+                        <span class="detail-value">{{ "{:,.0f}".format(thong_ke.thuc_thu) }} đ</span>
+                    </div>
+                    <div class="detail-divider"></div>
+                    <div class="detail-row">
+                        <span class="detail-label">Trung bình/đơn:</span>
+                        <span class="detail-value">
+                            {% if thong_ke.tong_don > 0 %}
+                            {{ "{:,.0f}".format(thong_ke.thuc_thu / thong_ke.tong_don) }} đ
+                            {% else %}
+                            0 đ
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

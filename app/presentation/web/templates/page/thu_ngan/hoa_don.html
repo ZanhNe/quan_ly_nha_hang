@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% set phien_ban = doanh_thu.phien_ban%}
+
+{% block title %}Hóa đơn thanh toán - #{{ phien_ban.id }}{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hoa_don.css') }}" />
+{% endblock %} {% block content %}
+<div class="container">
+  <div class="bill-container" id="billContainer">
+    <!-- Hidden elements for JS to access data -->
+    <div id="phien-id" data-id="{{ doanh_thu.id }}" style="display: none"></div>
+    <div id="initial-status" data-status="{{ doanh_thu.trang_thai if doanh_thu else 'CHUAHOANTHANH' }}"
+      style="display: none"></div>
+
+    <!-- Loading Overlay (Mặc định ẩn, sẽ hiện nếu status chưa hoàn thành) -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none">
+      <div class="spinner"></div>
+      <h4 id="loadingText">Đang xử lý thanh toán...</h4>
+      <p class="text-muted">Vui lòng không tắt trình duyệt</p>
+    </div>
+
+    <!-- Bill Header -->
+    <div class="bill-header">
+      <h1 class="shop-name">🌸 Sakura Restaurant</h1>
+      <div class="bill-info">
+        <p>Địa chỉ: 123 Đường Hoa Anh Đào, TP.HCM</p>
+        <p>Hotline: 1900 1234</p>
+        <p>
+          Hóa đơn: #<span id="billId">{{ phien_ban.id }}</span>
+          <br />
+          Ngày:
+          <span id="billDate">{{ phien_ban.ngay_tao }}</span>
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Bill Items -->
+    <div class="bill-items">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%">Món</th>
+            <th style="width: 15%">SL</th>
+            <th style="width: 35%; text-align: right">Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody id="billItemsBody">
+          <!-- Jinja2 render lần đầu (Server-side rendering) -->
+          {% for phieu in phien_ban.ds_phieu_mon %} {% for mon in
+          phieu.ds_mon_ghi %}
+          <tr>
+            <td>
+              <div class="item-name">{{ mon.mo_ta_mon.ten }}</div>
+              {% if mon.ds_tuy_chon %}
+              <div class="item-options">
+                + {{ mon.ds_tuy_chon|map(attribute='ten')|join(', ') }}
+              </div>
+              {% endif %}
+            </td>
+            <td>{{ mon.so_luong }}</td>
+            <td style="text-align: right">
+              {{ "{:,.0f}".format(mon.mo_ta_mon.gia * mon.so_luong) }}
+            </td>
+          </tr>
+          {% endfor %} {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bill Summary -->
+    <div class="bill-summary">
+      <div class="summary-row">
+        <span>Tổng tiền hàng:</span>
+        <span id="subTotal">{{ "{:,.0f}".format(doanh_thu.tong_tien) }}</span>
+      </div>
+
+      <div class="summary-row text-success">
+        <span>Giảm giá:</span>
+        <span id="discountAmount">
+          - {{ "{:,.0f}".format(doanh_thu.tien_giam_gia if
+          doanh_thu else 0) }}
+        </span>
+      </div>
+
+      <div class="summary-row">
+        <span>VAT ({{ (doanh_thu.ti_le_thue * 100)|int if
+          doanh_thu else 0 }}%):</span>
+        <span id="taxAmount">
+          {{ "{:,.0f}".format(doanh_thu.tien_thue if
+          doanh_thu else 0) }}
+        </span>
+      </div>
+
+      <div class="summary-row total">
+        <span>TỔNG THANH TOÁN:</span>
+        <span id="finalTotal">
+          {{ "{:,.0f}".format(doanh_thu.tien_cuoi_cung if
+          doanh_thu else 0) }}
+        </span>
+      </div>
+
+      <div class="summary-row" style="margin-top: 10px; font-size: 0.9rem">
+        <span>Trạng thái:</span>
+        <span id="paymentStatus"
+          class="status-badge {{ 'status-success' if doanh_thu and doanh_thu.trang_thai == 'DAHOANTHANH' else 'status-pending' }}">
+          {{ 'ĐÃ THANH TOÁN' if doanh_thu and
+          doanh_thu.trang_thai == 'DAHOANTHANH' else 'CHỜ XỬ LÝ' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="bill-footer">
+      <p>Cảm ơn quý khách và hẹn gặp lại!</p>
+      <p>Wifi: Sakura_Guest - Pass: 12345678</p>
+    </div>
+  </div>
+
+  <div class="print-btn-container" id="actionButtons">
+    <button class="btn-print" onclick="window.print()">
+      <i class="fas fa-print"></i> In hóa đơn
+    </button>
+    <button class="btn-print" style="background-color: #7f8c8d; margin-left: 10px"
+      onclick="window.location.href='/thu-ngan/dashboard'">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </button>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/thu_ngan/hoa_don.js') }}"></script>
+{% endblock %}

@@ -1,16 +1,83 @@
 <header class="main-header">
+
     <div class="search-bar">
-        <span class="icon">🔍</span>
-        <input type="text" placeholder="Tìm kiếm...">
+        <i class="icon-search">🔍</i>
     </div>
+
     <div class="header-right">
-        <div class="notification-bell">🔔</div>
-        <div class="user-profile">
-            <img src="https://i.pravatar.cc/150?img=5" alt="User">
-            <div class="user-info">
-                <span class="name">Hanako Tanaka</span>
-                <span class="role">Lễ Tân</span>
+
+        <div class="notify-wrapper" id="notifyWrapper">
+            <div class="icon-btn">
+                🔔
+                {% if unread_count > 0 %}
+                <span class="badge-count" id="notifyCount">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+
+            <div class="dropdown-menu notify-dropdown" id="notifyDropdown">
+                <div class="dropdown-header">
+                    <strong>Thông báo</strong>
+                    <a href="#" class="mark-read-btn">Đánh dấu đã đọc</a>
+                </div>
+
+                <ul class="notify-list" id="notifyList">
+                    {% for tb in ds_thong_bao %}
+                    <li class="notify-item {{ 'unread' if not tb.da_doc else '' }}">
+                        <a href="{{ tb.link }}">
+                            <div class="notify-icon">
+                                {% if 'HOANTHANHPHIEU' in tb.phan_loai %} ✅ {% else %} 📢 {% endif %}
+                            </div>
+                            <div class="notify-content">
+                                <p class="notify-text">{{ tb.noi_dung }}</p>
+                                <span class="notify-time">{{ tb.ngay_tao }}</span>
+                            </div>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="empty-state">Không có thông báo mới</li>
+                    {% endfor %}
+                </ul>
+
+                {% if has_more %}
+                <div class="dropdown-footer">
+                    <button id="btnLoadMoreNotify" class="btn-load-more">
+                        Xem thêm tin cũ
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
+
+        <div class="user-wrapper" id="userWrapper">
+            <div class="user-trigger">
+                <img src="{{ 'https://www.shutterstock.com/image-vector/blank-avatar-photo-placeholder-flat-600nw-1151124605.jpg' }}"
+                    alt="Avatar">
+                <span class="user-name">{{ session.get('current_user')['ten'] }}</span>
+                <i class="arrow-down">▼</i>
+            </div>
+
+            <div class="dropdown-menu user-dropdown" id="userDropdown">
+                <div class="user-info-header">
+                    <p>Xin chào,</p>
+                    <strong>{{ session.get('current_user')['ten'] }}</strong>
+                    <small>{{ session.get('current_user')['vai_tro'] }}</small>
+                </div>
+                <ul class="user-menu-list">
+                    <li>
+                        <a href="/profile">
+                            👤 Chỉnh sửa hồ sơ
+                        </a>
+                    </li>
+
+                    <li class="divider"></li>
+                    <li>
+                        <a href="{{url_for('auth.dang_xuat')}}" class="text-danger">
+                            🚪 Đăng xuất
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </header>

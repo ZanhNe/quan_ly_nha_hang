@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Bếp - Phiếu #{{ phieu_mon.id }}{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/kds_style.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script id="ticket-raw" type="application/json">
+        {{ phieu_mon | default('{}') | tojson }}
+    </script>
+<script defer src="{{ url_for('static', filename='js/dau_bep/kds_logic.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/dau_bep/socket_manager.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="kds-container">
+    <div style="margin-bottom: 20px;">
+        <a href="{{url_for('index.danh_sach_phieu_gui_bep')}}"
+            style="text-decoration: none; color: var(--text-light); font-weight: 600;">
+            ← Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="kds-detail-layout">
+
+        <div class="kds-items-panel">
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-color); background: #FAFAFA;">
+                <h3 style="margin: 0;">Chi tiết món ăn</h3>
+            </div>
+
+            <div id="itemList">
+                {% for mon in phieu_mon.ds_mon_ghi %}
+                {% set is_finished = mon.trang_thai == 'HOANTHANH' or mon.trang_thai == 'HUY' %}
+
+                <div class="item-row {{ 'is-done' if is_finished else '' }}" id="item-{{ mon.id }}">
+
+                    <div class="dish-qty">{{ mon.so_luong }}</div>
+
+                    <div class="dish-info">
+                        <div class="dish-name">{{ mon.mo_ta_mon.ten }}</div>
+
+                        {% if mon.ds_tuy_chon %}
+                        <div class="dish-meta">
+                            {% for opt in mon.ds_tuy_chon %}
+                            <span class="topping-tag">+ {{ opt.ten }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if mon.ghi_chu %}
+                        <span class="note-text">📝 {{ mon.ghi_chu }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="dish-actions">
+                        {% if not is_finished %}
+                        <button class="kds-btn kds-btn-done" onclick="kds.updateStatus({{ mon.id }}, 'HOANTHANH')">
+                            ✅ Xong
+                        </button>
+                        <button class="kds-btn kds-btn-cancel" onclick="kds.updateStatus({{ mon.id }}, 'HUY')">
+                            ❌ Hủy
+                        </button>
+                        {% else %}
+                        <div style="text-align: center; font-weight: 700; color: var(--text-light); font-size: 0.9em;">
+                            {{ mon.trang_thai }}
+                        </div>
+
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="kds-summary-panel">
+            <div class="summary-status status-badge-{{ phieu_mon.trang_thai }}" id="ticketStatusBadge">
+                {{ phieu_mon.trang_thai }}
+            </div>
+
+            <div class="summary-row">
+                <span>Phiếu ID:</span>
+                <span>#{{ phieu_mon.id }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Bàn số:</span>
+                <strong>{{ phieu_mon.phien_ban_id }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Giờ vào:</span>
+                <span>{{ phieu_mon.ngay_tao}}</span>
+            </div>
+            <hr style="border: 0; border-top: 1px dashed #E2E8F0; margin: 15px 0;">
+
+            <div class="summary-row">
+                <span>Tổng món:</span>
+                <strong>{{ phieu_mon.ds_mon_ghi | length }}</strong>
+            </div>
+            <div class="summary-row highlight">
+                <span>Đã xong:</span>
+                <span id="doneCounter">0</span>
+            </div>
+
+            <div style="margin-top: 20px; text-align: center; color: var(--text-light); font-size: 0.85em;">
+                Hệ thống tự động cập nhật trạng thái phiếu khi tất cả món hoàn tất.
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

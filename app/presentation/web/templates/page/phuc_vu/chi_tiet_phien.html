@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết Phiên {{ phien_ban.id }}{% endblock %}
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phien.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer id="dsphieu-data-json" type="application/json">
+    {{ phien_ban.ds_phieu_mon | default('[]') | tojson }}
+</script>
+
+<script type="module" src="{{ url_for('static', filename='js/phuc_vu/tao_phieu_mon.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/phuc_vu/socket_manager.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<a href="{{url_for('index.danh_sach_phien')}}"
+    style="color: #718096; text-decoration: none; display: inline-block; margin-bottom: 15px;">
+    ← Quay lại danh sách
+</a>
+
+<div class="session-info-header">
+    <div>
+        <h1 style="margin:0; font-size: 1.5em; color: var(--primary-color);">{{ phien_ban.id }}</h1>
+        {% if phien_ban.nguoi_dam_nhan_id %}
+        <p style="margin: 5px 0 0; color: #718096;">Phục vụ đảm nhận: <strong>{{ phien_ban.nguoi_dam_nhan.ho_ten
+                }}</strong></p>
+        {% else %}
+        <p style="margin: 5px 0 0; color: #718096;"><strong>Chưa có phục vụ đảm nhận</strong></p>
+        {% endif %}
+    </div>
+    <div style="display: flex;">
+        <!-- <div class="stat-box">
+                <span class="stat-label">Số khách</span>
+                <span class="stat-value"></span>
+            </div> -->
+        <!-- <div class="stat-box">
+                <span class="stat-label">Tổng món</span>
+                <span class="stat-value"></span>
+            </div> -->
+        <!-- <div class="stat-box">
+                <span class="stat-label">Tạm tính</span>
+                <span class="stat-value">đ</span>
+            </div> -->
+    </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h3 style="margin:0;">Danh sách Phiếu Món</h3>
+
+    {% if phien_ban.nguoi_dam_nhan_id == session['current_user']['user_id'] %}
+    <form id="phieu-form" action="{{url_for('api.tao_phieu_mon', phien_ban_id=phien_ban.id)}}" method="POST">
+        <button type="submit" class="btn-confirm">➕ Tạo phiếu món mới</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="session-grid">
+    {% for phieu_mon in phien_ban.ds_phieu_mon %}
+    <a href="{{url_for('index.chi_tiet_phieu_mon', phien_ban_id=phieu_mon.phien_ban_id, phieu_mon_id=phieu_mon.id)}}"
+        class="session-card">
+        <div class="card-header">
+            <strong style="color: #2D3748;">Phiếu #{{ phieu_mon.id }}</strong>
+            {% if phieu_mon.trang_thai == 'DANGGHI' %}
+            <span class="badge badge-draft">Đang ghi món</span>
+            {% elif phieu_mon.trang_thai == 'DAGUI' %}
+            <span class="badge badge-sent">Đã gửi bếp</span>
+            {% elif phieu_mon.trang_thai == 'HOANTHANH' %}
+            <span class="badge badge-done">Hoàn thành</span>
+            {% endif %}
+        </div>
+        <p class="card-info">🕒 Tạo lúc: {{ phieu_mon.ngay_tao }}</p>
+        <!-- <p class="card-info">📦 Số lượng: món</p> -->
+        <div
+            style="margin-top: 15px; text-align: right; color: var(--primary-color); font-weight: 600; font-size: 0.9em;">
+            Xem / Sửa →
+        </div>
+    </a>
+    {% else %}
+    <p style="color: #A0AEC0; grid-column: 1/-1; text-align: center;">Chưa có phiếu món nào.</p>
+    {% endfor %}
+</div>
+
+{% if session['current_user']['vai_tro'] == 'THUNGAN' %}
+<div style="margin-top: 40px; text-align: center; border-top: 1px solid #E2E8F0; padding-top: 20px;">
+    <button class="btn-confirm" style="background: #48BB78;">💳 Thanh toán & Đóng bàn</button>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from flask_socketio import SocketIO
+from flask_admin import Admin
 
 
 
@@ -19,3 +20,5 @@ mail = Mail()
 
 bcrypt = Bcrypt()
 socketio = SocketIO(cors_allowed_origins='*')
+
+admin = Admin(name='Sakura Admin')

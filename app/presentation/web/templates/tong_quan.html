@@ -10,79 +10,62 @@ Tổng quan
 {% endblock%}
 
 {% block scripts %}
-
+{{super()}}
 {% endblock %}
 
+
+{% block content %}
 <main class="main-content">
+    <div class="overview-container">
 
-    {% block content %}
-    <h2 class="content-title">Chào mừng, Hanako! 🌸</h2>
+        <div class="hero-section">
+            <div class="hero-bg-decor"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">Chào mừng đến với <span>Sakura RMS</span></h1>
+                <p class="hero-desc">
+                    Hệ thống quản lý nhà hàng phong cách Nhật Bản tinh gọn, hiện đại và hiệu quả.
+                    <br>
+                    Chúc <strong>{{ session.get('current_user')['ten'] }}</strong> một ngày làm việc tuyệt vời!
+                </p>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-icon pink">🍽️</span>
-            <div class="stat-info">
-                <span class="value">12 / 20</span>
-                <span class="label">Bàn đang phục vụ</span>
             </div>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon green">🧑‍🤝‍🧑</span>
-            <div class="stat-info">
-                <span class="value">45</span>
-                <span class="label">Khách trong nhà hàng</span>
+
+        <div class="modules-grid">
+
+            <div class="module-card">
+                <div class="module-icon">🏮</div>
+                <h3 class="module-title">Sảnh & Bàn Ăn</h3>
+                <p class="module-text">
+                    Quản lý sơ đồ bàn trực quan theo thời gian thực.
+                    Hỗ trợ nhân viên phục vụ ghi order (POS) nhanh chóng ngay tại bàn.
+                </p>
             </div>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon blue">📅</span>
-            <div class="stat-info">
-                <span class="value">8</span>
-                <span class="label">Đặt bàn hôm nay</span>
+
+            <div class="module-card">
+                <div class="module-icon">🍱</div>
+                <h3 class="module-title">Khu Vực Bếp (KDS)</h3>
+                <p class="module-text">
+                    Hệ thống hiển thị món ăn thông minh (KDS).
+                    Giúp đầu bếp nhận đơn, cập nhật trạng thái chế biến và trả món chính xác.
+                </p>
             </div>
-        </div>
-        <div class="stat-card">
-            <span class="stat-icon yellow">💰</span>
-            <div class="stat-info">
-                <span class="value">12.5M</span>
-                <span class="label">Doanh thu (ước tính)</span>
+
+            <div class="module-card">
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">Quản Trị & Báo Cáo</h3>
+                <p class="module-text">
+                    Theo dõi doanh thu, hiệu suất nhân viên và quản lý thực đơn.
+                    Cung cấp cái nhìn toàn cảnh về hoạt động kinh doanh.
+                </p>
             </div>
+
         </div>
+
+        <div class="overview-footer">
+            "Omotenashi - Phục vụ khách hàng bằng cả trái tim."
+        </div>
+
     </div>
-
-    <div class="content-box">
-        <h3>Truy cập nhanh</h3>
-        <div class="quick-actions">
-            <a href="#" class="action-button">🗺️ Đánh dấu bàn (UC-01)</a>
-            <a href="#" class="action-button">📅 Thêm Đặt Bàn Mới</a>
-            <a href="#" class="action-button">🧾 Tạo Order Mới</a>
-        </div>
-    </div>
-
-    <div class="content-box">
-        <h3>Đặt bàn sắp tới (Hôm nay)</h3>
-        <div class="item-list">
-            <div class="list-item">
-                <div class="info">
-                    <span class="name">Anh Kenji Watanabe</span>
-                    <span class="details">19:00 - 4 người - Bàn T1 (Tatami)</span>
-                </div>
-                <span class="status">Đã xác nhận</span>
-            </div>
-            <div class="list-item">
-                <div class="info">
-                    <span class="name">Chị Emi Sato</span>
-                    <span class="details">19:30 - 2 người - Bàn B2</span>
-                </div>
-                <span class="status">Đã xác nhận</span>
-            </div>
-            <div class="list-item">
-                <div class="info">
-                    <span class="name">Công ty ABC</span>
-                    <span class="details">20:00 - 8 người - Bàn T4 + T3</span>
-                </div>
-                <span class="status" style="color: #D69E2E;">Chờ xác nhận</span>
-            </div>
-        </div>
-    </div>
-    {% endblock %}
 </main>
+{% endblock %}

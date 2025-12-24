@@ -1,0 +1,678 @@
+/* =========================================
+   Quản Lý Dashboard Styles
+   Theme: Sakura Restaurant - Japanese Aesthetic
+   ========================================= */
+
+/* === LAYOUT & HEADER === */
+.main-content {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #FFF5F7 0%, #FFF 100%);
+    padding: 28px 32px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 105, 180, 0.15);
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.manager-header::before {
+    content: '🌸';
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 80px;
+    opacity: 0.08;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #2D3748;
+    margin: 0 0 8px 0;
+}
+
+.title-icon {
+    font-size: 1.2em;
+}
+
+.page-subtitle {
+    color: #718096;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 14px 24px;
+    border-radius: 50px;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15);
+}
+
+.stat-icon {
+    font-size: 1.3em;
+}
+
+.stat-text {
+    color: #4A5568;
+    font-size: 0.95em;
+}
+
+.stat-text strong {
+    color: var(--primary-color);
+    font-size: 1.2em;
+}
+
+/* === NAVIGATION TABS === */
+.nav-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    background: white;
+    padding: 8px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+}
+
+.tab-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tab-icon {
+    font-size: 1.2em;
+}
+
+.tab-badge {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+.tab-btn:not(.active) .tab-badge {
+    background: #EDF2F7;
+    color: #4A5568;
+}
+
+.tab-badge.coming-soon {
+    background: #FED7AA;
+    color: #C05621;
+    font-size: 0.7em;
+}
+
+/* === TAB CONTENT === */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === REQUEST GRID === */
+.request-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+}
+
+/* === REQUEST CARD === */
+.request-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.request-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+}
+
+.request-card.processing {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.request-card.approved {
+    border-color: var(--color-success);
+    background: linear-gradient(to right, rgba(72, 187, 120, 0.05), white);
+}
+
+.request-card.rejected {
+    border-color: var(--color-error);
+    background: linear-gradient(to right, rgba(229, 62, 62, 0.05), white);
+}
+
+/* Card Header */
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #FAFAFA 0%, #F7FAFC 100%);
+    border-bottom: 1px solid #EDF2F7;
+}
+
+.request-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.type-icon {
+    font-size: 1.4em;
+}
+
+.type-label {
+    font-weight: 600;
+    color: #4A5568;
+    font-size: 0.9em;
+}
+
+.request-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-pending {
+    background: #FEFCE8;
+    color: #A16207;
+}
+
+.status-pending .status-dot {
+    background: #EAB308;
+}
+
+.status-approved {
+    background: #F0FDF4;
+    color: #166534;
+}
+
+.status-approved .status-dot {
+    background: #22C55E;
+    animation: none;
+}
+
+.status-rejected {
+    background: #FEF2F2;
+    color: #991B1B;
+}
+
+.status-rejected .status-dot {
+    background: #EF4444;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Card Body */
+.request-body {
+    padding: 20px;
+    flex: 1;
+}
+
+.request-id {
+    font-size: 0.8em;
+    color: #A0AEC0;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.request-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    background: #F7FAFC;
+    border-radius: 10px;
+}
+
+.detail-label {
+    color: #718096;
+    font-size: 0.85em;
+}
+
+.detail-value {
+    font-weight: 700;
+    color: #2D3748;
+}
+
+.request-reason {
+    margin-bottom: 16px;
+}
+
+.reason-label {
+    display: block;
+    font-size: 0.8em;
+    color: #718096;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reason-text {
+    margin: 0;
+    padding: 14px;
+    background: linear-gradient(135deg, #FFF5F7 0%, #FEFCE8 100%);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    color: #2D3748;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.request-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85em;
+    color: #718096;
+}
+
+.meta-icon {
+    font-size: 1em;
+}
+
+/* Card Actions */
+.request-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px;
+    background: #FAFAFA;
+    border-top: 1px solid #EDF2F7;
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-approve {
+    background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
+    color: white;
+}
+
+.btn-approve:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+.btn-reject {
+    background: white;
+    color: #E53E3E;
+    border: 2px solid #FEB2B2;
+}
+
+.btn-reject:hover {
+    background: #FEF2F2;
+    border-color: #E53E3E;
+}
+
+.btn-icon {
+    font-size: 1.1em;
+}
+
+/* === EMPTY STATE === */
+.empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: white;
+    border-radius: 20px;
+    border: 2px dashed #E2E8F0;
+}
+
+.empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.empty-title {
+    font-size: 1.4em;
+    color: #2D3748;
+    margin: 0 0 12px 0;
+}
+
+.empty-text {
+    color: #718096;
+    margin: 0;
+    font-size: 1em;
+}
+
+/* === COMING SOON STATE === */
+.coming-soon-state {
+    text-align: center;
+    padding: 60px 40px;
+    background: linear-gradient(135deg, #FFF 0%, #F7FAFC 100%);
+    border-radius: 20px;
+    border: 1px solid #E2E8F0;
+}
+
+.coming-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.coming-title {
+    font-size: 1.4em;
+    color: #2D3748;
+    margin: 0 0 12px 0;
+}
+
+.coming-text {
+    color: #718096;
+    margin: 0 0 32px 0;
+    font-size: 1em;
+}
+
+.coming-features {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.feature-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.feature-icon {
+    font-size: 1.4em;
+}
+
+.feature-name {
+    font-weight: 600;
+    color: #4A5568;
+}
+
+/* === MODAL === */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 480px;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-overlay.show .modal-container {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #FFF5F7 0%, #FFF 100%);
+    border-bottom: 1px solid #EDF2F7;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.2em;
+    color: #2D3748;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    color: #A0AEC0;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #E53E3E;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-message {
+    margin: 0 0 16px 0;
+    color: #4A5568;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+.modal-details {
+    background: #F7FAFC;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    color: #718096;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    background: #FAFAFA;
+    border-top: 1px solid #EDF2F7;
+}
+
+.btn-modal {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background: #EDF2F7;
+    color: #4A5568;
+}
+
+.btn-cancel:hover {
+    background: #E2E8F0;
+}
+
+.btn-confirm {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: var(--primary-hover);
+    transform: scale(1.02);
+}
+
+.btn-confirm.approve {
+    background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
+}
+
+.btn-confirm.reject {
+    background: linear-gradient(135deg, #E53E3E 0%, #C53030 100%);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .manager-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .manager-header::before {
+        display: none;
+    }
+
+    .nav-tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        justify-content: center;
+    }
+
+    .request-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .coming-features {
+        flex-direction: column;
+    }
+}
+
+/* === LOADING SPINNER === */
+.btn-action.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn-action.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.btn-approve.loading::after {
+    border-top-color: white;
+}
+
+.btn-reject.loading::after {
+    border-top-color: #E53E3E;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+

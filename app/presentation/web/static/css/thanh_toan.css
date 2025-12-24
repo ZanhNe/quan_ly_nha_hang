@@ -1,0 +1,196 @@
+  /* Layout chính: Chia 2 cột (70% Bill Detail - 30% Actions) */
+  .checkout-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      height: calc(100vh - 80px);
+      background: #f4f6f9;
+  }
+
+  /* === CỘT TRÁI: CHI TIẾT CÁC PHIẾU MÓN === */
+  .bill-detail-area {
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid #dcdcdc;
+  }
+
+  .phieu-mon-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+  }
+
+  .phieu-header {
+      background: #e9ecef;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      color: #495057;
+      border-bottom: 1px solid #dee2e6;
+  }
+
+  .phieu-status {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #adb5bd;
+      color: white;
+  }
+
+  .phieu-status.dagui {
+      background: #17a2b8;
+  }
+
+  .phieu-status.hoanthanh {
+      background: #28a745;
+  }
+
+  .table-items {
+      width: 100%;
+      border-collapse: collapse;
+  }
+
+  .table-items th,
+  .table-items td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+  }
+
+  .table-items th {
+      background: #f8f9fa;
+      color: #6c757d;
+      font-weight: 600;
+      font-size: 0.9rem;
+  }
+
+  .item-options {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 4px;
+      font-style: italic;
+  }
+
+  .item-note {
+      font-size: 0.8rem;
+      color: #e67e22;
+      background: #fff3cd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 4px;
+  }
+
+  /* === CỘT PHẢI: CHỨC NĂNG & THANH TOÁN === */
+  .action-area {
+      background: white;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .session-info {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 2px dashed #eee;
+  }
+
+  .session-info h2 {
+      margin: 0;
+      color: #2c3e50;
+  }
+
+  .session-info p {
+      margin: 5px 0 0;
+      color: #7f8c8d;
+  }
+
+  /* Bảng tổng hợp tiền */
+  .summary-table {
+      width: 100%;
+      margin-bottom: 20px;
+      font-size: 1rem;
+  }
+
+  .summary-table td {
+      padding: 8px 0;
+  }
+
+  .summary-table .amount {
+      text-align: right;
+      font-weight: 600;
+  }
+
+  .summary-table .total-row td {
+      border-top: 2px solid #333;
+      padding-top: 15px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #e74c3c;
+  }
+
+  .discount-row {
+      color: #27ae60;
+  }
+
+  /* Các nút chức năng chính */
+  .btn-group-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: auto;
+      /* Đẩy xuống đáy */
+  }
+
+  .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-decoration: none;
+  }
+
+  .btn-action:active {
+      transform: scale(0.98);
+  }
+
+  .btn-action i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+  }
+
+  .btn-provisional {
+      background: #95a5a6;
+      color: white;
+  }
+
+  /* Tạm tính */
+  .btn-promo {
+      background: #f39c12;
+      color: white;
+  }
+
+  /* Khuyến mãi */
+  .btn-pay {
+      background: #2ecc71;
+      color: white;
+      font-size: 1.3rem;
+  }
+
+  /* Thanh toán */
+
+  /* Modal Styles (cho phần Khuyến mãi/Thanh toán nếu cần popup) */
+  .payment-method-select {
+      margin-top: 10px;
+  }

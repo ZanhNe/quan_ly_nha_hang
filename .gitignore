@@ -6,3 +6,7 @@ migrations/
 
 .env
 note.txt
+
+tests/
+
+stripe.exe

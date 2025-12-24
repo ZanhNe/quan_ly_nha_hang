@@ -1,4 +1,4 @@
-{% extends "base_auth.html" %}
+{% extends "page/xac_thuc/base_auth.html" %}
 
 {% block title %}
 Xác thực
@@ -30,7 +30,7 @@ Xác thực
         Tài khoản của bạn đã sẵn sàng sử dụng.
     </p>
 
-    <a href="/login" class="btn btn-primary">
+    <a href="{{url_for('auth.trang_dang_nhap')}}" class="btn btn-primary">
         Đăng nhập ngay
     </a>
 
@@ -45,7 +45,7 @@ Xác thực
         <br>Vui lòng yêu cầu gửi lại email mới.
     </p>
 
-    <form id="resendForm" action="/api/resend-verification" method="POST">
+    <form id="resendForm" action="{{url_for('api.gui_lai_xac_thuc_email')}}" method="POST">
         <input type="hidden" name="email" value="{{ email_param }}">
 
         <button type="button" class="btn btn-primary" onclick="handleResend(this)">
@@ -54,7 +54,8 @@ Xác thực
         </button>
     </form>
 
-    <a href="/login" class="btn btn-secondary" style="margin-top: 15px; border-radius: 50px;">
+    <a href="{{url_for('auth.trang_dang_nhap')}}" class="btn btn-secondary"
+        style="margin-top: 15px; border-radius: 50px;">
         Quay về trang đăng nhập
     </a>
 
@@ -71,7 +72,8 @@ Xác thực
 
 
 
-    <a href="/login" class="btn btn-secondary" style="margin-top: 15px; border-radius: 50px;">
+    <a href="{{url_for('auth.trang_dang_nhap')}}" class="btn btn-secondary"
+        style="margin-top: 15px; border-radius: 50px;">
         Quay về trang đăng nhập
     </a>
 

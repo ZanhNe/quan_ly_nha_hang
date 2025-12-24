@@ -1,0 +1,417 @@
+/* =========================================
+   KITCHEN DISPLAY SYSTEM (KDS) STYLES
+   Kế thừa từ base.css
+   ========================================= */
+
+:root {
+    /* Màu trạng thái bếp (Đậm hơn để dễ nhìn) */
+    --kds-new: #ED8936;
+    /* Cam: Mới/Đang chờ */
+    --kds-cooking: #4299E1;
+    /* Xanh dương: Đang nấu */
+    --kds-done: #48BB78;
+    /* Xanh lá: Xong */
+    --kds-cancel: #F56565;
+    /* Đỏ: Hủy */
+
+    /* Màu nền riêng cho KDS items */
+    --item-bg: #FFFFFF;
+    --item-hover: #FFF5F7;
+    /* Hồng rất nhạt khi hover */
+}
+
+/* Wrapper riêng để không ảnh hưởng layout chính */
+.kds-container {
+    padding-bottom: 40px;
+}
+
+/* Header vùng bếp */
+.kds-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.kds-title {
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--text-color);
+    font-weight: 800;
+}
+
+.kds-subtitle {
+    color: var(--text-light);
+    margin: 5px 0 0;
+}
+
+/* =========================================
+   TRANG 1: DANH SÁCH PHIẾU (GRID VIEW)
+   ========================================= */
+
+/* === SHARED: SESSION/TICKET CARD === */
+.session-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.session-card {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    transition: var(--transition);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    /* Cho thẻ <a> */
+}
+
+.session-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #2D3748;
+}
+
+.card-info {
+    font-size: 0.9em;
+    color: #718096;
+    margin-bottom: 6px;
+}
+
+/* === BADGES (TRẠNG THÁI) === */
+.badge {
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 0.75em;
+    font-weight: 700;
+}
+
+.badge-open {
+    background: #FEFCBF;
+    color: #744210;
+}
+
+/* Phiên mở */
+.badge-draft {
+    background: #EDF2F7;
+    color: #4A5568;
+}
+
+/* Phiếu nháp */
+.badge-sent {
+    background: #EBF8FF;
+    color: #3182CE;
+}
+
+/* Đã gửi bếp */
+.badge-done {
+    background: #F0FFF4;
+    color: #38A169;
+}
+
+/* Hoàn thành */
+
+
+
+
+
+
+.card-top {
+    padding: 15px 20px;
+    background: #FAFAFA;
+    border-bottom: 1px dashed var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ticket-id {
+    font-weight: 800;
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.ticket-time {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-light);
+    background: #EDF2F7;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.card-body {
+    padding: 20px;
+    flex: 1;
+}
+
+.table-name {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.item-count {
+    color: var(--text-light);
+    font-size: 0.9em;
+}
+
+.card-footer {
+    padding: 12px 20px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ticket-card.status-Pending .card-footer {
+    color: var(--kds-new);
+    background: #FFFAF0;
+}
+
+.ticket-card.status-Cooking .card-footer {
+    color: var(--kds-cooking);
+    background: #EBF8FF;
+}
+
+.ticket-card.status-Done .card-footer {
+    color: var(--kds-done);
+    background: #F0FFF4;
+}
+
+
+/* =========================================
+   TRANG 2: CHI TIẾT PHIẾU (DETAIL VIEW)
+   ========================================= */
+.kds-detail-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* Cột Trái: Danh sách món */
+.kds-items-panel {
+    flex: 3;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.item-row {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    align-items: flex-start;
+    gap: 15px;
+    transition: background 0.2s;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.item-row:hover {
+    background: #FAFAFA;
+}
+
+/* Trạng thái món đã xong */
+.item-row.is-done {
+    background: #F0FFF4;
+    opacity: 0.7;
+}
+
+.item-row.is-done .dish-name {
+    text-decoration: line-through;
+    color: #718096;
+}
+
+.item-row.is-done .dish-qty {
+    color: var(--kds-done);
+    /* Số lượng chuyển xanh */
+}
+
+/* Chi tiết từng dòng món */
+.dish-qty {
+    font-size: 1.5em;
+    font-weight: 800;
+    color: var(--primary-color);
+    min-width: 40px;
+    text-align: center;
+    line-height: 1;
+}
+
+.dish-info {
+    flex: 1;
+}
+
+.dish-name {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.dish-meta {
+    font-size: 0.95em;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+.topping-tag {
+    display: inline-block;
+    background: #EDF2F7;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    margin-right: 5px;
+    color: #4A5568;
+    font-weight: 500;
+}
+
+.note-text {
+    display: block;
+    margin-top: 6px;
+    color: #D69E2E;
+    /* Vàng đậm cho ghi chú */
+    font-weight: 600;
+    font-style: italic;
+    background: #FFFFF0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border-left: 3px solid #D69E2E;
+}
+
+/* Nút hành động trong dòng */
+.dish-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 110px;
+}
+
+.kds-btn {
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.kds-btn-done {
+    background: white;
+    border: 2px solid var(--kds-done);
+    color: var(--kds-done);
+}
+
+.kds-btn-done:hover {
+    background: var(--kds-done);
+    color: white;
+}
+
+.kds-btn-cancel {
+    background: white;
+    border: 2px solid var(--kds-cancel);
+    color: var(--kds-cancel);
+}
+
+.kds-btn-cancel:hover {
+    background: var(--kds-cancel);
+    color: white;
+}
+
+.kds-btn-undo {
+    background: #EDF2F7;
+    color: var(--text-light);
+}
+
+.kds-btn-undo:hover {
+    background: #E2E8F0;
+}
+
+
+/* Cột Phải: Tổng quan phiếu */
+.kds-summary-panel {
+    flex: 1;
+    background: white;
+    border-radius: 16px;
+    border: 2px solid var(--primary-color);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.summary-status {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.status-badge-Pending {
+    background: var(--kds-new);
+    color: white;
+}
+
+.status-badge-Cooking {
+    background: var(--kds-cooking);
+    color: white;
+}
+
+.status-badge-Done {
+    background: var(--kds-done);
+    color: white;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-weight: 500;
+}
+
+.summary-row.highlight {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary-color);
+    border-bottom: none;
+    margin-top: 10px;
+}

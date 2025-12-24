@@ -8,43 +8,69 @@
 
   <ul class="nav-menu">
     <li class="nav-item">
-      <a href="#" class="nav-link">
-        <span class="icon">🏠</span> Tổng quan (Dashboard)
-      </a>
+      <a href="/" class="nav-link"> <span class="icon">🏠</span> Trang chủ </a>
     </li>
+    {% if session.get('current_user')['vai_tro'] == 'LETAN'%}
     <li class="nav-item">
-      <a href="{{url_for('index.so_do_ban')}}" class="nav-link active">
-        <span class="icon">🗺️</span> Sơ Đồ Bàn
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link">
-        <span class="icon">📅</span> Quản lý Đặt Bàn
+      <a href="{{url_for('index.so_do_ban')}}" class="nav-link">
+        <span class="icon">🗺️</span> Sơ Đồ Bàn (Lễ tân)
       </a>
     </li>
     <li class="nav-item">
       <a href="#" class="nav-link">
-        <span class="icon">🧾</span> Quản lý Order
+        <span class="icon">📅</span> Quản lý Đặt Bàn (Lễ tân)
+      </a>
+    </li>
+    {% elif session.get('current_user')['vai_tro'] == 'PHUCVU' %}
+    <li class="nav-item">
+      <a href="{{url_for('index.danh_sach_phien')}}" class="nav-link">
+        <span class="icon">🧾</span> Phiên bàn (Phục vụ)
+      </a>
+    </li>
+    {% elif session.get('current_user')['vai_tro'] == 'DAUBEP' %}
+    <li class="nav-item">
+      <a href="{{url_for('index.danh_sach_phieu_gui_bep')}}" class="nav-link">
+        <span class="icon">🧾</span> Danh sách phiếu món (Đầu bếp)
+      </a>
+    </li>
+    {% elif session.get('current_user')['vai_tro'] == 'THUNGAN' %}
+    <li class="nav-item">
+      <a href="{{url_for('index.phien_thanh_toan')}}" class="nav-link">
+        <span class="icon">💳</span> Thanh Toán (Thu ngân)
+      </a>
+    </li>
+    {% elif session.get('current_user')['vai_tro'] == 'QUANLY' %}
+    <li class="nav-item">
+      <a href="{{url_for('index.quan_ly_dashboard')}}" class="nav-link">
+        <span class="icon">📋</span> Xử lý Yêu cầu
       </a>
     </li>
     <li class="nav-item">
-      <a href="#" class="nav-link"> <span class="icon">💳</span> Thanh Toán </a>
+      <a href="{{url_for('index.bao_cao_tong_quan')}}" class="nav-link">
+        <span class="icon">📊</span> Báo cáo Tổng quan
+      </a>
     </li>
     <li class="nav-item">
-      <a href="#" class="nav-link"> <span class="icon">🧑</span> Khách hàng </a>
+      <a href="{{url_for('index.bao_cao_doanh_thu')}}" class="nav-link">
+        <span class="icon">💰</span> Báo cáo Doanh thu
+      </a>
     </li>
+    <li class="nav-item">
+      <a href="{{url_for('index.bao_cao_nhan_vien')}}" class="nav-link">
+        <span class="icon">👥</span> Hiệu suất Nhân viên
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{{url_for('index.bao_cao_mon_an')}}" class="nav-link">
+        <span class="icon">🍽️</span> Thống kê Món ăn
+      </a>
+    </li>
+    {% elif session.get('current_user')['vai_tro'] == 'ADMIN' %}
+    <li class="nav-item">
+      <a href="/admin" class="nav-link" target="_blank">
+        <span class="icon">⚙️</span> Quản Trị Hệ Thống
+      </a>
+    </li>
+    {% endif %}
   </ul>
-
-  <div class="sidebar-footer">
-    <ul class="nav-menu">
-      <li class="nav-item">
-        <a href="#" class="nav-link"> <span class="icon">⚙️</span> Cài đặt </a>
-      </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link" style="color: #e53e3e">
-          <span class="icon">🚪</span> Đăng xuất
-        </a>
-      </li>
-    </ul>
-  </div>
 </aside>

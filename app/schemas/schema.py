@@ -4,7 +4,9 @@ from marshmallow import fields, validate, validates, ValidationError
 from app.data.models import (
     TaiKhoan, VaiTro, NguoiDung, PhucVu, LeTan, 
     KhuVuc, Ban, KhungGio, PhienBan, PhanCong,
-    TrangThaiTaiKhoan, TrangThaiBan, TrangThai, TenVaiTro, KhungGioAn, KhungGioDatBan
+    TrangThaiTaiKhoan, TrangThaiBan, TrangThai, TenVaiTro, KhungGioAn, KhungGioDatBan, 
+    PhieuMon, MonGhi, TuyChonMon, NhomTuyChon, MoTaMon, ThucDon, NhomMon, TrangThaiMonGhi, ThongBao,
+    ThuNgan, DoanhThu, KhuyenMaiTheoPhanTram, KhuyenMaiCung, KhuyenMai, ThanhToan, YeuCau, YCPhieuMon, YCMonGhi
 )
 from app.extentions.extentions import ma
 from datetime import datetime
@@ -31,6 +33,54 @@ class BaseOutSchemaMeta:
     unknown = "RAISE"
     load_instance = True
 
+
+class ThongBaoOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Thông Báo.
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = ThongBao
+    nguoi_nhan_id = auto_field()
+    tieu_de = auto_field()
+    noi_dung = auto_field()
+    da_doc = auto_field()
+    phan_loai = auto_field()
+    link = auto_field()
+
+class YeuCauCreateSchema(BaseInSchema):
+    """
+    DTO nhận vào để tạo Yêu cầu.
+    """
+    ly_do = fields.Str(
+        required=True,
+        error_messages={
+            "required": "Phải có lý do",
+        }
+    )
+    
+
+
+
+class YeuCauOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Yêu Cầu.
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = YeuCau
+    id = auto_field()
+    trang_thai = auto_field()
+    ly_do = auto_field()
+    ngay_tao = auto_field()
+    ngay_sua_doi = auto_field()
+
+class YeuCauMonGhiOutSchema(YeuCauOutSchema):
+    """
+    DTO trả về cho Yêu Cầu Món Ghi.
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = YCMonGhi
+    
+    mon_ghi_id = auto_field()
 
 # ============================== Schema cho Vai Trò ==========================================
 
@@ -273,6 +323,98 @@ class LeTanOutSchema(NguoiDungOutSchema):
     class Meta(NguoiDungOutSchema.Meta):
         model = LeTan
 
+
+# ============================== Schema cho Đầu Bếp ==========================================
+
+class ThuNganOutSchema(NguoiDungOutSchema):
+    """
+    DTO trả về cho Thu ngân.
+    """
+    class Meta(NguoiDungOutSchema.Meta):
+        model = ThuNgan
+
+    # Nested relationships
+    ds_doanh_thu = fields.List(fields.Nested('DoanhThuLessOutSchema'), dump_only=True)
+
+class DoanhThuOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Doanh thu.
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = DoanhThu
+
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    tong_tien = auto_field()
+    tien_giam_gia = auto_field()
+    tien_cuoi_cung = auto_field()
+    ten_thue = auto_field()
+    ti_le_thue = auto_field()
+    tien_thue = auto_field()
+
+    trang_thai = auto_field()
+    phien_ban_id = auto_field()
+    thu_ngan_id = auto_field()
+
+    phien_ban = fields.Nested('PhienBanOutSchema', exclude=('doanh_thu',), dump_only=True)
+    ds_thanh_toan = fields.List(fields.Nested('ThanhToanOutSchema'), dump_only=True)
+    
+class ThanhToanOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Thanh toán.
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = ThanhToan
+
+    so_tien = auto_field()
+    phuong_thuc = auto_field()
+    trang_thai = auto_field()
+
+
+class DoanhThuLessOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Doanh thu nhưng chỉ gồm các thông tin cơ bản (cho xem sơ qua)
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = DoanhThu
+    
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    tong_tien = auto_field()
+    trang_thai = auto_field()
+    phien_ban_id = auto_field()
+
+
+class KhuyenMaiInSchema(SQLAlchemyAutoSchema):
+    """
+    DTO nhận vào để lấy thông tin
+    """
+    ids = fields.List(fields.Int(required=True, validate=validate.Range(min=1)))
+
+
+class KhuyenMaiOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Doanh thu nhưng chỉ gồm các thông tin cơ bản (cho xem sơ qua)
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = KhuyenMai
+    id = auto_field(dump_only=True)
+    ten = auto_field(dump_only=True)
+    mo_ta = auto_field(dump_only=True)
+    hoat_dong = auto_field(dump_only=True)
+
+    gia_tri_don_hang_toi_thieu = auto_field(dump_only=True)
+    gioi_han = auto_field(dump_only=True)
+
+    ngay_bat_dau = auto_field(dump_only=True)
+    ngay_het_han = auto_field(dump_only=True)
+    tu_dong_ap_dung = auto_field(dump_only=True)
+    thu_tu_uu_tien = auto_field(dump_only=True)
+
+
+    
 
 
 # ============================== Schema cho Khu Vực ==========================================
@@ -549,11 +691,36 @@ class PhienBanOutSchema(SQLAlchemyAutoSchema):
     ngay_sua_doi = auto_field(dump_only=True)
     trang_thai = auto_field()
     le_tan_id = auto_field()
+    nguoi_dam_nhan_id = auto_field()
     
     # Nested relationships
     le_tan = fields.Nested('LeTanOutSchema', dump_only=True)
     khung_gio = fields.Nested('KhungGioOutSchema', dump_only=True)
     ds_phan_cong = fields.List(fields.Nested('PhanCongOutSchema'), dump_only=True)
+    nguoi_dam_nhan = fields.Nested('PhucVuOutSchema', dump_only=True)
+    
+    ds_phieu_mon = fields.List(fields.Nested('PhieuMonOutSchema'), dump_only=True)
+    doanh_thu = fields.Nested('DoanhThuOutSchema', dump_only=True)
+
+class PhienBanOutLessSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Phiên bàn nhưng chỉ gồm các thông tin cơ bản (cho xem sơ qua)
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = PhienBan
+    
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    trang_thai = auto_field()
+    le_tan_id = auto_field()
+    nguoi_dam_nhan_id = auto_field()
+
+    khung_gio = fields.Nested('KhungGioOutSchema', dump_only=True)
+    
+
+class PhienBanInSchema(SQLAlchemyAutoSchema):
+    id =  fields.Int(required=True, validate=validate.Range(min=1))
 
 
 # ============================== Schema cho Phân Công ==========================================
@@ -605,8 +772,158 @@ class PhanCongOutSchema(SQLAlchemyAutoSchema):
     
     # Nested relationships (optional, tùy use case)
     # Uncomment nếu cần trả về chi tiết
-    phuc_vu = fields.Nested('PhucVuOutSchema', dump_only=True, exclude=('ds_phan_cong_hien_tai',))
-    ban = fields.Nested('BanOutSchema', dump_only=True)
+    # phuc_vu = fields.Nested('PhucVuOutSchema', dump_only=True, exclude=('ds_phan_cong_hien_tai',))
+    # ban = fields.Nested('BanOutSchema', dump_only=True)
+
+# ============================== Schema cho Phiếu Món ==========================================
+
+
+class PhieuMonOutLessSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Phiếu món
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = PhieuMon
+    
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    trang_thai = auto_field()
+    phien_ban_id = auto_field()
+
+
+
+class PhieuMonOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Phiếu món
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = PhieuMon
+    
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    trang_thai = auto_field()
+    phien_ban_id = auto_field()
+
+    ds_mon_ghi = fields.List(fields.Nested('MonGhiOutSchema'), dump_only=True)
+
+
+# ============================== Schema cho Món Ghi ==========================================
+
+class TuyChonInSchema(BaseInSchema):
+    tuy_chon_id = fields.Int()
+    ten = fields.Str()
+    gia = fields.Int()
+
+class MonGhiCreateSchema(BaseInSchema):
+    so_luong = fields.Int()
+    ghi_chu = fields.Str(required=False)
+    phieu_mon_id = fields.Int()
+    mo_ta_mon_id = fields.Int()
+    ds_tuy_chon = fields.List(fields.Nested(TuyChonInSchema), required=True)
+
+class DanhSachMonGhiCreateSchema(BaseInSchema):
+    ds_mon_ghi = fields.List(fields.Nested(MonGhiCreateSchema), required=True)
+
+class MonGhiStatusUpdateSchema(BaseInSchema):
+    trang_thai = fields.Str()
+
+    @validates('trang_thai')
+    def validate_trang_thai(self, value, **kwargs):
+        tts = [tt.name for tt in TrangThaiMonGhi]
+
+
+        for tt in tts:
+            if value.upper() == tt.upper():
+                return
+            
+        raise ValidationError('Trạng thái nhận vào không hợp lệ')
+
+
+class MonGhiOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Món Ghi
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = MonGhi
+    
+    id = auto_field(dump_only=True)
+    ngay_tao = auto_field(dump_only=True)
+    ngay_sua_doi = auto_field(dump_only=True)
+    so_luong = auto_field(dump_only=True)
+    ghi_chu = auto_field(dump_only=True)
+    trang_thai = auto_field(dump_only=True)
+    phieu_mon_id = auto_field(dump_only=True)
+
+    mo_ta_mon = fields.Nested('MoTaMonOutSchema', dump_only=True)
+    ds_tuy_chon = fields.List(fields.Nested('TuyChonMonOutSchema'), dump_only=True)
+
+
+# ============================== Schema cho Tùy Chọn Món (Topping) ==========================================
+
+class TuyChonMonOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Tùy Chọn Món
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = TuyChonMon
+    ten = auto_field(dump_only=True)
+    hinh = auto_field(dump_only=True)
+    gia = auto_field(dump_only=True)
+
+# ============================== Schema cho Nhóm Tùy Chọn ==========================================
+
+class NhomTuyChonOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Nhóm Tùy Chọn
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = NhomTuyChon
+    
+    ten = auto_field(dump_only=True)
+    trang_thai = auto_field(dump_only=True)
+    loai = auto_field(dump_only=True)
+
+    ds_tuy_chon = fields.List(fields.Nested('TuyChonMonOutSchema'), dump_only=True)
+
+
+# ============================== Schema cho Mô Tả Món ==========================================
+
+class MoTaMonOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Mô Tả Món
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = MoTaMon
+    
+    ten = auto_field(dump_only=True)
+    hinh = auto_field(dump_only=True)
+    trang_thai = auto_field(dump_only=True)
+    gia = auto_field(dump_only=True)
+
+    ds_nhom_tuy_chon = fields.List(fields.Nested('NhomTuyChonOutSchema'), dump_only=True)
+
+
+class NhomMonOutSchema(SQLAlchemyAutoSchema):
+    class Meta(BaseOutSchemaMeta):
+        model = NhomMon
+    
+    ten = auto_field(dump_only=True)
+
+    ds_mo_ta_mon = fields.List(fields.Nested('MoTaMonOutSchema'), dump_only=True)
+
+# ============================== Schema cho Thực Đơn ==========================================
+
+class ThucDonOutSchema(SQLAlchemyAutoSchema):
+    """
+    DTO trả về cho Thực Đơn
+    """
+    class Meta(BaseOutSchemaMeta):
+        model = ThucDon
+    ds_nhom_mon = fields.List(fields.Nested('NhomMonOutSchema', dump_only=True))
+
+
 
 
 # ============================== Schema tổng hợp (cho các trường hợp đặc biệt) ==========================================
@@ -664,6 +981,8 @@ class PhienBanDetailOutSchema(SQLAlchemyAutoSchema):
     
 #     # Nested relationships
 #     ds_ban = fields.List(fields.Nested('BanOutSchema'), dump_only=True)
+
+
 
 
 

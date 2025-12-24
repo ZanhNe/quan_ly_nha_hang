@@ -1,0 +1,158 @@
+/* Dashboard Thu Ngân Styles */
+
+/* Layout chia 2 cột */
+.cashier-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    /* Main: auto, Sidebar: 350px */
+    gap: 20px;
+    height: calc(100vh - 80px);
+    /* Trừ header */
+    padding: 20px;
+    background-color: var(--bg-color);
+}
+
+/* === LEFT COLUMN: Active Sessions === */
+.sessions-container {
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.session-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.session-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e4e8;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.session-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary-color);
+}
+
+.session-card.has-bill {
+    border-left: 4px solid var(--color-warning);
+    /* Đã có bill nhưng chưa xong */
+}
+
+.session-id {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.table-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.time-info {
+    font-size: 0.9rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.staff-info {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: 8px;
+    border-top: 1px dashed #eee;
+    padding-top: 5px;
+}
+
+/* === RIGHT COLUMN: Pending Bills (Sidebar) === */
+.pending-sidebar {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f2f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pending-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bill-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+
+.bill-item:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+.bill-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.bill-total {
+    color: var(--color-error);
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: right;
+}
+
+.bill-time {
+    font-size: 0.75rem;
+    color: #95a5a6;
+}
+
+.empty-state {
+    text-align: center;
+    color: #bdc3c7;
+    margin-top: 50px;
+}
+
+.status-dot {
+    height: 8px;
+    width: 8px;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}

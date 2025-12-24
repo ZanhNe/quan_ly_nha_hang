@@ -1,20 +1,13 @@
 // ============================================================
-// 1. KHỞI TẠO DỮ LIỆU & TRẠNG THÁI (STATE)
+// 1. KHỞI TẠO DỮ LIỆU & ELEMENTS
 // ============================================================
-// 1. Tìm thẻ chứa dữ liệu
 const dataElement = document.getElementById("table-data-json");
-// Nhận dữ liệu từ Flask (Jinja2 convert sang JSON Object)
 const dsKhuVuc = JSON.parse(dataElement.textContent);
 
-let serverTableData = dsKhuVuc.reduce((acc, val) => {
-  return [...acc, ...val.ds_ban];
-}, []);
-
-console.log(serverTableData);
-// Mảng lưu trữ ID các bàn đang được chọn
+let serverTableData = dsKhuVuc.reduce((acc, val) => [...acc, ...val.ds_ban], []);
 let selectedTableIds = [];
 
-// Lấy các Element tĩnh để dùng lại (đỡ phải query nhiều lần)
+// Cache DOM elements
 const els = {
   drawer: document.getElementById("drawer"),
   overlay: document.getElementById("overlay"),
@@ -24,11 +17,22 @@ const els = {
   selectionSummary: document.getElementById("selectionSummary"),
   btnAction: document.getElementById("btnAction"),
   errorMsg: document.getElementById("errorMsg"),
+  zonesContainer: document.getElementById("allZonesContainer"),
+  closeBtn: document.getElementById("btn-close"),
 };
 
 // ============================================================
-// 2. HÀM XỬ LÝ SỰ KIỆN CHÍNH (HANDLE CLICK)
+// 2. EVENT DELEGATION - Xử lý click trên TẤT CẢ các bàn
 // ============================================================
+els.zonesContainer.addEventListener("click", (e) => {
+  const tableEl = e.target.closest(".table");
+  if (tableEl) {
+    handleTableClick(tableEl.dataset.tableId);
+  }
+});
+
+els.closeBtn.addEventListener("click", closeDrawer);
+els.overlay.addEventListener("click", closeDrawer);
 
 function handleTableClick(tableId) {
   // Tìm object bàn tương ứng trong dữ liệu gốc
@@ -207,8 +211,31 @@ function closeDrawer() {
   els.overlay.classList.remove("show");
 }
 
-// Đóng Drawer khi click ra ngoài overlay
-els.overlay.addEventListener("click", closeDrawer);
+
+function updateTable(data) {
+  serverTableData = [...serverTableData.filter((ban) => {
+    return data.every((ban_data) => ban_data.id !== ban.id);
+  }), ...data].sort((ban_1, ban_2) => ban_1.id - ban_2.id);
+
+  data.forEach((ban) => {
+    const banEl = document.querySelector(`#table-${ban.id}`);
+    banEl.classList.remove('is-selected');
+    banEl.classList.remove('status-trong');
+    banEl.classList.add('status-cokhach');
+    const tagEl = banEl.querySelector('.warning-tag');
+
+    if (tagEl) {
+      tagEl.classList.toggle('dang-an');
+      tagEl.textContent = 'Đang ăn';
+    }
+    else {
+      banEl.insertAdjacentHTML('beforeend', '<div class="warning-tag dang-an">Đang ăn</div>')
+    }
+
+  })
+  selectedTableIds = [];
+  closeDrawer();
+}
 
 // SỰ KIỆN GỬI DỮ LIỆU (Khi bấm nút Xác nhận)
 els.btnAction.addEventListener("click", function () {
@@ -219,17 +246,16 @@ els.btnAction.addEventListener("click", function () {
   )}?`;
   if (!confirm(confirmMsg)) return;
 
-  data = selectedTableIds.map((val) => {
+  const data = selectedTableIds.map((val) => {
     return { id: +val };
   });
   // Gửi dữ liệu về Flask bằng Fetch API
-  fetch("http://localhost:5000/api/v1/bans", {
+  fetch("http://127.0.0.1:5000/api/v1/bans", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // Nếu có CSRF token thì thêm vào đây
-      // 'X-CSRFToken': '{{ csrf_token() }}'
     },
+    credentials: 'include',
     body: JSON.stringify({ table_ids: data }),
   })
     .then((response) => {
@@ -242,31 +268,13 @@ els.btnAction.addEventListener("click", function () {
       }
     })
     .then((data) => {
-      serverTableData = [...serverTableData.filter((ban) => {
-        return data.every((ban_data) => ban_data.id !== ban.id);
-      }), ...data].sort((ban_1, ban_2) => ban_1.id - ban_2.id);
-
-      data.forEach((ban) => {
-        const banEl = document.querySelector(`#table-${ban.id}`);
-        banEl.classList.remove('is-selected');
-        banEl.classList.remove('status-trong');
-        banEl.classList.add('status-cokhach');
-        const tagEl = banEl.querySelector('.warning-tag');
-
-        if (tagEl) {
-          tagEl.classList.toggle('dang-an');
-        tagEl.textContent = 'Đang ăn';
-        }
-        else {
-          banEl.insertAdjacentHTML('beforeend', '<div class="warning-tag dang-an">Đang ăn</div>')
-        }
-
-      })
-      selectedTableIds = [];
-      closeDrawer();
+      updateTable(data);
     })
     .catch((error) => {
       console.error("Error:", error);
       alert("Lỗi kết nối server!");
     });
 });
+
+export { updateTable }
+
