@@ -12,10 +12,18 @@
 
     {% block styles%}
     <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/header.css')}}">
     {% endblock %}
 
+    <script>
+        // Khai báo biến global chứa đường dẫn chuẩn
+        const NOTIFY_SOUND_URL = "{{ url_for('static', filename='sounds/notification.mp3') }}";
+        console.log(NOTIFY_SOUND_URL);
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="{{ url_for('static', filename='js/header.js') }}"></script>
+    <script defer src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
     {% block scripts %}
-
     {% endblock %}
 
 </head>
@@ -30,15 +38,6 @@
 
         {% include 'components/sidebar.html' %}
 
-        <div class="sidebar-footer">
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="#" class="nav-link" style="color: var(--color-error);">
-                        <span class="icon">🚪</span> Đăng xuất
-                    </a>
-                </li>
-            </ul>
-        </div>
     </aside>
 
     <div class="main-wrapper">

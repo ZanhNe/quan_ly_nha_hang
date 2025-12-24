@@ -1,0 +1,182 @@
+{% extends "base.html" %} {% block title %}Quản Lý - Dashboard{% endblock %} {%
+block styles %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/quan_ly_dashboard.css') }}"
+/>
+{% endblock %} {% block scripts %} {{ super() }}
+<script defer id="yeu-cau-data" type="application/json">
+  {{ ds_yeu_cau | default('[]') | tojson }}
+</script>
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/quan_ly/dashboard.js') }}"
+></script>
+{% endblock %} {% block content %}
+<main class="main-content">
+  <!-- Header Section -->
+  <div class="manager-header">
+    <div class="header-left">
+      <h1 class="page-title">
+        <span class="title-icon">📋</span>
+        Bảng điều khiển Quản lý
+      </h1>
+      <p class="page-subtitle">Quản lý và xử lý các yêu cầu từ nhân viên</p>
+    </div>
+    <div class="header-right">
+      <div class="stat-pill">
+        <span class="stat-icon">⏳</span>
+        <span class="stat-text"
+          >Đang chờ:
+          <strong id="pending-count">{{ ds_yeu_cau|length }}</strong></span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-tab="pending">
+      <span class="tab-icon">📨</span>
+      Yêu cầu chờ duyệt
+      <span class="tab-badge" id="tab-pending-count"
+        >{{ ds_yeu_cau|length }}</span
+      >
+    </button>
+    <button class="tab-btn" data-tab="reports" disabled>
+      <span class="tab-icon">📊</span>
+      Báo cáo
+      <span class="tab-badge coming-soon">Sắp có</span>
+    </button>
+  </div>
+
+  <!-- Tab Content: Pending Requests -->
+  <div class="tab-content active" id="tab-pending">
+    {% if ds_yeu_cau %}
+    <div class="request-grid">
+      {% for yc in ds_yeu_cau %}
+      <div
+        class="request-card"
+        data-yc-id="{{ yc.id }}"
+        data-yc-type="{{ yc.type | default('yc_mon_ghi') }}"
+      >
+        <!-- Card Header -->
+        <div class="request-header">
+          <div class="request-type">
+            {% if yc.type == 'yc_mon_ghi' or yc.mon_ghi_id %}
+            <span class="type-icon">🍜</span>
+            <span class="type-label">Yêu cầu món ghi</span>
+            {% else %}
+            <span class="type-icon">📝</span>
+            <span class="type-label">Yêu cầu khác</span>
+            {% endif %}
+          </div>
+          <span class="request-status status-pending">
+            <span class="status-dot"></span>
+            Chờ duyệt
+          </span>
+        </div>
+
+        <!-- Card Body -->
+        <div class="request-body">
+          <div class="request-id">#YC-{{ yc.id }}</div>
+
+          {% if yc.mon_ghi_id %}
+          <div class="request-detail">
+            <span class="detail-label">Món ghi ID:</span>
+            <span class="detail-value">#{{ yc.mon_ghi_id }}</span>
+          </div>
+          {% endif %}
+
+          <div class="request-reason">
+            <span class="reason-label">Lý do:</span>
+            <p class="reason-text">{{ yc.ly_do }}</p>
+          </div>
+
+          <div class="request-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span class="meta-text">{{ yc.ngay_tao }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="request-actions">
+          <button
+            class="btn-action btn-approve"
+            data-action="approve"
+            data-yc-id="{{ yc.id }}"
+          >
+            <span class="btn-icon">✅</span>
+            Chấp thuận
+          </button>
+          <button
+            class="btn-action btn-reject"
+            data-action="reject"
+            data-yc-id="{{ yc.id }}"
+          >
+            <span class="btn-icon">❌</span>
+            Từ chối
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🎉</div>
+      <h3 class="empty-title">Không có yêu cầu nào đang chờ</h3>
+      <p class="empty-text">
+        Tất cả yêu cầu đã được xử lý. Bạn có thể nghỉ ngơi một chút!
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tab Content: Reports (Coming Soon) -->
+  <div class="tab-content" id="tab-reports">
+    <div class="coming-soon-state">
+      <div class="coming-icon">🚧</div>
+      <h3 class="coming-title">Tính năng đang phát triển</h3>
+      <p class="coming-text">
+        Chức năng báo cáo sẽ sớm được cập nhật trong phiên bản tiếp theo.
+      </p>
+      <div class="coming-features">
+        <div class="feature-preview">
+          <span class="feature-icon">📈</span>
+          <span class="feature-name">Báo cáo doanh thu</span>
+        </div>
+        <div class="feature-preview">
+          <span class="feature-icon">👥</span>
+          <span class="feature-name">Hiệu suất nhân viên</span>
+        </div>
+        <div class="feature-preview">
+          <span class="feature-icon">🍽️</span>
+          <span class="feature-name">Thống kê món ăn</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal xác nhận -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Xác nhận hành động</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-message" id="modalMessage">
+        Bạn có chắc chắn muốn thực hiện hành động này?
+      </p>
+      <div class="modal-details" id="modalDetails"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal btn-cancel" id="modalCancel">Hủy bỏ</button>
+      <button class="btn-modal btn-confirm" id="modalConfirm">Xác nhận</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

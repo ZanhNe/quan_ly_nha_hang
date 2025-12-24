@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Xử lý Phiên #{{ phien_ban.id }}{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/thanh_toan.css') }}" />
+{% endblock %}
+
+{% block scripts %}
+<script defer src="https://js.stripe.com/clover/stripe.js"></script>
+
+<script defer id="dskm-data-json" type="application/json">
+  {{ ds_khuyen_mai | default('[]') | tojson }}
+</script>
+
+<script defer id="phien-data-json" type="application/json">
+  {{ phien_ban | default('{}') | tojson }}
+</script>
+
+<script defer id="preview-data-json" type="application/json">
+  {{ preview | default('{}') | tojson }}
+</script>
+
+<script type="module" src="{{ url_for('static', filename='js/thu_ngan/thanh_toan.js') }}"></script>
+
+{% endblock%} {% block content %}
+<div class="checkout-wrapper">
+  <!-- 1. DANH SÁCH PHIẾU MÓN -->
+  <div class="bill-detail-area">
+    <h4 class="mb-4">📋 Chi tiết gọi món</h4>
+
+    {% for phieu in phien_ban.ds_phieu_mon %}
+    <div class="phieu-mon-card">
+      <div class="phieu-header">
+        <span>Phiếu #{{ phieu.id }}</span>
+        <div>
+          <span class="me-2 text-muted fw-normal">🕒 {{ phieu.ngay_tao }}</span>
+          <span class="phieu-status {{ phieu.trang_thai.value }}">{{ phieu.trang_thai.value|upper }}</span>
+        </div>
+      </div>
+
+      <table class="table-items">
+        <thead>
+          <tr>
+            <th style="width: 45%">Món ăn</th>
+            <th style="width: 15%">SL</th>
+            <th style="width: 20%">Đơn giá</th>
+            <th style="width: 20%; text-align: right">Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mon in phieu.ds_mon_ghi %}
+          <tr>
+            <td>
+              <div class="fw-bold">{{ mon.mo_ta_mon.ten }}</div>
+              <!-- Hiển thị Tùy chọn -->
+              {% if mon.ds_tuy_chon %}
+              <div class="item-options">
+                + {{ mon.ds_tuy_chon|map(attribute='ten')|join(', ') }}
+              </div>
+              {% endif %}
+              <!-- Hiển thị Ghi chú -->
+              {% if mon.ghi_chu %}
+              <div class="item-note">📝 {{ mon.ghi_chu }}</div>
+              {% endif %}
+            </td>
+            <td>x{{ mon.so_luong }}</td>
+            <td>
+              <!-- Giá gốc món -->
+              {{ "{:,.0f}".format(mon.mo_ta_mon.gia) }}
+              <!-- Nếu có tùy chọn tính tiền thêm, backend tự cộng hoặc hiển thị riêng -->
+            </td>
+            <td style="text-align: right">
+              {{ "{:,.0f}".format(mon.mo_ta_mon.gia * mon.so_luong) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center p-5 text-muted">
+      <i class="fas fa-utensils fa-3x mb-3"></i>
+      <p>Phiên này chưa có phiếu món nào.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- 2. KHU VỰC CHỨC NĂNG & TỔNG KẾT -->
+  <div class="action-area">
+    <!-- Bảng Tổng Tiền -->
+    <table class="summary-table">
+      <tr>
+        <td>Tổng tiền món:</td>
+        <td class="amount" id="rawTotal">
+          {{ "{:,.0f}".format(preview.tong_tien if preview else 0) }}
+        </td>
+      </tr>
+      <!-- Các dòng dưới đây sẽ được JS cập nhật hoặc Backend render nếu có DoanhThu rồi -->
+      <tr class="discount-row">
+        <td>Khuyến mãi:</td>
+        <td class="amount" id="discountValue">{{"{:,.0f}".format(preview.tien_giam_gia if preview else 0)}}</td>
+      </tr>
+      <tr>
+        <td>VAT:</td>
+        <td class="amount" id="taxValue">{{"{:,.0f}".format(preview.tien_thue if preview else 0)}}</td>
+      </tr>
+      <tr class="total-row">
+        <td>THANH TOÁN:</td>
+        <td class="amount" id="finalTotal">{{"{:,.0f}".format(preview.tien_cuoi_cung if preview else 0)}}</td>
+      </tr>
+    </table>
+
+    <!-- 3 NÚT CHỨC NĂNG -->
+    <div class="btn-group-vertical">
+      <!-- 1. Tạm tính Bill -->
+      <button class="btn-action btn-provisional">
+        <i class="fas fa-print"></i> Tạm tính Bill
+      </button>
+
+      <!-- 2. Áp dụng Khuyến mãi -->
+      <button class="btn-action btn-promo">
+        <i class="fas fa-tags"></i> Áp dụng Khuyến mãi
+      </button>
+
+      <!-- 3. Thanh toán -->
+      <button class="btn-action btn-pay">
+        <i class="fas fa-check-circle"></i> THANH TOÁN
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- === MODAL THANH TOÁN (Ẩn) === -->
+<!-- Bạn có thể dùng Bootstrap Modal hoặc Swal -->
+
+{% endblock %}

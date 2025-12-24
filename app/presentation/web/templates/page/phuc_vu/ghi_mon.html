@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Ghi món - Phiếu #{{ phieu_mon.id }}{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghi_mon.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script id="ticket-data" type="application/json">
+        {{ phieu_mon | default('{}') | tojson }}
+    </script>
+
+<script id="thucdon-data" type="application/json">
+        {{ thuc_don | default('{}') | tojson }}
+    </script>
+
+<script defer src="{{ url_for('static', filename='js/phuc_vu/ghi_mon.js') }}"></script>
+<script type="module" src="{{url_for('static', filename='js/phuc_vu/socket_manager.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="pos-wrapper">
+    <div class="pos-header">
+        <div class="pos-header-left">
+            <a href="{{url_for('index.danh_sach_phien')}}" class="back-btn">
+                <i class="icon">←</i> Quay lại Bàn
+            </a>
+            <h2 class="pos-title">Phiếu #{{ phieu_mon.id }}</h2>
+            <span class="badge {{ 'badge-sent' if phieu_mon.trang_thai != 'DANGGHI' else 'badge-draft' }}">
+                {{ phieu_mon.trang_thai }}
+            </span>
+        </div>
+        <div class="pos-header-right">
+        </div>
+    </div>
+
+    <div class="pos-layout">
+
+        <div class="pos-menu-panel">
+            <div class="menu-filter">
+                <input type="text" id="menuSearch" placeholder="🔍 Tìm nhanh món ăn..." class="search-input">
+
+                <div class="category-tabs">
+                    <button class="cat-tab active" onclick="pos.filterCategory('all')">Tất cả</button>
+                    {% for nhom in thuc_don.ds_nhom_mon %}
+                    <button class="cat-tab" onclick="pos.filterCategory('{{ nhom.ten }}')">
+                        {{ nhom.ten }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="menu-container" id="menuContainer">
+                {% for nhom in thuc_don.ds_nhom_mon %}
+                <div class="menu-section" data-category="{{ nhom.ten }}">
+                    <h4 class="section-title">{{ nhom.ten }}</h4>
+                    <div class="menu-grid">
+                        {% for mon in nhom.ds_mo_ta_mon %}
+                        <div class="menu-card" onclick="pos.openModal({{ mon.id }})">
+                            <div class="menu-img-wrapper">
+                                <img src="{{ mon.hinh | default('https://www.thefuzzyduck.co.uk/wp-content/uploads/2024/05/image-coming-soon-placeholder-01-660x660.png') }}"
+                                    alt="{{ mon.ten }}">
+                            </div>
+                            <div class="menu-info">
+                                <div class="menu-name">{{ mon.ten }}</div>
+                                <div class="menu-price">{{ "{:,.0f}".format(mon.gia) }}đ</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="pos-cart-panel">
+            <div class="cart-header">
+                <h3>📋 Món đã chọn</h3>
+                <span id="cartCount" class="badge-count-food">0</span>
+            </div>
+
+            <div class="cart-body" id="cartContainer">
+            </div>
+
+            <div class="cart-footer">
+                <div class="total-row">
+                    <span>Tổng tạm tính:</span>
+                    <span id="totalAmount">0đ</span>
+                </div>
+
+                {% if phieu_mon.trang_thai == 'DANGGHI' %}
+                <button class="btn-submit" onclick="pos.submitTicket()">
+                    👨‍🍳 Gửi Bếp
+                </button>
+                {% else %}
+                <div class="sent-info" style="text-align: center; padding: 10px; background: #FFF5F5; border-radius: 8px; margin-bottom: 10px;">
+                    <span style="color: #C53030;">🔒 Phiếu đã gửi bếp</span>
+                    <p style="font-size: 0.8em; color: #718096; margin: 5px 0 0;">Nhấn vào món để yêu cầu hủy</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="itemModal">
+    <div class="item-modal">
+        <div class="modal-header">
+            <div class="modal-product-info">
+                <img id="modalImg" src="" class="modal-thumb">
+                <div>
+                    <h3 id="modalName">Tên món</h3>
+                    <div id="modalBasePrice" class="price-tag">0đ</div>
+                </div>
+            </div>
+            <button onclick="pos.closeModal()" class="close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div id="modalOptionsContainer"></div>
+
+            <div class="opt-group">
+                <div class="opt-title">📝 Ghi chú món</div>
+                <textarea id="modalNote" class="modal-note-input" placeholder="Ví dụ: Ít đá, không hành..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="modal-actions">
+                <div class="qty-control big">
+                    <button onclick="pos.adjustModalQty(-1)">-</button>
+                    <span id="modalQty">1</span>
+                    <button onclick="pos.adjustModalQty(1)">+</button>
+                </div>
+                <div class="modal-total-price">
+                    <small>Thành tiền:</small>
+                    <strong id="modalTotalPrice">0đ</strong>
+                </div>
+            </div>
+            <button onclick="pos.addItemFromModal()" class="btn-add-cart">Thêm vào phiếu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Yêu Cầu Hủy Món -->
+<div class="modal-overlay" id="cancelRequestModal">
+    <div class="item-modal" style="max-width: 400px;">
+        <div class="modal-header" style="background: #FFF5F5; border-bottom: 1px solid #FEB2B2;">
+            <div class="modal-product-info">
+                <span style="font-size: 1.5em;">⚠️</span>
+                <div>
+                    <h3 id="cancelModalTitle" style="color: #C53030;">Yêu cầu hủy món</h3>
+                    <div id="cancelModalDishName" style="color: #718096; font-size: 0.9em;"></div>
+                </div>
+            </div>
+            <button onclick="pos.closeCancelModal()" class="close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <input type="hidden" id="cancelMonGhiId">
+            
+            <div class="opt-group">
+                <div class="opt-title">📝 Lý do hủy món <span style="color: #E53E3E;">*</span></div>
+                <textarea id="cancelReason" class="modal-note-input" rows="4" 
+                    placeholder="Nhập lý do hủy món (bắt buộc)...&#10;Ví dụ: Khách đợi lâu, khách đổi ý..."></textarea>
+            </div>
+
+            <div style="background: #FFFAF0; padding: 12px; border-radius: 8px; border: 1px solid #F6AD55;">
+                <p style="margin: 0; font-size: 0.85em; color: #744210;">
+                    <strong>Lưu ý:</strong> Yêu cầu sẽ được gửi đến Quản lý để duyệt. 
+                    Món ăn sẽ tạm ngưng cho đến khi có phản hồi.
+                </p>
+            </div>
+        </div>
+
+        <div class="modal-footer" style="flex-direction: column; gap: 10px;">
+            <button onclick="pos.submitCancelRequest()" class="btn-submit" style="background: #E53E3E; width: 100%;">
+                📤 Gửi yêu cầu hủy
+            </button>
+            <button onclick="pos.closeCancelModal()" style="background: #A0AEC0; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%;">
+                Hủy bỏ
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

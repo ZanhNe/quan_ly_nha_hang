@@ -21,6 +21,4 @@ def page_not_found(e):
 
 
 if __name__ == '__main__':
-    # with app.app_context():
-    #     app.run(debug=True)
     socketio.run(app, debug=True, port=5000, allow_unsafe_werkzeug=True)

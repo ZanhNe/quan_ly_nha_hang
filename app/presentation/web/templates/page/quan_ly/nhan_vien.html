@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Hiệu suất Nhân viên{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quan_ly_bao_cao.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script defer id="nhan-vien-data" type="application/json">
+    {{ ds_nhan_vien | default('[]') | tojson }}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/quan_ly/nhan_vien.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <!-- Header với filter -->
+    <div class="report-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <span class="title-icon">👥</span>
+                Hiệu suất Nhân viên
+            </h1>
+            <p class="page-subtitle">Đánh giá hiệu suất phục vụ</p>
+        </div>
+        <div class="header-right">
+            <div class="date-filter">
+                <div class="date-input-group">
+                    <label>Từ ngày</label>
+                    <input type="text" id="tu-ngay" class="date-picker" value="{{ tu_ngay }}">
+                </div>
+                <span class="date-separator">→</span>
+                <div class="date-input-group">
+                    <label>Đến ngày</label>
+                    <input type="text" id="den-ngay" class="date-picker" value="{{ den_ngay }}">
+                </div>
+                <button class="btn-filter" id="btn-filter">
+                    <span>🔍</span> Lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="{{ url_for('index.quan_ly_dashboard') }}" class="quick-link">
+            <span class="link-icon">📋</span>
+            <span>Xử lý Yêu cầu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_tong_quan') }}" class="quick-link">
+            <span class="link-icon">📊</span>
+            <span>Tổng quan</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_doanh_thu') }}" class="quick-link">
+            <span class="link-icon">💰</span>
+            <span>Doanh thu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_nhan_vien') }}" class="quick-link active">
+            <span class="link-icon">👥</span>
+            <span>Nhân viên</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_mon_an') }}" class="quick-link">
+            <span class="link-icon">🍽️</span>
+            <span>Món ăn</span>
+        </a>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">📊 Biểu đồ doanh thu theo nhân viên</h3>
+        </div>
+        <div class="chart-body chart-medium">
+            <canvas id="staffChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Staff Table -->
+    <div class="panel-container panel-full">
+        <div class="panel-header">
+            <h3 class="panel-title">📋 Bảng xếp hạng nhân viên</h3>
+        </div>
+        <div class="panel-body">
+            {% if ds_nhan_vien %}
+            <div class="data-table-wrapper">
+                <table class="data-table staff-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Hạng</th>
+                            <th>Nhân viên</th>
+                            <th class="center-col">Số phiên</th>
+                            <th class="revenue-col">Doanh thu</th>
+                            <th class="avg-col">TB/Phiên</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nv in ds_nhan_vien %}
+                        <tr class="{% if loop.index <= 3 %}top-rank{% endif %}">
+                            <td class="rank-cell">
+                                {% if loop.index == 1 %}
+                                <span class="rank-badge gold">🥇</span>
+                                {% elif loop.index == 2 %}
+                                <span class="rank-badge silver">🥈</span>
+                                {% elif loop.index == 3 %}
+                                <span class="rank-badge bronze">🥉</span>
+                                {% else %}
+                                <span class="rank-number">{{ loop.index }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="staff-info">
+                                    <div class="staff-avatar">{{ nv.ho_ten[0] }}</div>
+                                    <div class="staff-name">{{ nv.ho_ten }}</div>
+                                </div>
+                            </td>
+                            <td class="center-col">{{ nv.so_phien }}</td>
+                            <td class="revenue-cell">{{ "{:,.0f}".format(nv.doanh_thu) }} đ</td>
+                            <td class="avg-cell">
+                                {% if nv.so_phien > 0 %}
+                                {{ "{:,.0f}".format(nv.doanh_thu / nv.so_phien) }} đ
+                                {% else %}
+                                0 đ
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-panel">
+                <span>📭</span>
+                <p>Chưa có dữ liệu nhân viên trong khoảng thời gian này</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}
+

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Danh sách Phiên Bàn{% endblock %}
+{% block styles%}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/phien.css') }}">{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{url_for('static', filename='js/phuc_vu/dam_nhan.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/phuc_vu/socket_manager.js')}}"></script>
+<script defer id="phien-data-json" type="application/json">
+    {{ ds_phien_ban | default('[]') | tojson }}
+</script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <h2 class="content-title">Danh sách phiên bàn hiện có của bạn</h2>
+
+    <div class="session-grid">
+        {% for phien in ds_phien_ban %}
+        <div class="session-card">
+            <div class="card-header">
+                <h3 class="card-title">{{ phien.id }}</h3>
+                {% if phien.trang_thai == 'MO' %}
+                <span class="badge badge-open">⏳ Đang hoạt động</span>
+                {% else %}
+                <span class="badge badge-draft">Trống</span>
+                {% endif %}
+            </div>
+
+            <p class="card-info">🕒 Bắt đầu: {{ phien.khung_gio.tg_bat_dau }}</p>
+            <div style="background: #F7FAFC; padding: 8px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em;">
+                {% if phien.nguoi_dam_nhan_id %}
+                🧑‍💼 Đã có người đảm nhận</strong>
+                {% else %}
+                <span style="color: #A0AEC0;">Chưa có người đảm nhận</span>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: auto; display: flex; gap: 10px;">
+                {% if not phien.nguoi_dam_nhan_id %}
+                <div style="flex: 1;">
+                    <!-- <input type="hidden" name="phien_ban_id" value=""> -->
+                    <button data-phien-id="{{phien.id}}" type="button" class="btn-confirm"
+                        style="width: 100%; background: #4299E1; font-size: 0.9em;">
+                        ✋ Đảm nhận
+                    </button>
+                </div>
+                {% endif %}
+
+                <a href="{{url_for('index.chi_tiet_phien', phien_ban_id=phien.id)}}" class="btn-confirm"
+                    style="flex: 1; text-align: center; text-decoration: none; font-size: 0.9em;">
+                    📄 Chi tiết
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</main>
+{% endblock %}

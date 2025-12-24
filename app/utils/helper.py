@@ -1,4 +1,3 @@
-#Chứa các function hỗ trợ
 import datetime
 import jwt
 from abc import ABC, abstractmethod
@@ -37,7 +36,6 @@ class IHelper(ABC):
 class Helper(IHelper):
 
     def hass_pass(self, plain: str) -> str:
-        # Trả về chuỗi bytes, cần decode utf-8 để lưu vào Database dạng String
         return bcrypt.generate_password_hash(plain).decode('utf-8')
 
     def check_pass(self, plain, hashed_pass: str) -> bool:
@@ -68,7 +66,6 @@ class Helper(IHelper):
             raise err
         
     def send_async_email(self, app_instance, msg):
-    # Cực kỳ quan trọng: Phải nạp context thủ công thì mới đọc được config
         with app_instance.app_context():
             try:
                 mail.send(msg)
@@ -77,23 +74,17 @@ class Helper(IHelper):
                 print(f"Lỗi gửi email: {e}")
 
     def send_verification_email(self, user_email, token):
-        # Tạo nội dung email
         msg = Message('Xác thực tài khoản',
                     sender='noreply@your-app.com',
                     recipients=[user_email])
         
-        link = f"http://localhost:5000/auth/verify?token={token}"
+        link = f"http://127.0.0.1:5000/auth/verify?token={token}"
         msg.body = f"Click vào đây để verify: {link}"
 
-        # --- ĐOẠN NÀY XỬ LÝ ASYNC ---
-        
-        
         app_instance = current_app._get_current_object()
         
-        # Tạo luồng mới
         thr = Thread(target=self.send_async_email, args=(app_instance, msg))
         
-        # Kích hoạt luồng (Nó sẽ chạy song song, code phía dưới chạy tiếp luôn không chờ)
         thr.start()
         
         return "Email đang được gửi..."

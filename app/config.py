@@ -11,8 +11,8 @@ DB_URL = f'{os.getenv('DB_DRIVER')}://{os.getenv('DB_USERNAME')}:{DB_PASSWORD}@{
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY') or 'hard to guess key'
-    SESSION_COOKIE_HTTPONLY = True # Chặn Javascript đọc cookie (chống XSS)
-    SESSION_COOKIE_SECURE = False  # Để True nếu chạy HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = False
     SQLALCHEMY_DATABASE_URI = DB_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False') == 'True'
 

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Thu Ngân - Quản lý Phiên {% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/thu_ngan_dashboard.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="cashier-layout">
+  <!-- CỘT TRÁI: DANH SÁCH PHIÊN HOẠT ĐỘNG -->
+  <div class="sessions-container">
+    <h2 class="mb-4">⚡ Phiên Đang Hoạt Động</h2>
+
+    <div class="session-grid">
+      {# ds_phien_ban: Danh sách PhienBan có trang_thai='MO' được truyền từ
+      Controller #} {% for phien in ds_phien_ban %}
+      <a class="session-card" href="/thu-ngan/thanh-toan/{{ phien.id }}">
+        <div class="session-id">#SESSION-{{ phien.id }}</div>
+
+        <div class="time-info">
+          <i class="far fa-clock"></i>
+          {{ phien.khung_gio.tg_bat_dau }}
+          <small class="text-muted ms-1">({{ phien.khung_gio.tg_bat_dau }})</small>
+        </div>
+
+        <div class="staff-info">
+          <i class="fas fa-user-tie"></i>
+          {{ 'Đã có người đảm nhận' if phien.nguoi_dam_nhan_id else 'Chưa gán
+          PV' }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- CỘT PHẢI: SIDEBAR HÓA ĐƠN ĐANG XỬ LÝ -->
+  <!-- Sử dụng dữ liệu từ current_user (ThuNgan) -> ds_doanh_thu_chua_hoan_thanh -->
+  <div class="pending-sidebar">
+    <div class="sidebar-title">
+      <span>🧾 Hóa đơn đang treo</span>
+      <span class="badge bg-danger rounded-pill">{{ ds_doanh_thu|length }}</span>
+    </div>
+
+    <div class="pending-list">
+      {% if ds_doanh_thu %} {% for dt in ds_doanh_thu %}
+      <!-- Link vào lại trang thanh toán của phiên đó -->
+      <div class="bill-item" onclick="window.location.href='/thu-ngan/thanh-toan/{{ dt.phien_ban_id }}'">
+        <div class="bill-time">{{ dt.ngay_tao }}</div>
+        <div class="bill-total">Doanh Thu #{{ dt.id }}</div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="empty-state">
+        <i class="fas fa-receipt fa-3x mb-3"></i>
+        <p>Không có hóa đơn nào đang xử lý dở.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

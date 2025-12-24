@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Báo cáo Doanh thu{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quan_ly_bao_cao.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script defer id="chi-tiet-ngay-data" type="application/json">
+    {{ chi_tiet_ngay | default('[]') | tojson }}
+</script>
+<script defer id="thong-ke-gio-data" type="application/json">
+    {{ thong_ke_gio | default('[]') | tojson }}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/quan_ly/doanh_thu.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <!-- Header với filter -->
+    <div class="report-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <span class="title-icon">💰</span>
+                Báo cáo Doanh thu
+            </h1>
+            <p class="page-subtitle">Phân tích doanh thu chi tiết</p>
+        </div>
+        <div class="header-right">
+            <div class="date-filter">
+                <div class="date-input-group">
+                    <label>Từ ngày</label>
+                    <input type="text" id="tu-ngay" class="date-picker" value="{{ tu_ngay }}">
+                </div>
+                <span class="date-separator">→</span>
+                <div class="date-input-group">
+                    <label>Đến ngày</label>
+                    <input type="text" id="den-ngay" class="date-picker" value="{{ den_ngay }}">
+                </div>
+                <button class="btn-filter" id="btn-filter">
+                    <span>🔍</span> Lọc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="{{ url_for('index.quan_ly_dashboard') }}" class="quick-link">
+            <span class="link-icon">📋</span>
+            <span>Xử lý Yêu cầu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_tong_quan') }}" class="quick-link">
+            <span class="link-icon">📊</span>
+            <span>Tổng quan</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_doanh_thu') }}" class="quick-link active">
+            <span class="link-icon">💰</span>
+            <span>Doanh thu</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_nhan_vien') }}" class="quick-link">
+            <span class="link-icon">👥</span>
+            <span>Nhân viên</span>
+        </a>
+        <a href="{{ url_for('index.bao_cao_mon_an') }}" class="quick-link">
+            <span class="link-icon">🍽️</span>
+            <span>Món ăn</span>
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stat-cards">
+        <div class="stat-card stat-revenue">
+            <div class="stat-icon">💴</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ "{:,.0f}".format(thong_ke.tong_doanh_thu) }} đ</div>
+                <div class="stat-label">Tổng doanh thu</div>
+            </div>
+        </div>
+        <div class="stat-card stat-discount">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ "{:,.0f}".format(thong_ke.tong_giam_gia) }} đ</div>
+                <div class="stat-label">Tổng giảm giá</div>
+            </div>
+        </div>
+        <div class="stat-card stat-net">
+            <div class="stat-icon">💵</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ "{:,.0f}".format(thong_ke.thuc_thu) }} đ</div>
+                <div class="stat-label">Thực thu</div>
+            </div>
+        </div>
+        <div class="stat-card stat-orders">
+            <div class="stat-icon">🧾</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ thong_ke.tong_don }}</div>
+                <div class="stat-label">Số đơn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="chart-container chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">📈 Biểu đồ doanh thu theo ngày</h3>
+        </div>
+        <div class="chart-body chart-large">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+        <!-- Chi tiết theo ngày -->
+        <div class="panel-container panel-wide">
+            <div class="panel-header">
+                <h3 class="panel-title">📅 Chi tiết theo ngày</h3>
+            </div>
+            <div class="panel-body">
+                {% if chi_tiet_ngay %}
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Số đơn</th>
+                                <th>Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in chi_tiet_ngay %}
+                            <tr>
+                                <td>{{ item.ngay }}</td>
+                                <td>{{ item.so_don }}</td>
+                                <td class="revenue-cell">{{ "{:,.0f}".format(item.doanh_thu) }} đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-panel">
+                    <span>📭</span>
+                    <p>Chưa có dữ liệu trong khoảng thời gian này</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Phân bố theo giờ -->
+        <div class="chart-container chart-side">
+            <div class="chart-header">
+                <h3 class="chart-title">⏰ Phân bố theo giờ</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="hourlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

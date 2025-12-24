@@ -1,0 +1,878 @@
+/* =========================================
+   FLASK-ADMIN CUSTOM STYLING - SAKURA THEME
+   Complete override để tránh conflict với CSS base
+   ========================================= */
+
+/* =========================================
+   CRITICAL: Reset các styles từ base.css
+   ========================================= */
+body {
+    display: block !important;
+    flex-direction: unset !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ẩn sidebar và main-wrapper nếu có */
+body .sidebar,
+body .main-wrapper {
+    display: none !important;
+}
+
+/* Reset & Base */
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --admin-primary: #FF69B4;
+    --admin-primary-hover: #E05A9F;
+    --admin-primary-light: #FFEFF7;
+    --admin-bg: #FFFBF7;
+    --admin-container: #FFFFFF;
+    --admin-text: #333333;
+    --admin-text-light: #777777;
+    --admin-border: #F0F0F0;
+    --admin-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --admin-radius: 12px;
+    --admin-success: #48BB78;
+    --admin-warning: #D69E2E;
+    --admin-error: #E53E3E;
+}
+
+/* =========================================
+   1. BODY & BASE TYPOGRAPHY
+   ========================================= */
+body.admin-body {
+    font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    background-color: var(--admin-bg) !important;
+    color: var(--admin-text) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.6 !important;
+}
+
+body.admin-body * {
+    font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* =========================================
+   2. NAVBAR & HEADER
+   ========================================= */
+.navbar {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-hover) 100%) !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: var(--admin-shadow) !important;
+    padding: 0 20px !important;
+    min-height: 60px !important;
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+}
+
+.navbar .navbar-brand,
+.navbar .brand {
+    font-size: 1.3em !important;
+    font-weight: 700 !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 15px 0 !important;
+    margin: 0 !important;
+}
+
+.navbar .navbar-brand:hover,
+.navbar .brand:hover {
+    color: #FFEFF7 !important;
+    text-decoration: none !important;
+}
+
+/* User Info trong Header */
+.admin-user-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 8px 16px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px !important;
+    margin-left: auto !important;
+}
+
+.admin-user-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.2em !important;
+}
+
+.admin-user-details {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.admin-user-name {
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 0.9em !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+}
+
+.admin-user-role {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.75em !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+}
+
+.admin-logout-btn {
+    color: white !important;
+    text-decoration: none !important;
+    font-size: 1.2em !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    transition: background 0.2s !important;
+    display: inline-block !important;
+}
+
+.admin-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* =========================================
+   3. NAVIGATION MENU
+   ========================================= */
+.navbar-nav {
+    margin-left: 20px !important;
+}
+
+.navbar-nav > li > a {
+    color: rgba(255, 255, 255, 0.9) !important;
+    padding: 15px 20px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s !important;
+    border-radius: 8px !important;
+    margin: 0 4px !important;
+    text-decoration: none !important;
+}
+
+.navbar-nav > li > a:hover,
+.navbar-nav > li > a:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.navbar-nav > li.active > a,
+.navbar-nav > li.active > a:hover,
+.navbar-nav > li.active > a:focus {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    background: white !important;
+    border: 1px solid var(--admin-border) !important;
+    border-radius: var(--admin-radius) !important;
+    box-shadow: var(--admin-shadow) !important;
+    padding: 8px 0 !important;
+    margin-top: 8px !important;
+}
+
+.dropdown-menu > li > a {
+    padding: 10px 20px !important;
+    color: var(--admin-text) !important;
+    transition: all 0.2s !important;
+    text-decoration: none !important;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+    background: var(--admin-primary-light) !important;
+    color: var(--admin-primary) !important;
+    text-decoration: none !important;
+}
+
+/* =========================================
+   4. MAIN CONTENT AREA
+   ========================================= */
+.content {
+    padding: 30px !important;
+    background: var(--admin-bg) !important;
+    min-height: calc(100vh - 60px) !important;
+}
+
+.container-fluid {
+    padding: 0 !important;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 30px !important;
+    padding-bottom: 20px !important;
+    border-bottom: 2px solid var(--admin-border) !important;
+}
+
+.page-header h1 {
+    color: var(--admin-primary) !important;
+    font-weight: 700 !important;
+    font-size: 2em !important;
+    margin: 0 !important;
+}
+
+/* =========================================
+   5. TABLES
+   ========================================= */
+.table {
+    background: white !important;
+    border-radius: var(--admin-radius) !important;
+    overflow: hidden !important;
+    box-shadow: var(--admin-shadow) !important;
+    border: 1px solid var(--admin-border) !important;
+    margin-bottom: 20px !important;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--admin-primary-light) 0%, #FFF5F9 100%) !important;
+}
+
+.table thead th {
+    color: var(--admin-primary) !important;
+    font-weight: 700 !important;
+    padding: 16px !important;
+    border-bottom: 2px solid var(--admin-primary-light) !important;
+    text-transform: uppercase !important;
+    font-size: 0.85em !important;
+    letter-spacing: 0.5px !important;
+    border-top: none !important;
+}
+
+.table tbody tr {
+    transition: all 0.2s !important;
+}
+
+.table tbody tr:hover {
+    background: var(--admin-primary-light) !important;
+}
+
+.table tbody td {
+    padding: 14px 16px !important;
+    border-bottom: 1px solid var(--admin-border) !important;
+    vertical-align: middle !important;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* =========================================
+   6. BUTTONS
+   ========================================= */
+.btn {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    padding: 10px 20px !important;
+    transition: all 0.2s !important;
+    border: none !important;
+    font-family: 'M PLUS Rounded 1c', sans-serif !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+}
+
+.btn-primary {
+    background: var(--admin-primary) !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--admin-primary-hover) !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3) !important;
+    text-decoration: none !important;
+}
+
+.btn-success {
+    background: var(--admin-success) !important;
+    color: white !important;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background: #38A169 !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background: var(--admin-error) !important;
+    color: white !important;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+    background: #C53030 !important;
+    color: white !important;
+}
+
+.btn-warning {
+    background: var(--admin-warning) !important;
+    color: white !important;
+}
+
+.btn-warning:hover,
+.btn-warning:focus {
+    background: #B7791F !important;
+    color: white !important;
+}
+
+.btn-default,
+.btn-secondary {
+    background: #F7FAFC !important;
+    color: var(--admin-text) !important;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background: #EDF2F7 !important;
+    color: var(--admin-text) !important;
+}
+
+.btn-xs {
+    padding: 4px 10px !important;
+    font-size: 0.85em !important;
+    border-radius: 6px !important;
+}
+
+/* =========================================
+   7. FORMS
+   ========================================= */
+.form-control {
+    border: 1px solid var(--admin-border) !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-family: 'M PLUS Rounded 1c', sans-serif !important;
+    transition: all 0.2s !important;
+    width: 100% !important;
+}
+
+.form-control:focus {
+    border-color: var(--admin-primary) !important;
+    box-shadow: 0 0 0 3px var(--admin-primary-light) !important;
+    outline: none !important;
+}
+
+.form-group {
+    margin-bottom: 20px !important;
+}
+
+.form-group label {
+    font-weight: 600 !important;
+    color: var(--admin-text) !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+/* Select2 Dropdown */
+.select2-container--default .select2-selection--single {
+    border: 1px solid var(--admin-border) !important;
+    border-radius: 8px !important;
+    height: 38px !important;
+}
+
+.select2-container--default .select2-selection--single:focus {
+    border-color: var(--admin-primary) !important;
+}
+
+.select2-container--default .select2-results__option--highlighted {
+    background: var(--admin-primary) !important;
+}
+
+/* =========================================
+   8. CARDS & PANELS
+   ========================================= */
+.panel {
+    border: 1px solid var(--admin-border) !important;
+    border-radius: var(--admin-radius) !important;
+    box-shadow: var(--admin-shadow) !important;
+    background: white !important;
+    margin-bottom: 20px !important;
+}
+
+.panel-heading {
+    background: linear-gradient(135deg, var(--admin-primary-light) 0%, #FFF5F9 100%) !important;
+    border-bottom: 2px solid var(--admin-primary-light) !important;
+    padding: 16px 20px !important;
+    border-radius: var(--admin-radius) var(--admin-radius) 0 0 !important;
+}
+
+.panel-heading h3 {
+    color: var(--admin-primary) !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    font-size: 1.2em !important;
+}
+
+.panel-body {
+    padding: 20px !important;
+}
+
+/* =========================================
+   9. BADGES & LABELS
+   ========================================= */
+.label,
+.badge {
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.85em !important;
+    display: inline-block !important;
+}
+
+.label-success,
+.badge-success {
+    background: var(--admin-success) !important;
+    color: white !important;
+}
+
+.label-danger,
+.badge-danger {
+    background: var(--admin-error) !important;
+    color: white !important;
+}
+
+.label-warning,
+.badge-warning {
+    background: var(--admin-warning) !important;
+    color: white !important;
+}
+
+.label-primary,
+.badge-primary {
+    background: var(--admin-primary) !important;
+    color: white !important;
+}
+
+/* =========================================
+   10. PAGINATION
+   ========================================= */
+.pagination {
+    margin: 20px 0 !important;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+    color: var(--admin-primary) !important;
+    border: 1px solid var(--admin-border) !important;
+    border-radius: 8px !important;
+    margin: 0 4px !important;
+    padding: 8px 14px !important;
+    text-decoration: none !important;
+}
+
+.pagination > li > a:hover,
+.pagination > li > a:focus {
+    background: var(--admin-primary-light) !important;
+    border-color: var(--admin-primary) !important;
+    color: var(--admin-primary) !important;
+    text-decoration: none !important;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover {
+    background: var(--admin-primary) !important;
+    border-color: var(--admin-primary) !important;
+    color: white !important;
+}
+
+/* =========================================
+   11. ALERTS & MESSAGES
+   ========================================= */
+.alert {
+    border-radius: var(--admin-radius) !important;
+    border: none !important;
+    padding: 16px 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.alert-success {
+    background: #F0FFF4 !important;
+    color: #2F855A !important;
+    border-left: 4px solid var(--admin-success) !important;
+}
+
+.alert-danger {
+    background: #FFF5F5 !important;
+    color: #C53030 !important;
+    border-left: 4px solid var(--admin-error) !important;
+}
+
+.alert-warning {
+    background: #FFFAF0 !important;
+    color: #744210 !important;
+    border-left: 4px solid var(--admin-warning) !important;
+}
+
+.alert-info {
+    background: #EBF8FF !important;
+    color: #2C5282 !important;
+    border-left: 4px solid #3182CE !important;
+}
+
+/* =========================================
+   12. MODAL
+   ========================================= */
+.modal-content {
+    border-radius: var(--admin-radius) !important;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--admin-primary-light) 0%, #FFF5F9 100%) !important;
+    border-bottom: 2px solid var(--admin-primary-light) !important;
+    border-radius: var(--admin-radius) var(--admin-radius) 0 0 !important;
+    padding: 20px !important;
+}
+
+.modal-header h4 {
+    color: var(--admin-primary) !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--admin-border) !important;
+    padding: 16px 20px !important;
+}
+
+/* =========================================
+   13. DASHBOARD SPECIFIC
+   ========================================= */
+.admin-dashboard {
+    padding: 30px !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+}
+
+.dashboard-header {
+    text-align: center !important;
+    margin-bottom: 40px !important;
+    padding-bottom: 20px !important;
+    border-bottom: 2px solid var(--admin-border) !important;
+}
+
+.dashboard-header h1 {
+    color: var(--admin-primary) !important;
+    font-size: 2.5em !important;
+    font-weight: 700 !important;
+    margin: 0 0 10px 0 !important;
+}
+
+.dashboard-subtitle {
+    color: var(--admin-text-light) !important;
+    font-size: 1.1em !important;
+    margin: 0 !important;
+}
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 20px !important;
+    margin-bottom: 40px !important;
+}
+
+.stats-card {
+    background: white !important;
+    border-radius: var(--admin-radius) !important;
+    padding: 24px !important;
+    box-shadow: var(--admin-shadow) !important;
+    border: 1px solid var(--admin-border) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.stats-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(255, 105, 180, 0.15) !important;
+}
+
+.stats-icon {
+    font-size: 3em !important;
+    width: 80px !important;
+    height: 80px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--admin-primary-light) !important;
+    border-radius: 50% !important;
+    flex-shrink: 0 !important;
+}
+
+.stats-content {
+    flex: 1 !important;
+}
+
+.stats-label {
+    color: var(--admin-text-light) !important;
+    font-size: 0.9em !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.stats-value {
+    color: var(--admin-primary) !important;
+    font-size: 2em !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+.quick-actions {
+    margin-bottom: 40px !important;
+}
+
+.quick-actions h2 {
+    color: var(--admin-primary) !important;
+    font-size: 1.8em !important;
+    margin-bottom: 20px !important;
+    font-weight: 700 !important;
+}
+
+.actions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 16px !important;
+}
+
+.action-card {
+    background: white !important;
+    border: 2px solid var(--admin-border) !important;
+    border-radius: var(--admin-radius) !important;
+    padding: 24px !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    color: var(--admin-text) !important;
+    transition: all 0.2s !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.action-card:hover {
+    border-color: var(--admin-primary) !important;
+    background: var(--admin-primary-light) !important;
+    color: var(--admin-primary) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--admin-shadow) !important;
+    text-decoration: none !important;
+}
+
+.action-icon {
+    font-size: 2.5em !important;
+}
+
+.action-text {
+    font-weight: 600 !important;
+    font-size: 0.95em !important;
+}
+
+.recent-activity h2 {
+    color: var(--admin-primary) !important;
+    font-size: 1.8em !important;
+    margin-bottom: 20px !important;
+    font-weight: 700 !important;
+}
+
+.categories-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 20px !important;
+}
+
+.category-card {
+    background: white !important;
+    border-radius: var(--admin-radius) !important;
+    padding: 24px !important;
+    box-shadow: var(--admin-shadow) !important;
+    border: 1px solid var(--admin-border) !important;
+}
+
+.category-card h3 {
+    color: var(--admin-primary) !important;
+    font-size: 1.3em !important;
+    margin: 0 0 16px 0 !important;
+    font-weight: 700 !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid var(--admin-primary-light) !important;
+}
+
+.category-card ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.category-card li {
+    margin-bottom: 10px !important;
+}
+
+.category-card a {
+    color: var(--admin-text) !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s !important;
+}
+
+.category-card a:hover {
+    background: var(--admin-primary-light) !important;
+    color: var(--admin-primary) !important;
+    padding-left: 16px !important;
+    text-decoration: none !important;
+}
+
+.category-card a::before {
+    content: "→" !important;
+    margin-right: 8px !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s !important;
+}
+
+.category-card a:hover::before {
+    opacity: 1 !important;
+}
+
+/* =========================================
+   14. RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .content {
+        padding: 15px !important;
+    }
+    
+    .admin-user-info {
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+    
+    .admin-user-details {
+        text-align: center !important;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .categories-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* =========================================
+   15. CUSTOM SCROLLBAR
+   ========================================= */
+::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--admin-bg) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--admin-primary) !important;
+    border-radius: 4px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--admin-primary-hover) !important;
+}
+
+/* =========================================
+   16. UTILITY CLASSES
+   ========================================= */
+.text-primary {
+    color: var(--admin-primary) !important;
+}
+
+.bg-primary-light {
+    background: var(--admin-primary-light) !important;
+}
+
+.border-primary {
+    border-color: var(--admin-primary) !important;
+}
+
+.shadow-sm {
+    box-shadow: var(--admin-shadow) !important;
+}
+
+.rounded {
+    border-radius: var(--admin-radius) !important;
+}
+
+/* =========================================
+   17. OVERRIDE FLASK-ADMIN SPECIFIC
+   ========================================= */
+.admin-model-list {
+    background: white !important;
+    border-radius: var(--admin-radius) !important;
+    padding: 20px !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+.admin-model-form {
+    background: white !important;
+    border-radius: var(--admin-radius) !important;
+    padding: 20px !important;
+    box-shadow: var(--admin-shadow) !important;
+}
+
+/* Fix cho các element có thể bị ẩn */
+.hidden {
+    display: none !important;
+}
+
+/* Override Bootstrap mặc định */
+.navbar-default {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
+}

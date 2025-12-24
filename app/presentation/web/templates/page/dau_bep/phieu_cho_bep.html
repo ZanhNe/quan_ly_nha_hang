@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Bếp - Danh sách Order{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/kds_style.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/dau_bep/phieu_cho_bep.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/dau_bep/socket_manager.js') }}"></script>
+<script id="tickets-raw" type="application/json">
+        {{ ds_phieu_mon | default('[]') | tojson }}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="kds-container">
+    <div class="kds-page-header">
+        <div>
+            <h2 class="kds-title">👨‍🍳 Danh sách Order (KDS)</h2>
+            <p class="kds-subtitle">Các phiếu món cần chế biến</p>
+        </div>
+        <div>
+            <button class="btn-primary" onclick="window.location.reload()">↻ Làm mới</button>
+        </div>
+    </div>
+
+
+    <div class="session-grid">
+        {% for phieu_mon in ds_phieu_mon %}
+        <a href="{{url_for('index.chi_tiet_phieu_mon_dau_bep', phieu_mon_id=phieu_mon.id)}}" class="session-card">
+            <div class="card-header">
+                <strong style="color: #2D3748;">Phiếu #{{ phieu_mon.id }}</strong>
+
+                {% if phieu_mon.trang_thai == 'DAGUI' %}
+                <span class="badge badge-sent">Đã gửi bếp</span>
+                {% endif %}
+            </div>
+            <p class="card-info">🕒 Tạo lúc: {{ phieu_mon.ngay_tao }}</p>
+
+            <div
+                style="margin-top: 15px; text-align: right; color: var(--primary-color); font-weight: 600; font-size: 0.9em;">
+                Xem →
+            </div>
+        </a>
+        {% else %}
+        <p style="color: #A0AEC0; grid-column: 1/-1; text-align: center;">Chưa có phiếu món nào.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
