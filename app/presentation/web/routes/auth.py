@@ -18,6 +18,7 @@ tai_khoan_service = injector_instance.get(interface=ITaiKhoanService)
 @login_required
 @unverified_required
 def yeu_cau_xac_thuc():
+    # Trang báo lỗi/yêu cầu check mail để kích hoạt tài khoản
     return render_template('page/xac_thuc/yeu_cau_xac_thuc.html')
 
 
@@ -31,20 +32,25 @@ def cho_xet_duyet():
 @auth_bp.route('/dang-xuat')
 @login_required
 def dang_xuat():
+    # Clear hết session rồi đá về trang login
     session.clear()
     return redirect(url_for('auth.trang_dang_nhap'))
 
 @auth_bp.route('/dang-nhap')
 @guest_required
 def trang_dang_nhap():
+    # Show giao diện login
     return render_template('page/xac_thuc/dang_nhap.html')
 
 
 @auth_bp.route('/dang-nhap', methods=['POST'])
 def xu_ly_dang_nhap():
+    # Nhận data từ form, check login rồi lưu vào session
     try:
         data = request.form.to_dict()
+        # print(data)
         tai_khoan_dang_nhap = tai_khoan_login_schema.load(data)
+        print(tai_khoan_dang_nhap)
         nguoi_dung = tai_khoan_service.dang_nhap_tai_khoan(tai_khoan_login=tai_khoan_dang_nhap)
 
         current_user = {
@@ -71,11 +77,13 @@ def xu_ly_dang_nhap():
 @auth_bp.route('/dang-ky')
 @guest_required
 def trang_dang_ky():
+    # Show giao diện đăng ký tài khoản mới
     return render_template('page/xac_thuc/dang_ky.html')
 
     
 @auth_bp.route('/dang-ky', methods=['POST'])
 def xu_ly_dang_ky():
+    # Xử lý tạo user mới, gửi mail xác nhận các thứ
     try:
         data = request.form.to_dict()
         tai_khoan = tai_khoan_create_schema.load(data)
@@ -85,7 +93,7 @@ def xu_ly_dang_ky():
             return redirect(url_for('auth.trang_dang_nhap'))
     except (ValidationError, Exception) as err:
         if isinstance(err, ValidationError):
-            flash('Nhập sai định dạng, vui lòng nhập lại', 'error')
+            flash(f'{err.messages}', 'error')
             return redirect(url_for('auth.trang_dang_ky'))
         elif isinstance(err, Exception):
             flash(str(err), 'error')
@@ -93,13 +101,14 @@ def xu_ly_dang_ky():
 
 @auth_bp.route('/auth/verify')
 def xac_thuc_email():
+    # Click link trong mail thì nhảy vào đây để kích hoạt account
     try:
         token = request.args.get('token')
         flag = tai_khoan_service.xac_thuc_tai_khoan(token=token)
         if not token or not flag:
             flash('Không hợp lệ', 'wrong_token')
         else:
-            flash('Xác thực thành công', 'success')
+            flash('Xác thực thành công', 'success_token')
         return render_template('page/xac_thuc/xac_thuc.html')
     
     except (ExpiredSignatureError, InvalidTokenError, Exception) as e:

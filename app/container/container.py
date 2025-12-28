@@ -6,19 +6,32 @@ from injector import Module, singleton, Injector
 from app.data.dao.interfaces.interfaces import (IKhuVucDAO, IBanDAO, INguoiDungDAO, IPhienBanDAO
                                                 , ITaiKhoanDAO, IVaiTroDAO, IThucDonDAO
                                                 , ITuyChonMonReadDAO, IPhieuMonReadDAO, IMonGhiReadDAO, IThongBaoReadDAO
-                                                , IKhuyenMaiDAO, ICauHinhThueDAO, IDoanhThuDAO, IYeuCauReadDAO, IBaoCaoDAO)
+                                                , IKhuyenMaiDAO, ICauHinhThueDAO, IDoanhThuDAO, IYeuCauReadDAO, IBaoCaoDAO
+                                                , IDatBanDAO
+                                                # Admin DAOs
+                                                , IAdminTaiKhoanDAO, IAdminNguoiDungDAO, IAdminKhuVucDAO, IAdminBanDAO
+                                                , IAdminThucDonDAO, IAdminKhuyenMaiDAO, IAdminCauHinhThueDAO)
 from app.data.dao.dao import (KhuVucDAO, BanDAO, PhienBanDAO, NguoiDungDAO, TaiKhoanDAO, VaiTroDAO
                               , ThucDonDAO, TuyChonMonReadDAO, PhieuMonReadDAO, MonGhiReadDAO, ThongBaoReadDAO, DoanhThuDAO
-                              , KhuyenMaiDAO, CauHinhThueDAO, YeuCauReadDAO, BaoCaoDAO)
+                              , KhuyenMaiDAO, CauHinhThueDAO, YeuCauReadDAO, BaoCaoDAO, DatBanDAO)
+from app.data.dao.admin_dao import (AdminTaiKhoanDAO, AdminNguoiDungDAO, AdminKhuVucDAO, AdminBanDAO
+                                    , AdminThucDonDAO, AdminKhuyenMaiDAO, AdminCauHinhThueDAO)
 
 # Service
 from app.domain.services.interfaces.interfaces import (IKhuVucService, IBanService, IBoChonNhanVien
                                                        , ITaiKhoanService, IPhienBanService, IThucDonService
                                                        , IThemMonService, INguoiDungService, IDoanhThuService
-                                                       , IKhuyenMaiService, IDoanhThuThanhToanService, IBaoCaoService)
+                                                       , IKhuyenMaiService, IDoanhThuThanhToanService, IBaoCaoService
+                                                       # Admin Services
+                                                       , IAdminTaiKhoanService, IAdminNguoiDungService, IAdminKhuVucService
+                                                       , IAdminBanService, IAdminThucDonService, IAdminKhuyenMaiService
+                                                       , IAdminCauHinhThueService)
 from app.domain.services.service import (KhuVucService, BanService, BoChonNhanVien
                                          , TaiKhoanService, PhienBanService, ThucDonService, ThemMonService, NguoiDungService, DoanhThuService
                                          , KhuyenMaiService, DoanhThuThanhToanService, BaoCaoService)
+from app.domain.services.admin_service import (AdminTaiKhoanService, AdminNguoiDungService, AdminKhuVucService
+                                               , AdminBanService, AdminThucDonService, AdminKhuyenMaiService
+                                               , AdminCauHinhThueService)
 from app.payment.interface import ThanhToanOnline
 from app.payment.payment import Stripe
 
@@ -43,6 +56,15 @@ class DAOModule(Module):
         binder.bind(interface=IDoanhThuDAO, to=DoanhThuDAO, scope=singleton)
         binder.bind(interface=IYeuCauReadDAO, to=YeuCauReadDAO, scope=singleton)
         binder.bind(interface=IBaoCaoDAO, to=BaoCaoDAO, scope=singleton)
+        binder.bind(interface=IDatBanDAO, to=DatBanDAO, scope=singleton)
+        # Admin DAOs
+        binder.bind(interface=IAdminTaiKhoanDAO, to=AdminTaiKhoanDAO, scope=singleton)
+        binder.bind(interface=IAdminNguoiDungDAO, to=AdminNguoiDungDAO, scope=singleton)
+        binder.bind(interface=IAdminKhuVucDAO, to=AdminKhuVucDAO, scope=singleton)
+        binder.bind(interface=IAdminBanDAO, to=AdminBanDAO, scope=singleton)
+        binder.bind(interface=IAdminThucDonDAO, to=AdminThucDonDAO, scope=singleton)
+        binder.bind(interface=IAdminKhuyenMaiDAO, to=AdminKhuyenMaiDAO, scope=singleton)
+        binder.bind(interface=IAdminCauHinhThueDAO, to=AdminCauHinhThueDAO, scope=singleton)
 
 class ServiceModule(Module):
     def configure(self, binder):
@@ -60,10 +82,14 @@ class ServiceModule(Module):
         binder.bind(interface=IKhuyenMaiService, to=KhuyenMaiService, scope=singleton)
         binder.bind(interface=ThanhToanOnline, to=Stripe, scope=singleton)
         binder.bind(interface=IBaoCaoService, to=BaoCaoService, scope=singleton)
+        # Admin Services
+        binder.bind(interface=IAdminTaiKhoanService, to=AdminTaiKhoanService, scope=singleton)
+        binder.bind(interface=IAdminNguoiDungService, to=AdminNguoiDungService, scope=singleton)
+        binder.bind(interface=IAdminKhuVucService, to=AdminKhuVucService, scope=singleton)
+        binder.bind(interface=IAdminBanService, to=AdminBanService, scope=singleton)
+        binder.bind(interface=IAdminThucDonService, to=AdminThucDonService, scope=singleton)
+        binder.bind(interface=IAdminKhuyenMaiService, to=AdminKhuyenMaiService, scope=singleton)
+        binder.bind(interface=IAdminCauHinhThueService, to=AdminCauHinhThueService, scope=singleton)
 
 injector_instance = Injector([DAOModule(), ServiceModule()])
-
-
-
-
 

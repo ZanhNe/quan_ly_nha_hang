@@ -1,15 +1,15 @@
 import { updateTable } from './danh_dau.js'
 
 
-// Cấu hình cơ bản
+// Kết nối SocketIO cho Lễ tân
 const socket = io('http://127.0.0.1:5000', {
-  transports: ['websocket'], // dùng WebSocket ngay từ đầu (bỏ qua Long-polling) cho nhanh
-  autoConnect: true,         // Tự động kết nối ngay khi khởi tạo
+  transports: ['websocket'], // dùng luôn websocket cho khỏe
+  autoConnect: true,
 });
 
 // Lắng nghe sự kiện hệ thống
 socket.on('connect', () => {
-  console.log('Đã kết nối thành công! ID của tôi là:', socket.id);
+  console.log('Connect ngon lành! ID:', socket.id);
 });
 
 socket.on('disconnect', (reason) => {
@@ -22,6 +22,7 @@ socket.on('disconnect', (reason) => {
 });
 
 socket.on('chon_ban', (data) => {
+  // Cập nhật trạng thái bàn realtime khi có máy khác chọn
   updateTable(data);
 });
 

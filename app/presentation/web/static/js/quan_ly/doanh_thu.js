@@ -1,6 +1,4 @@
-/**
- * Báo cáo Doanh thu - JavaScript Module
- */
+// --- Báo cáo Doanh thu ---
 
 document.addEventListener('DOMContentLoaded', () => {
     initDatePickers();
@@ -9,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initDatePickers() {
+    // Khởi tạo bộ chọn ngày (Flatpickr)
     const options = {
         dateFormat: 'Y-m-d',
         locale: { firstDayOfWeek: 1 }
@@ -23,11 +22,11 @@ function initFilterButton() {
         btnFilter.addEventListener('click', () => {
             const tuNgay = document.getElementById('tu-ngay').value;
             const denNgay = document.getElementById('den-ngay').value;
-            
+
             const url = new URL(window.location.href);
             url.searchParams.set('tu_ngay', tuNgay);
             url.searchParams.set('den_ngay', denNgay);
-            
+
             window.location.href = url.toString();
         });
     }
@@ -46,7 +45,7 @@ function initRevenueChart() {
     if (!dataScript) return;
 
     const data = JSON.parse(dataScript.textContent || '[]');
-    
+
     if (data.length === 0) {
         canvas.parentElement.innerHTML = '<div class="empty-panel"><span>📭</span><p>Chưa có dữ liệu</p></div>';
         return;
@@ -55,7 +54,7 @@ function initRevenueChart() {
     const labels = data.map(d => formatDate(d.ngay));
     const revenues = data.map(d => d.doanh_thu);
 
-    // Calculate gradient
+    // Tạo hiệu ứng gradient cho biểu đồ đường
     const ctx = canvas.getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 350);
     gradient.addColorStop(0, 'rgba(255, 105, 180, 0.4)');
@@ -111,7 +110,7 @@ function initHourlyChart() {
     if (!dataScript) return;
 
     const data = JSON.parse(dataScript.textContent || '[]');
-    
+
     if (data.length === 0) {
         canvas.parentElement.innerHTML = '<div class="empty-panel"><span>📭</span><p>Chưa có dữ liệu</p></div>';
         return;
@@ -146,7 +145,7 @@ function initHourlyChart() {
                 x: {
                     ticks: {
                         maxRotation: 0,
-                        callback: function(val, index) {
+                        callback: function (val, index) {
                             return index % 3 === 0 ? this.getLabelForValue(val) : '';
                         }
                     }

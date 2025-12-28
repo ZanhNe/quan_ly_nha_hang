@@ -9,6 +9,8 @@ import enum
 
 
 
+
+
 class BienChung:
     THOIGIANCODINH = 30
 
@@ -76,10 +78,7 @@ class HaoTon:
 
 
 class Base(db.Model):
-    """
-    Lớp cơ sở trừu tượng chứa các trường chung.
-    Sẽ không được tạo thành bảng trong CSDL.
-    """
+# Base model chứa mấy trường chung like ID, ngày tạo...
     __abstract__ = True
 
     id: Mapped[int] = mapped_column('id', primary_key=True, autoincrement=True)
@@ -88,9 +87,7 @@ class Base(db.Model):
 
 
 class VaiTro(Base):
-    """
-    Lớp chứa các vai trò.
-    """
+    # Bảng phân quyền (Admin, Quản lý, Phục vụ...)
     __tablename__ = 'vai_tro'
     vai_tro: Mapped[str] = mapped_column('vai_tro', Enum(TenVaiTro), nullable=False, unique=True)
 
@@ -102,9 +99,7 @@ class VaiTro(Base):
 
 
 class TaiKhoan(Base):
-    """
-    Lớp chứa thông tin tài khoản của người dùng.
-    """
+    # Thông tin đăng nhập, token xác thực/reset pass
     __tablename__= 'tai_khoan'
     email: Mapped[str] = mapped_column('email', String(255), unique=True, nullable=True)
     ten_tai_khoan: Mapped[str] = mapped_column('ten_tai_khoan', String(500), unique=True, nullable=False)
@@ -121,15 +116,33 @@ class TaiKhoan(Base):
 
     nguoi_dung: Mapped['NguoiDung'] = relationship(lazy='joined', uselist=False, back_populates='tai_khoan')
     
+    def khoa(self):
+        self.trang_thai = TrangThaiTaiKhoan.KHOA
+
+    def mo_khoa(self):
+        self.trang_thai = TrangThaiTaiKhoan.MO
+
+    def cap_nhat_thong_tin(self, email: str = None, mat_khau: str = None, is_xac_thuc: bool = None):
+        if email:
+            self.email = email
+        if mat_khau:
+            self.mat_khau = mat_khau
+        if is_xac_thuc is not None:
+            self.is_xac_thuc = is_xac_thuc
+
+    def kien_tra_cho_duyet(self):
+        if not self.is_xac_thuc:
+            raise Exception('Tài khoản chưa xác thực email.')
+        if self.vai_tro.vai_tro != TenVaiTro.VODANH:
+            raise Exception('Tài khoản này đã được duyệt hoặc không ở trạng thái chờ duyệt.')
+    
     def __repr__(self):
         email_str = f" ({self.email})" if self.email else ""
         return f"{self.ten_tai_khoan}{email_str}"
 
 
 class NguoiDung(Base):
-    """
-    Lớp chứa về thông tin của người dùng trong hệ thống.
-    """
+    # Thông tin cá nhân nhân viên, có link tới tài khoản
     __tablename__ = 'nguoi_dung'
     ho_ten: Mapped[str] = mapped_column('ho_ten', String(255), nullable=False)
     #Dùng cột type để phân biệt PhucVu và LeTan
@@ -148,6 +161,24 @@ class NguoiDung(Base):
     def __repr__(self):
         return self.ho_ten
 
+    def cap_nhat_ho_ten(self, ho_ten: str):
+        self.ho_ten = ho_ten
+
+    @classmethod
+    def create_by_role(cls, vai_tro_ten: str, ho_ten: str, tai_khoan_id: int, **kwargs) -> 'NguoiDung':
+        if vai_tro_ten == 'PHUCVU':
+            return PhucVu(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id, khu_vuc_id=kwargs.get('khu_vuc_id'))
+        elif vai_tro_ten == 'LETAN':
+            return LeTan(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'DAUBEP':
+            return DauBep(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'THUNGAN':
+            return ThuNgan(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'QUANLY':
+            return QuanLy(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        else:
+            return NguoiDung(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+
     @singledispatchmethod
     def them_thong_bao(self, status, tieu_de, noi_dung, link):
         raise NotImplementedError('')
@@ -163,9 +194,7 @@ class NguoiDung(Base):
 
 
 class PhucVu(NguoiDung):
-    """
-    Lớp chứa thông tin về nhân viên phục vụ (Người dùng) khách hàng trong nhà hàng.
-    """
+    # Subclass cho nhân viên chạy bàn
     __tablename__ = 'phuc_vu'
 
     nguoi_dung_id: Mapped[int] = mapped_column('nguoi_dung_id', ForeignKey('nguoi_dung.id'), primary_key=True)
@@ -195,6 +224,9 @@ class PhucVu(NguoiDung):
         return len(self.ds_phan_cong_hien_tai)
     
     def kiem_tra_chua_dam_nhan_phien_nao(self) -> bool:
+        for phien in self.ds_phien_dam_nhan_dang_co:
+            if phien.trang_thai == TrangThai.MO:
+                print(phien)
         return len(self.ds_phien_dam_nhan_dang_co) == 0
 
     __mapper_args__ = {
@@ -206,9 +238,7 @@ class PhucVu(NguoiDung):
 
 
 class LeTan(NguoiDung):
-    """
-    Lớp chứa thông tin về Lễ Tân (Người dùng cũng là người điều phối khách hàng trong nhà hàng).
-    """
+    # Phụ trách check-in, gán bàn, đặt chỗ
     __tablename__ = 'le_tan'
 
     nguoi_dung_id: Mapped[int] = mapped_column('nguoi_dung_id', ForeignKey('nguoi_dung.id'), primary_key=True)
@@ -224,6 +254,12 @@ class LeTan(NguoiDung):
         phien = PhienBan(le_tan_id=self.id)
         phien.tao_khung_gio(tg_bat_dau=tg_bat_dau)
         return phien
+    
+    def dat_ban(self, tg_den: datetime.datetime, ten_khach: str, sdt: str, so_luong: int, ds_ban: List[Ban]) -> DatBan:
+        db = DatBan(ten_khach=ten_khach, sdt=sdt, so_luong=so_luong, ds_ban_dat=ds_ban, le_tan=self)
+        db.tao_khung_gio_dat_ban(tg_den=tg_den, ds_ban=ds_ban)
+        return db
+
 
 class DauBep(NguoiDung):
     """
@@ -241,9 +277,7 @@ class DauBep(NguoiDung):
 
 
 class ThuNgan(NguoiDung):
-    """
-    Lớp chứa thông tin về Thu Ngân
-    """
+    # Nhân viên thu ngân, xử lý hóa đơn
     __tablename__ = 'thu_ngan'
 
     ds_doanh_thu_chua_hoan_thanh: Mapped[List['DoanhThu']] = relationship(lazy='selectin'\
@@ -278,9 +312,7 @@ class ThuNgan(NguoiDung):
 
     
 class QuanLy(NguoiDung):
-    """
-    Lớp chứa thông tin về Quản Lý
-    """
+    # Cấp quản lý, có quyền duyệt yêu cầu từ nhân viên
     __tablename__ = 'quan_ly'
 
     nguoi_dung_id: Mapped[int] = mapped_column('nguoi_dung_id', ForeignKey('nguoi_dung.id'), primary_key=True)
@@ -382,9 +414,7 @@ class YCPhieuMon(YeuCau):
 
 
 class ThongBao(Base):
-    """
-    Lớp chứa thông tin về thông báo
-    """
+    # Thông báo nội bộ cho nhân viên (Hoàn thành món, Phân công ca...)
     __tablename__ = 'thong_bao'
     nguoi_nhan_id: Mapped[int] = mapped_column('nguoi_nhan_id', ForeignKey('nguoi_dung.id'), nullable=False)
     tieu_de: Mapped[str] = mapped_column('tieu_de', String(100), nullable=True)
@@ -398,9 +428,7 @@ class ThongBao(Base):
 
 
 class KhuVuc(Base):
-    """
-    Lớp chứa thông tin về khu vực mà các phục vụ và bàn được bố trí.
-    """
+    # Khu vực like Tầng 1, Tầng 2, Ngoài trời...
     __tablename__ = 'khu_vuc'
     ten: Mapped[str] = mapped_column('ten', String(100), nullable=False)
 
@@ -409,6 +437,9 @@ class KhuVuc(Base):
     
     def __repr__(self):
         return self.ten
+
+    def cap_nhat_ten(self, ten: str):
+        self.ten = ten
 
 
 ban_khunggio_table = Table(
@@ -427,9 +458,7 @@ ban_datban_table = Table(
 )
 
 class Ban(Base):
-    """
-    Lớp chứa thông tin về bàn cho việc phục vụ.
-    """
+    # Thông tin từng bàn ăn cụ thể
     __tablename__ = 'ban'
     ten: Mapped[str] = mapped_column('ten', String(100), nullable=False)
     so_ghe: Mapped[int] = mapped_column('so_ghe', default=0)
@@ -457,7 +486,7 @@ class Ban(Base):
             secondaryjoin=lambda: and_(
             ban_khunggio_table.c.khung_gio_id == KhungGio.id,
             KhungGio.trang_thai == TrangThai.MO
-        ))
+        ), back_populates='ds_ban')
 
     def them_khung_gio(self, khung_gio: KhungGio):
         self.ds_khung_gio.append(khung_gio)
@@ -465,7 +494,7 @@ class Ban(Base):
 
     def kiem_tra_thoi_gian_danh_dau(self, tg: datetime.datetime) -> bool:
         """
-        Dùng để kiểm tra xem thời gian khách ngồi vào bàn hiện tại có bị chồng chéo lịch so với danh sách thời gian của Bàn.
+        # Kiểm tra xem giờ khách vào có bị đè lên lịch đặt trước không
         """
         for kg in self.ds_khung_gio:
             if not kg.thoi_gian_hop_le(tg=tg):
@@ -486,6 +515,14 @@ class Ban(Base):
         khu_vuc_ten = self.khu_vuc.ten if self.khu_vuc else 'N/A'
         return f"{self.ten} (Khu: {khu_vuc_ten})"
 
+    def cap_nhat_thong_tin(self, ten: str = None, so_ghe: int = None, khu_vuc_id: int = None):
+        if ten:
+            self.ten = ten
+        if so_ghe is not None:
+            self.so_ghe = so_ghe
+        if khu_vuc_id:
+            self.khu_vuc_id = khu_vuc_id
+
 
 class DatBan(Base):
     __tablename__ = 'dat_ban'
@@ -500,6 +537,13 @@ class DatBan(Base):
 
     ds_ban_dat: Mapped[List['Ban']] = relationship(secondary=ban_datban_table, lazy='selectin')
 
+    le_tan_id: Mapped[int] = mapped_column('le_tan_id', ForeignKey('le_tan.nguoi_dung_id'))
+    le_tan: Mapped['LeTan'] = relationship(lazy='joined')
+
+    def tao_khung_gio_dat_ban(self, tg_den: datetime.datetime, ds_ban: List[Ban]):
+        kg_db = KhungGioDatBan(tg_bat_dau=tg_den, tg_ket_thuc_du_kien=(tg_den + datetime.timedelta(minutes=BienChung.THOIGIANCODINH)), ds_ban=ds_ban)
+        self.khung_gio = kg_db
+
 
 class KhungGio(Base):
     """
@@ -510,9 +554,11 @@ class KhungGio(Base):
     tg_ket_thuc_du_kien: Mapped[datetime.datetime] = mapped_column('tg_ket_thuc_du_kien', DateTime, nullable=False)
     trang_thai: Mapped[str] = mapped_column('trang_thai', Enum(TrangThai), default=TrangThai.MO)
 
-    phien_ban_id: Mapped[int] = mapped_column('phien_ban_id', ForeignKey('phien_ban.id'))
+    phien_ban_id: Mapped[int] = mapped_column('phien_ban_id', ForeignKey('phien_ban.id'), nullable=True)
 
     type: Mapped[str] = mapped_column('type', String(50))
+
+    ds_ban: Mapped[List['Ban']] = relationship(secondary=ban_khunggio_table, lazy='selectin', back_populates='ds_khung_gio')
 
     __mapper_args__ = {
         "polymorphic_identity": "khung_gio",
@@ -559,9 +605,7 @@ class KhungGioDatBan(KhungGio):
 
 
 class PhienBan(Base):
-    """
-    Lớp chứa thông tin phiên quản lý bàn cho việc phân công.
-    """
+    # Một phiên (Session) của bàn, từ lúc khách vào đến lúc tính tiền
     __tablename__ = 'phien_ban'
     trang_thai: Mapped[str] = mapped_column('trang_thai', Enum(TrangThai), default=TrangThai.MO)
 
@@ -687,10 +731,7 @@ class PhienBan(Base):
             
 
 class PhanCong(Base):
-    """
-    Lớp chứa thông tin phân công cho phục vụ - bàn - phiên tương ứng.
-    VD: Bàn 1 - Phiên 1 - NV2 phục vụ
-    """
+    # Mapping bàn - phục vụ - phiên
     __tablename__ = 'phan_cong'
 
     trang_thai: Mapped[str] = mapped_column('trang_thai', Enum(TrangThai), default=TrangThai.MO)
@@ -820,6 +861,7 @@ monghi_tuychon_table = Table(
 )
 
 class ThucDon(Base):
+    # Danh sách Menu tổng của nhà hàng
     __tablename__ = 'thuc_don'
     
     ds_nhom_mon: Mapped[List['NhomMon']] = relationship(lazy='selectin')
@@ -850,6 +892,9 @@ class NhomMon(Base):
     def __repr__(self):
         return self.ten
 
+    def cap_nhat_ten(self, ten: str):
+        self.ten = ten
+
 
 class MoTaMon(Base):
     __tablename__ = 'mo_ta_mon'
@@ -867,6 +912,18 @@ class MoTaMon(Base):
     
     def __repr__(self):
         return f"{self.ten} ({self.gia:,} đ)"
+
+    def cap_nhat_thong_tin(self, ten: str = None, hinh: str = None, gia: int = None, nhom_mon_id: int = None, trang_thai: str = None):
+        if ten:
+            self.ten = ten
+        if hinh:
+            self.hinh = hinh
+        if gia is not None:
+            self.gia = gia
+        if nhom_mon_id:
+            self.nhom_mon_id = nhom_mon_id
+        if trang_thai:
+            self.trang_thai = trang_thai
     
 class NhomTuyChon(Base):
     __tablename__ = 'nhom_tuy_chon'
@@ -1082,6 +1139,8 @@ class DoanhThu(Base):
                     dt_km = DoanhThuKhuyenMai(doanh_thu_id=self.id, khuyen_mai_id=km.id, so_tien_giam=so_tien_giam)
                     self.ds_khuyen_mai.append(dt_km)
                     break
+                else:
+                    raise Exception("Không đủ điều kiện để sử dụng")
 
         tien_sau = (tong_tien - tien_giam_gia) if (tong_tien - tien_giam_gia >= 0) else 0
         
@@ -1174,6 +1233,7 @@ class ThanhToan(Base):
         return f"Thanh toán #{self.id} - {self.so_tien:,} đ"
 
 class KhuyenMai(Base):
+    # Base cho các chương trình giảm giá
     __tablename__ = 'khuyen_mai'
     ten: Mapped[str] = mapped_column('ten', String(100), nullable=False)
     mo_ta: Mapped[str] = mapped_column('mo_ta', String(500), nullable=False)
@@ -1203,6 +1263,26 @@ class KhuyenMai(Base):
     def __repr__(self):
         return self.ten
 
+    def cap_nhat_thong_tin(self, **kwargs):
+        if 'ten' in kwargs:
+            self.ten = kwargs['ten']
+        if 'mo_ta' in kwargs:
+            self.mo_ta = kwargs['mo_ta']
+        if 'hoat_dong' in kwargs:
+            self.hoat_dong = kwargs['hoat_dong']
+        if 'gia_tri_don_hang_toi_thieu' in kwargs:
+            self.gia_tri_don_hang_toi_thieu = kwargs['gia_tri_don_hang_toi_thieu']
+        if 'gioi_han' in kwargs:
+            self.gioi_han = kwargs['gioi_han']
+        if 'ngay_bat_dau' in kwargs:
+            self.ngay_bat_dau = kwargs['ngay_bat_dau']
+        if 'ngay_het_han' in kwargs:
+            self.ngay_het_han = kwargs['ngay_het_han']
+        if 'tu_dong_ap_dung' in kwargs:
+            self.tu_dong_ap_dung = kwargs['tu_dong_ap_dung']
+        if 'thu_tu_uu_tien' in kwargs:
+            self.thu_tu_uu_tien = kwargs['thu_tu_uu_tien']
+
 class KhuyenMaiTheoPhanTram(KhuyenMai):
     __tablename__ = 'khuyen_mai_theo_phan_tram'
 
@@ -1219,6 +1299,11 @@ class KhuyenMaiTheoPhanTram(KhuyenMai):
     
     def co_the_su_dung(self, gia_tri: int) -> bool:
         return self.gia_tri_don_hang_toi_thieu <= gia_tri
+    
+    def cap_nhat_thong_tin(self, **kwargs):
+        super().cap_nhat_thong_tin(**kwargs)
+        if 'ti_le' in kwargs and kwargs['ti_le'] is not None:
+            self.phan_tram = kwargs['ti_le']
     
 
 class KhuyenMaiCung(KhuyenMai):
@@ -1239,4 +1324,9 @@ class KhuyenMaiCung(KhuyenMai):
 
     def tinh_so_tien_duoc_giam(self, tien: int) -> int:
         return self.so_tien_tru
+
+    def cap_nhat_thong_tin(self, **kwargs):
+        super().cap_nhat_thong_tin(**kwargs)
+        if 'so_tien_giam' in kwargs and kwargs['so_tien_giam'] is not None:
+            self.so_tien_tru = kwargs['so_tien_giam']
         

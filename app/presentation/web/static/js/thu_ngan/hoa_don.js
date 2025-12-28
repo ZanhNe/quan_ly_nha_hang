@@ -1,8 +1,8 @@
-const doanh_thu_id = document.getElementById("phien-id").dataset.id; // Lấy ID từ data attribute
-const POLLING_INTERVAL = 3000; // 3 giây
+const doanh_thu_id = document.getElementById("phien-id").dataset.id; // Lấy ID phiên để thực hiện polling
+const POLLING_INTERVAL = 3000; // Kiểm tra lại trạng thái sau mỗi 3 giây
 let isPolling = false;
 
-// Lấy trạng thái ban đầu từ data attribute
+// Lấy trạng thái ban đầu của phiên từ thuộc tính data
 const initialStatus = document.getElementById("initial-status").dataset.status;
 
 if (initialStatus !== "DAHOANTHANH") {
@@ -12,6 +12,7 @@ if (initialStatus !== "DAHOANTHANH") {
 function startPolling() {
   if (isPolling) return;
   isPolling = true;
+  // Hiện hiệu ứng chờ, ẩn các nút hành động trong khi chờ thanh toán hoàn tất
   document.getElementById("loadingOverlay").style.display = "flex";
   document.getElementById("actionButtons").style.display = "none";
 
@@ -50,14 +51,14 @@ function startPolling() {
 }
 
 function renderBill(data) {
-  // Cập nhật thông tin Header
+  // Đổ dữ liệu hóa đơn vào giao diện để in
   document.getElementById("billDate").innerText = new Date(
     data.ngay_tao
   ).toLocaleString("vi-VN");
 
-  // Cập nhật danh sách món
+  // Xóa danh sách cũ và render lại từ đầu
   const tbody = document.getElementById("billItemsBody");
-  tbody.innerHTML = ""; // Clear cũ
+  tbody.innerHTML = "";
 
   let subTotal = 0;
 
@@ -65,11 +66,7 @@ function renderBill(data) {
     data.phien_ban.ds_phieu_mon.forEach((phieu) => {
       if (phieu.ds_mon_ghi) {
         phieu.ds_mon_ghi.forEach((mon) => {
-          // Tính tiền món (có thể cần logic cộng topping nếu BE không trả sẵn total)
-          // Giả định BE trả mon.tinh_tien hoặc client tự tính
-          // Ở đây ta dùng data raw từ schema, cần tính toán lại một chút nếu schema không có field computed
-          // Tuy nhiên schema MonGhiOutSchema không có method tinh_tien,
-          // nên tốt nhất BE nên trả về field computed hoặc ta tính tay ở đây.
+          // Tính tiền từng món, bao gồm cả topping/tùy chọn
 
           let itemTotal = mon.mo_ta_mon.gia * mon.so_luong;
           let optionsHtml = "";
@@ -128,4 +125,3 @@ function renderBill(data) {
   statusBadge.className = "status-badge status-success";
   statusBadge.innerText = "ĐÃ THANH TOÁN";
 }
-

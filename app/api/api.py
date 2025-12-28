@@ -2,10 +2,10 @@ from flask import Blueprint, request, jsonify, session, url_for
 from marshmallow import ValidationError
 from app.decorator.decorators import login_required, role_required, verification_required
 from app.container.container import injector_instance
-from app.domain.services.interfaces.interfaces import IBanService, IPhienBanService, IThucDonService, IDoanhThuService, IBaoCaoService, ITaiKhoanService
+from app.domain.services.interfaces.interfaces import (IBanService, IPhienBanService, IThucDonService, IDoanhThuService, IBaoCaoService, ITaiKhoanService)
 from datetime import date, timedelta
 from app.schemas.init_schema import (ds_ban_in_schema, ds_mon_ghi_create_schema, mon_ghi_status_update_schema
-                                     , khuyen_mai_in_schema, yc_create_schema)
+                                     , khuyen_mai_in_schema, yc_create_schema, dat_ban_create_schema)
 from app.extentions.extentions import socketio
 from app.socket.socket import users
 from dotenv import load_dotenv
@@ -29,6 +29,7 @@ tai_khoan_service = injector_instance.get(interface=ITaiKhoanService)
 @verification_required
 @role_required('LETAN')
 def chon_ban():
+    # Lễ tân chọn bàn cho khách khi bắt đầu vào ăn
     try:
         data = request.get_json()
         letan_id = session.get('current_user')['user_id']
@@ -45,12 +46,64 @@ def chon_ban():
         else:
             print(err)
             return jsonify({'message': str(err)}), 400
-        
+    
+
+
+
+
+@api_bp.route('/api/v1/ban/dat-ban', methods=['POST'])
+@login_required
+@verification_required
+@role_required('LETAN')
+def dat_ban():
+    try:
+        data = request.get_json()
+        letan_id = session.get('current_user')['user_id']
+        dat_ban_create = dat_ban_create_schema.load(data=data)  
+
+        dat_ban_out = ban_service.xu_ly_dat_ban(letan_id=letan_id, dat_ban_create_schema=dat_ban_create)
+        return jsonify(dat_ban_out), 200
+    except Exception as err:
+        print(err)
+        return jsonify({'message': str(err)}), 400
+
+
+@api_bp.route('/api/v1/dat-ban/active', methods=['GET'])
+@login_required
+@verification_required
+@role_required('LETAN')
+def lay_dat_ban_active():
+    # Xem danh sách mấy ông đã đặt bàn trước mà chưa tới
+    try:
+        letan_id = session.get('current_user')['user_id']
+        ds_dat_ban = ban_service.lay_danh_sach_dat_ban_active(letan_id=letan_id)
+        return jsonify(ds_dat_ban), 200
+    except Exception as err:
+        print(err)
+        return jsonify({'message': str(err)}), 400
+
+
+@api_bp.route('/api/v1/dat-ban/<int:dat_ban_id>/xac-nhan', methods=['POST'])
+@login_required
+@verification_required
+@role_required('LETAN')
+def xac_nhan_khach_den(dat_ban_id):
+    # Khách đặt trước đã tới, bấm nút để đưa khách vào bàn
+    try:
+        letan_id = session.get('current_user')['user_id']
+        result = ban_service.xu_ly_xac_nhan_khach_den(letan_id=letan_id, dat_ban_id=dat_ban_id)
+        return jsonify(result), 200
+    except Exception as err:
+        print(err)
+        return jsonify({'message': str(err)}), 400
+
+
+
 @api_bp.route('/api/v1/resend-email-verify')
 def gui_lai_xac_thuc_email():
     pass
 
-@api_bp.route('/api/v1/phien-ban/<int:phien_ban_id>/dam-nhan', methods=['POST'])
+@api_bp.route('/api/v1/phien-ban/<int:phien_ban_id>/dam-nhan', methods=['PUT'])
 @login_required
 @verification_required
 @role_required('PHUCVU')
@@ -69,6 +122,7 @@ def phien_ban_dam_nhan(phien_ban_id):
 @verification_required
 @role_required('PHUCVU')
 def tao_phieu_mon(phien_ban_id):
+    # Phục vụ tạo một cái phiếu order mới cho khách
     try:
         phucvu_id = session.get('current_user')['user_id']
         phieu_mon_out = phien_ban_service.xu_ly_tao_phieu_mon(phien_ban_id=phien_ban_id, phucvu_id=phucvu_id)
@@ -83,10 +137,11 @@ def tao_phieu_mon(phien_ban_id):
 @verification_required
 @role_required('PHUCVU')
 def them_mon_ghi(phieu_mon_id):
+    # Khách gọi món gì thì thêm món đó vào phiếu này
     try:
         data = request.get_json()
         phucvu_id = session['current_user']['user_id']
-        ds_mon_ghi_create = ds_mon_ghi_create_schema.load(data=data)
+        ds_mon_ghi_create = ds_mon_ghi_create_schema.load(data=data) #Nhận vào data món ghi từ client gửi sang để load vào schema cho việc validate nè
         phieu_mon_out, phieu_mon_out_less = phien_ban_service.xu_ly_them_mon_ghi_phieu_mon(phucvu_id=phucvu_id, phieu_mon_id=phieu_mon_id, mon_ghi_create_schemas=ds_mon_ghi_create)
         ds_mon_ghi_out = phieu_mon_out['ds_mon_ghi']
 
@@ -102,6 +157,7 @@ def them_mon_ghi(phieu_mon_id):
 @verification_required
 @role_required('PHUCVU')
 def cap_nhat_trang_thai_mon(mon_ghi_id):
+    # Dùng khi muốn báo hủy món hoặc có yêu cầu đặc biệt
     try:
         data = request.get_json()
         phucvu_id = session.get('current_user')['user_id']
@@ -117,6 +173,7 @@ def cap_nhat_trang_thai_mon(mon_ghi_id):
 @verification_required
 @role_required('DAUBEP')
 def bep_cap_nhat_trang_thai_mon(mon_ghi_id):
+    # Đầu bếp nấu xong hoặc từ chối món thì gọi vào đây
     try:
         data = request.get_json()
         dau_bep_id = session['current_user']['user_id']
@@ -243,6 +300,7 @@ def thanh_toan_online(doanh_thu_id):
 
 @api_bp.route('/api/webhook', methods=['POST'])
 def webhook():
+    # Nhận thông báo từ Stripe khi thanh toán online thành công
     try:
         # 1. Lấy dữ liệu thô (raw bytes) - Bắt buộc phải dùng raw data để check chữ ký
         payload = request.get_data()
@@ -375,57 +433,4 @@ def api_bao_cao_mon_an():
         print(err)
         return jsonify({'message': str(err)}), 400
 
-# ==========================================
-# API CHO ADMIN - XÉT DUYỆT TÀI KHOẢN
-# ==========================================
-@api_bp.route('/api/v1/admin/tai-khoan/cho-xet-duyet', methods=['GET'])
-@login_required
-@verification_required
-@role_required('ADMIN')
-def lay_danh_sach_cho_xet_duyet():
-    """Lấy danh sách tài khoản chờ Admin xét duyệt"""
-    try:
-        ds_tai_khoan = tai_khoan_service.lay_danh_sach_cho_xet_duyet()
-        return jsonify(ds_tai_khoan), 200
-    except Exception as err:
-        print(err)
-        return jsonify({'message': str(err)}), 400
-
-@api_bp.route('/api/v1/admin/tai-khoan/<int:tai_khoan_id>/duyet', methods=['PUT'])
-@login_required
-@verification_required
-@role_required('ADMIN')
-def duyet_tai_khoan(tai_khoan_id):
-    """Admin duyệt tài khoản và gán vai trò"""
-    try:
-        admin_id = session.get('current_user')['user_id']
-        data = request.get_json()
-        vai_tro_ten = data.get('vai_tro')
-        
-        if not vai_tro_ten:
-            return jsonify({'message': 'Vui lòng chọn vai trò'}), 400
-        
-        result = tai_khoan_service.xu_ly_duyet_tai_khoan(
-            admin_id=admin_id,
-            tai_khoan_id=tai_khoan_id,
-            vai_tro_ten=vai_tro_ten
-        )
-        return jsonify(result), 200
-    except Exception as err:
-        print(err)
-        return jsonify({'message': str(err)}), 400
-
-@api_bp.route('/api/v1/admin/tai-khoan/<int:tai_khoan_id>/tu-choi', methods=['PUT'])
-@login_required
-@verification_required
-@role_required('ADMIN')
-def tu_choi_tai_khoan(tai_khoan_id):
-    """Admin từ chối tài khoản"""
-    try:
-        admin_id = session.get('current_user')['user_id']
-        tai_khoan_service.xu_ly_tu_choi_tai_khoan(admin_id=admin_id, tai_khoan_id=tai_khoan_id)
-        return jsonify({'message': 'Từ chối tài khoản thành công'}), 200
-    except Exception as err:
-        print(err)
-        return jsonify({'message': str(err)}), 400
 

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %} Đặt Bàn {% endblock %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/dat_ban.css')}}" />
+{% endblock %}
+
+{% block scripts %}
+<script defer id="table-data-json" type="application/json">
+  {{ ds_khuvuc | default('[]') | tojson }}
+</script>
+<script type="module" src="{{url_for('static', filename='js/le_tan/dat_ban.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+  <div class="overlay" id="overlay"></div>
+
+  <div class="page-container">
+    <!-- Header Section: Tiêu đề và chú thích trạng thái bàn -->
+    <div class="page-header">
+      <div class="header-content">
+        <h2 class="content-title">🗓️ Đặt Bàn Trước</h2>
+        <p class="content-subtitle">Chọn bàn và điền thông tin khách hàng để đặt bàn trước.</p>
+      </div>
+      <div class="header-actions">
+        <div class="legend">
+          <span class="legend-item"><span class="dot dot-trong"></span> Trống</span>
+          <span class="legend-item"><span class="dot dot-cokhach"></span> Có khách</span>
+          <span class="legend-item"><span class="dot dot-giucho"></span> Đã đặt</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Grid Section: Sơ đồ bàn ăn theo từng khu vực -->
+    <div id="allZonesContainer" class="zones-container">
+      {% for kv in ds_khuvuc %}
+      <div class="zone">
+        <h3 class="zone-title">🌸 Khu Vực {{ kv.ten }}</h3>
+        <div class="table-map-container table-grid">
+          {% for ban in kv.ds_ban %}
+          <div class="table status-{{ ban.trang_thai | lower }}" data-table-id="{{ ban.id }}"
+            data-khu-vuc-id="{{ ban.khu_vuc_id }}" id="table-{{ ban.id }}">
+            <span class="table-name">{{ ban.ten }}</span>
+            <span class="table-capacity">
+              <i class="icon-users">👥</i> {{ ban.so_ghe }} người
+            </span>
+
+            {% if ban.trang_thai == 'TRONG' and ban.ds_khung_gio and ban.ds_khung_gio | length > 0 %}
+            <div class="booking-tag">
+              📅 {{ ban.ds_khung_gio[0].tg_bat_dau }}
+            </div>
+            {% endif %}
+
+            {% if ban.trang_thai == 'COKHACH' %}
+            <div class="status-tag tag-occupied">Đang ăn</div>
+            {% endif %}
+
+            {% if ban.trang_thai == 'GIUCHO' %}
+            <div class="status-tag tag-reserved">Đã đặt</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Reservation List Section: Danh sách các lượt đặt bàn chờ xử lý -->
+    <div class="reservation-section">
+      <div class="section-header">
+        <h3 class="section-title">📋 Danh Sách Đặt Bàn Chờ Xác Nhận</h3>
+        <button class="btn-refresh" id="btnRefreshReservations" title="Làm mới">🔄</button>
+      </div>
+      <div id="reservationList" class="reservation-list">
+        <div class="loading-placeholder">Đang tải danh sách đặt bàn...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal: Hộp thoại xác nhận khi khách đến nhận bàn -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✅ Xác Nhận Khách Đến</h3>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content will be injected by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btnCancelConfirm">Hủy</button>
+        <button class="btn-confirm-arrival" id="btnConfirmArrival">
+          <span class="btn-icon">✅</span> Xác nhận khách đến
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side Drawer: Bảng điều khiển bên hông để xem chi tiết hoặc đặt bàn -->
+  <aside class="side-drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-tabs">
+        <button class="tab-btn active" data-tab="details" id="tabDetails">
+          📋 Chi tiết
+        </button>
+        <button class="tab-btn" data-tab="booking" id="tabBooking">
+          ✍️ Đặt bàn
+        </button>
+      </div>
+      <button class="btn-close" id="btn-close">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Tab 1: Table Details -->
+      <div class="tab-content active" id="contentDetails">
+        <h4 class="focus-table-name" id="focusTableName">Chưa chọn bàn</h4>
+        <p class="timeline-label">Lịch trình hôm nay:</p>
+        <div id="timelineList" class="timeline-list"></div>
+      </div>
+
+      <!-- Tab 2: Booking Form -->
+      <div class="tab-content" id="contentBooking">
+        <div class="selected-tables-summary" id="selectedTablesSummary">
+          <span class="summary-label">Bàn đã chọn:</span>
+          <span class="summary-value" id="selectedTablesText">Chưa chọn</span>
+        </div>
+
+        <form id="bookingForm" class="booking-form">
+          <!-- Khu vực hiển thị các số liệu thống kê nhanh (đang tạm ẩn) -->
+          <!-- <div class="stat-box">
+                 <span class="stat-label">Số khách</span>
+                 <span class="stat-value"></span>
+             </div> -->
+          <div class="form-group">
+            <label for="tenKhach">
+              <span class="label-icon">👤</span> Tên khách hàng
+            </label>
+            <input type="text" id="tenKhach" name="tenKhach" placeholder="Nhập tên khách hàng..." required />
+          </div>
+
+          <div class="form-group">
+            <label for="sdt">
+              <span class="label-icon">📱</span> Số điện thoại
+            </label>
+            <input type="tel" id="sdt" name="sdt" placeholder="Nhập số điện thoại..." pattern="[0-9]{10,11}" required />
+          </div>
+
+          <div class="form-group">
+            <label for="soLuong">
+              <span class="label-icon">👥</span> Số lượng khách
+            </label>
+            <input type="number" id="soLuong" name="soLuong" min="1" max="50" placeholder="Nhập số lượng khách..."
+              required />
+          </div>
+
+          <div class="form-group">
+            <label for="tgDen">
+              <span class="label-icon">🕐</span> Thời gian đến
+            </label>
+            <input type="datetime-local" id="tgDen" name="tgDen" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ghiChu">
+              <span class="label-icon">📝</span> Ghi chú (tùy chọn)
+            </label>
+            <textarea id="ghiChu" name="ghiChu" rows="3" placeholder="Nhập ghi chú đặc biệt..."></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <div class="selection-info">
+        <span class="selection-count" id="selectionCount">0</span>
+        <span class="selection-label">bàn đã chọn</span>
+      </div>
+
+      <div class="error-message" id="errorMsg"></div>
+
+      <button id="btnSubmit" class="btn-submit" disabled>
+        <span class="btn-icon">📝</span>
+        <span class="btn-text">Chọn bàn để đặt</span>
+      </button>
+    </div>
+  </aside>
+</main>
+{% endblock %}

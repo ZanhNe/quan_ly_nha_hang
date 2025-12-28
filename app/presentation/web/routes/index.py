@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, session, flash, redirect, url_for, request
 from app.container.container import injector_instance
-from app.domain.services.interfaces.interfaces import IKhuVucService, IPhienBanService, IThucDonService, INguoiDungService, IDoanhThuService, IKhuyenMaiService, IBaoCaoService
-from app.decorator.decorators import (login_required, verification_required, role_required )
+from app.domain.services.interfaces.interfaces import (IKhuVucService, IPhienBanService, IThucDonService, INguoiDungService, IDoanhThuService
+                                                    , IKhuyenMaiService, IBaoCaoService)
+from app.decorator.decorators import (login_required, verification_required, role_required)
 from datetime import date, timedelta
 
 
@@ -20,6 +21,7 @@ bao_cao_service = injector_instance.get(interface=IBaoCaoService)
 
 @index_bp.context_processor
 def vars():
+    # Helper để truyền data thông báo vào mọi trang (layout chung)
     nguoi_dung_id = session.get('current_user')['user_id']
     ds_thong_bao_out, has_more, unread_count = nguoi_dung_service.xu_ly_lay_thong_bao_nguoi_dung(nguoi_dung_id=nguoi_dung_id, page=1, limit=5)
 
@@ -39,12 +41,21 @@ def trang_chu():
 
 
 @index_bp.route('/so-do-ban')
-@login_required
-@verification_required
-@role_required('LETAN')
+@login_required # Check xem logins chưa
+@verification_required # Check xem đã xác thực mail chưa
+@role_required('LETAN') # Chỉ lễ tân mới được vào
 def so_do_ban():
     ds_khuvuc_schema = khuvuc_service.get_all_khuvuc()
     return render_template('page/le_tan/danh_dau.html', ds_khuvuc=ds_khuvuc_schema)
+
+
+@index_bp.route('/dat-ban')
+@login_required
+@verification_required
+@role_required('LETAN')
+def dat_ban():
+    ds_khuvuc_schema = khuvuc_service.get_all_khuvuc()
+    return render_template('page/le_tan/dat_ban.html', ds_khuvuc=ds_khuvuc_schema)
         
 
 
@@ -53,6 +64,7 @@ def so_do_ban():
 @verification_required
 @role_required('PHUCVU')
 def danh_sach_phien():
+    # Danh sách các bàn mà nhân viên này đang phụ trách
     try:
         phucvu_id = session.get('current_user')['user_id']
         ds_phien_ban = phien_ban_service.lay_danh_sach_phien_cua_phuc_vu(phucvu_id=phucvu_id)
@@ -136,6 +148,7 @@ def phien_thanh_toan():
 @verification_required
 @role_required('THUNGAN')
 def thanh_toan(phien_ban_id):
+    # Trang tính tiền cho khách (show list món, áp voucher...)
     try:
         thu_ngan_id = session.get('current_user')['user_id']
         phien_ban = phien_ban_service.lay_phien_ban_chi_tiet(phien_ban_id=phien_ban_id, user_id=thu_ngan_id)
@@ -159,6 +172,7 @@ def thanh_toan(phien_ban_id):
 @verification_required
 @role_required('THUNGAN')
 def trang_hoa_don(doanh_thu_id):
+    # Giao diện hóa đơn để in hoặc xem lại
     try:
         thu_ngan_id = session.get('current_user')['user_id']
         doanh_thu_out = doanh_thu_service.lay_doanh_thu_chi_tiet(thu_ngan_id=thu_ngan_id, doanh_thu_id=doanh_thu_id)
@@ -168,9 +182,6 @@ def trang_hoa_don(doanh_thu_id):
         return redirect(url_for('index.trang_chu'))
 
 
-# ==========================================
-# ROUTES CHO QUẢN LÝ
-# ==========================================
 @index_bp.route('/quan-ly/dashboard', methods=['GET'])        
 @login_required
 @verification_required
@@ -179,7 +190,6 @@ def quan_ly_dashboard():
     try:
         quan_ly_id = session.get('current_user')['user_id']
         ds_yeu_cau = phien_ban_service.lay_danh_sach_yeu_cau(quan_ly_id=quan_ly_id)
-        print(ds_yeu_cau)
         return render_template('page/quan_ly/dashboard.html', ds_yeu_cau=ds_yeu_cau)
     except Exception as err:
         print(err)
@@ -192,6 +202,7 @@ def quan_ly_dashboard():
 @verification_required
 @role_required('QUANLY')
 def bao_cao_tong_quan():
+    # Trang xem thống kê chung cho Quản lý
     try:
         quan_ly_id = session.get('current_user')['user_id']
         
@@ -227,7 +238,6 @@ def bao_cao_doanh_thu():
         data = bao_cao_service.lay_bao_cao_doanh_thu(quan_ly_id=quan_ly_id, tu_ngay=tu_ngay, den_ngay=den_ngay)
         return render_template('page/quan_ly/doanh_thu.html', **data)
     except Exception as err:
-        print(err)
         flash(str(err), 'err_msg')
         return redirect(url_for('index.bao_cao_tong_quan'))
 
@@ -274,4 +284,5 @@ def bao_cao_mon_an():
         print(err)
         flash(str(err), 'err_msg')
         return redirect(url_for('index.bao_cao_tong_quan'))
+
 

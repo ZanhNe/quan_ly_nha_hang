@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Bàn - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/ban.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>🪑 Quản lý Bàn</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm bàn
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Khu vực:</span>
+                    <select class="filter-select" id="filterKhuVuc">
+                        <option value="">Tất cả</option>
+                        {% for kv in ds_khu_vuc %}
+                        <option value="{{ kv.id }}" {% if khu_vuc_id==kv.id %}selected{% endif %}>{{ kv.ten }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Trạng thái:</span>
+                    <select class="filter-select" id="filterTrangThai">
+                        <option value="">Tất cả</option>
+                        <option value="TRONG" {% if trang_thai_filter=='TRONG' %}selected{% endif %}>Trống</option>
+                        <option value="DANGDUNG" {% if trang_thai_filter=='DANGDUNG' %}selected{% endif %}>Đang dùng
+                        </option>
+                        <option value="DATRUOC" {% if trang_thai_filter=='DATRUOC' %}selected{% endif %}>Đặt trước
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên bàn</th>
+                            <th>Khu vực</th>
+                            <th>Số ghế</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for b in ds_ban %}
+                        <tr data-id="{{ b.id }}">
+                            <td>{{ b.id }}</td>
+                            <td>{{ b.ten }}</td>
+                            <td>{{ b.khu_vuc or '-' }}</td>
+                            <td>{{ b.so_ghe }}</td>
+                            <td>
+                                {% if b.trang_thai == 'TRONG' %}
+                                <span class="status-badge status-open">Trống</span>
+                                {% elif b.trang_thai == 'DANGDUNG' %}
+                                <span class="status-badge status-closed">Đang dùng</span>
+                                {% elif b.trang_thai == 'DATRUOC' %}
+                                <span class="status-badge status-pending">Đặt trước</span>
+                                {% else %}
+                                <span class="status-badge">{{ b.trang_thai }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ b.id }}" data-ten="{{ b.ten }}"
+                                        data-khuvuc="{{ b.khu_vuc_id }}" data-soghe="{{ b.so_ghe }}">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="{{ b.id }}" {% if b.trang_thai
+                                        !='TRONG' %}disabled title="Chỉ xóa được bàn trống" {% endif %}>
+                                        🗑️
+                                    </button>
+                                    {% if b.trang_thai != 'TRONG' %}
+                                    <button class="btn-action btn-reset" data-id="{{ b.id }}" title="Reset về trống">
+                                        🔄
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">🪑</div>
+                                <h3>Chưa có bàn nào</h3>
+                                <p>Nhấn "Thêm bàn" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm bàn</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên bàn <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" placeholder="VD: Bàn 1, Bàn VIP..." required>
+                </div>
+                <div class="form-group">
+                    <label>Khu vực <span class="required">*</span></label>
+                    <select class="form-control" id="khuVucId" required>
+                        <option value="">Chọn khu vực</option>
+                        {% for kv in ds_khu_vuc %}
+                        <option value="{{ kv.id }}">{{ kv.ten }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Số ghế</label>
+                    <input type="number" class="form-control" id="soGhe" value="4" min="1">
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

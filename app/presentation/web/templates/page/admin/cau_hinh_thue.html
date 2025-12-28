@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Cấu hình Thuế - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/cau_hinh_thue.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>📊 Cấu hình Thuế</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm cấu hình
+                </button>
+            </div>
+
+            {% if cau_hinh_hien_tai %}
+            <div class="info-card"
+                style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px;">
+                <h3 style="margin: 0 0 0.5rem 0;">⚡ Cấu hình đang áp dụng</h3>
+                <p style="margin: 0; font-size: 1.5rem; font-weight: 600;">
+                    {{ cau_hinh_hien_tai.ten }} - {{ cau_hinh_hien_tai.ti_le_phan_tram }}%
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Tỷ lệ</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for ch in ds_cau_hinh %}
+                        <tr data-id="{{ ch.id }}">
+                            <td>{{ ch.id }}</td>
+                            <td>{{ ch.ten }}</td>
+                            <td>{{ ch.ti_le_phan_tram }}%</td>
+                            <td>
+                                {% if ch.hoat_dong %}
+                                <span class="status-badge status-open">✓ Đang dùng</span>
+                                {% else %}
+                                <span class="status-badge status-pending">Không dùng</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ ch.id }}" data-ten="{{ ch.ten }}"
+                                        data-tile="{{ ch.ti_le }}">
+                                        ✏️
+                                    </button>
+                                    {% if not ch.hoat_dong %}
+                                    <button class="btn-action btn-activate" data-id="{{ ch.id }}" title="Kích hoạt">
+                                        ⚡
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">📊</div>
+                                <h3>Chưa có cấu hình thuế nào</h3>
+                                <p>Nhấn "Thêm cấu hình" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm cấu hình thuế</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên cấu hình <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" placeholder="VD: VAT 10%" required>
+                </div>
+                <div class="form-group">
+                    <label>Tỷ lệ thuế (0-1) <span class="required">*</span></label>
+                    <input type="number" class="form-control" id="tiLe" step="0.01" min="0" max="1"
+                        placeholder="VD: 0.1 = 10%" required>
+                    <small style="color: #718096;">Nhập 0.1 cho 10%, 0.08 cho 8%...</small>
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

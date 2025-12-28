@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Món ăn - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/mon.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>🍣 Quản lý Món ăn</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm món
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Nhóm món:</span>
+                    <select class="filter-select" id="filterNhomMon">
+                        <option value="">Tất cả</option>
+                        {% for nm in ds_nhom_mon %}
+                        <option value="{{ nm.id }}" {% if nhom_mon_id==nm.id %}selected{% endif %}>{{ nm.ten }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="text" class="filter-input search-input" id="searchInput" placeholder="Tìm theo tên món...">
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên món</th>
+                            <th>Nhóm</th>
+                            <th>Giá</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for m in ds_mon %}
+                        <tr data-id="{{ m.id }}" data-name="{{ m.ten | lower }}">
+                            <td>{{ m.id }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    {% if m.hinh %}
+                                    <img src="{{ m.hinh }}" alt=""
+                                        style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                                    {% endif %}
+                                    {{ m.ten }}
+                                </div>
+                            </td>
+                            <td>{{ m.nhom_mon_ten or '-' }}</td>
+                            <td>{{ "{:,.0f}".format(m.gia) }} đ</td>
+                            <td>
+                                {% if m.trang_thai == 'moban' %}
+                                <span class="status-badge status-open">Mở bán</span>
+                                {% else %}
+                                <span class="status-badge status-closed">Không bán</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ m.id }}" data-ten="{{ m.ten }}"
+                                        data-nhommon="{{ m.nhom_mon_id }}" data-gia="{{ m.gia }}"
+                                        data-hinh="{{ m.hinh or '' }}">
+                                        ✏️
+                                    </button>
+                                    {% if m.trang_thai == 'moban' %}
+                                    <button class="btn-action btn-toggle" data-id="{{ m.id }}"
+                                        data-trang-thai="KHONGBAN" title="Ẩn món">
+                                        🔒
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-action btn-toggle" data-id="{{ m.id }}" data-trang-thai="MOBAN"
+                                        title="Mở bán">
+                                        🔓
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-action btn-delete" data-id="{{ m.id }}" title="Xóa món">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">🍣</div>
+                                <h3>Chưa có món ăn nào</h3>
+                                <p>Nhấn "Thêm món" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm món</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên món <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" required>
+                </div>
+                <div class="form-group">
+                    <label>Nhóm món <span class="required">*</span></label>
+                    <select class="form-control" id="nhomMonId" required>
+                        <option value="">Chọn nhóm món</option>
+                        {% for nm in ds_nhom_mon %}
+                        <option value="{{ nm.id }}">{{ nm.ten }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Giá (VNĐ) <span class="required">*</span></label>
+                    <input type="number" class="form-control" id="gia" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Link ảnh</label>
+                    <input type="text" class="form-control" id="hinh" placeholder="https://...">
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

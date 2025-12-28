@@ -261,6 +261,8 @@ function xyLyTienMat() {
     }).then((resp) => resp.json())
         .then((data) => {
             window.location.href = data.redirect_url;
+        }).catch((error) => {
+            Swal.fire('Lỗi', error.message, 'error');
         });
 }
 

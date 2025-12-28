@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Tài khoản - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/tai_khoan.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>🔐 Quản lý Tài khoản</h1>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Trạng thái:</span>
+                    <select class="filter-select" id="filterTrangThai">
+                        <option value="" {% if not filters.trang_thai %}selected{% endif %}>Tất cả</option>
+                        <option value="MO" {% if filters.trang_thai=='MO' %}selected{% endif %}>Hoạt động</option>
+                        <option value="KHOA" {% if filters.trang_thai=='KHOA' %}selected{% endif %}>Đã khóa</option>
+                    </select>
+                </div>
+                <input type="text" class="filter-input search-input" id="searchInput"
+                    placeholder="Tìm theo tên, email..." value="{{ filters.search or '' }}">
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tài khoản</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Xác thực</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for tk in items %}
+                        <tr data-id="{{ tk.id }}" data-search="{{ tk.ten_tai_khoan | lower }} {{ tk.email | lower }}">
+                            <td>{{ tk.id }}</td>
+                            <td>{{ tk.ten_tai_khoan }}</td>
+                            <td>{{ tk.email or '-' }}</td>
+                            <td>
+                                <span class="role-badge">{{ tk.vai_tro or 'VODANH' }}</span>
+                            </td>
+                            <td>
+                                {% if tk.is_xac_thuc %}
+                                <span class="status-badge status-open">✓ Đã xác thực</span>
+                                {% else %}
+                                <span class="status-badge status-pending">⏳ Chờ xác thực</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if tk.trang_thai == 'mo' %}
+                                <span class="status-badge status-open">Hoạt động</span>
+                                {% else %}
+                                <span class="status-badge status-closed">Đã khóa</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    {% if tk.trang_thai == 'mo' %}
+                                    <button class="btn-action btn-lock" data-id="{{ tk.id }}" title="Khóa tài khoản">
+                                        🔒
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-action btn-unlock" data-id="{{ tk.id }}" title="Mở khóa">
+                                        🔓
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-action btn-delete" data-id="{{ tk.id }}" title="Xóa tài khoản">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">🔐</div>
+                                <h3>Không có tài khoản nào</h3>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Thanh điều hướng và phân trang -->
+            <div class="pagination" id="pagination">
+                {% if total > per_page %}
+                <div class="pagination-info">
+                    Hiển thị {{ ((page - 1) * per_page) + 1 }} - {{ [page * per_page, total] | min }} / {{ total }}
+                </div>
+                <div class="pagination-controls">
+                    {% if page > 1 %}
+                    <a href="?page={{ page - 1 }}{% if filters.trang_thai %}&trang_thai={{ filters.trang_thai }}{% endif %}"
+                        class="page-btn">←</a>
+                    {% endif %}
+
+                    {% set total_pages = (total // per_page) + (1 if total % per_page else 0) %}
+                    {% for p in range(1, total_pages + 1) %}
+                    <a href="?page={{ p }}{% if filters.trang_thai %}&trang_thai={{ filters.trang_thai }}{% endif %}"
+                        class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+                    {% endfor %}
+
+                    {% if has_next %}
+                    <a href="?page={{ page + 1 }}{% if filters.trang_thai %}&trang_thai={{ filters.trang_thai }}{% endif %}"
+                        class="page-btn">→</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

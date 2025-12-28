@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from flask_sqlalchemy.session import Session
 from app.data.models import (KhuVuc, Ban, NguoiDung, PhucVu, LeTan, ThongBao
                              , PhienBan, TaiKhoan, VaiTro, ThucDon, TuyChonMon, PhieuMon, MonGhi, KhuyenMai, CauHinhThue
-                             , DoanhThu, YeuCau)
+                             , DoanhThu, YeuCau, DatBan)
 
 class IThongBaoReadDAO(ABC):
     @abstractmethod
@@ -43,6 +43,21 @@ class IYeuCauReadDAO(ABC):
 
     @abstractmethod
     def save(self, session: Session, yeu_cau: YeuCau) -> None:
+        pass
+
+class IDatBanDAO(ABC):
+    @abstractmethod
+    def save(self, session: Session, dat_ban: DatBan):
+        pass
+
+    @abstractmethod
+    def find_all_active(self, session: Session) -> List[DatBan]:
+        # Lấy mấy cái lịch đặt bàn đang mở
+        pass
+
+    @abstractmethod
+    def find_by_id(self, session: Session, dat_ban_id: int) -> DatBan:
+        # Tìm theo ID
         pass
 
 class IPhienBanDAO(ABC):
@@ -207,4 +222,223 @@ class IBaoCaoDAO(ABC):
         pass
 
 
+# ============================================================
+# ADMIN DAO INTERFACES
+# ============================================================
 
+class IAdminTaiKhoanDAO(ABC):
+    # DAO cho Admin quản lý tài khoản
+    
+    @abstractmethod
+    def find_all(self, session: Session, page: int, per_page: int, filters: dict) -> tuple:
+        # Lấy danh sách tài khoản (có phân trang + lọc)
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, tai_khoan_id: int) -> Optional[TaiKhoan]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, tai_khoan: TaiKhoan) -> None:
+        pass
+    
+    @abstractmethod
+    def delete(self, session: Session, tai_khoan: TaiKhoan) -> None:
+        pass
+    
+    @abstractmethod
+    def check_email_exists(self, session: Session, email: str, exclude_id: int = None) -> bool:
+        pass
+    
+    @abstractmethod
+    def check_ten_tai_khoan_exists(self, session: Session, ten: str, exclude_id: int = None) -> bool:
+        pass
+
+    @abstractmethod
+    def find_cho_xet_duyet(self, session: Session) -> List[TaiKhoan]:
+        pass
+
+
+class IAdminNguoiDungDAO(ABC):
+    """DAO interface cho quản lý người dùng (Admin)"""
+    
+    @abstractmethod
+    def find_all(self, session: Session, page: int, per_page: int, vai_tro: str = None) -> tuple:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, nguoi_dung_id: int) -> Optional[NguoiDung]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, nguoi_dung: NguoiDung) -> None:
+        pass
+    
+    @abstractmethod
+    def delete(self, session: Session, nguoi_dung: NguoiDung) -> None:
+        pass
+    
+    @abstractmethod
+    def check_has_active_phien(self, session: Session, nguoi_dung_id: int) -> bool:
+        # Check xem ông nhân viên này có đang trong ca làm không
+        pass
+
+    @abstractmethod
+    def swap_nguoi_dung_subclass(self, session: Session, old_nguoi_dung: NguoiDung, new_nguoi_dung: NguoiDung) -> None:
+        """Thực hiện tráo đổi subclass cho NguoiDung (ví dụ từ NguoiDung sang PhucVu)"""
+        pass
+
+
+class IAdminKhuVucDAO(ABC):
+    """DAO interface cho quản lý khu vực (Admin)"""
+    
+    @abstractmethod
+    def find_all(self, session: Session) -> List[KhuVuc]:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, khu_vuc_id: int) -> Optional[KhuVuc]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, khu_vuc: KhuVuc) -> None:
+        pass
+    
+    @abstractmethod
+    def delete(self, session: Session, khu_vuc: KhuVuc) -> None:
+        pass
+    
+    @abstractmethod
+    def check_ten_exists(self, session: Session, ten: str, exclude_id: int = None) -> bool:
+        pass
+    
+    @abstractmethod
+    def count_ban(self, session: Session, khu_vuc_id: int) -> int:
+        pass
+    
+    @abstractmethod
+    def count_nhan_vien(self, session: Session, khu_vuc_id: int) -> int:
+        pass
+
+
+class IAdminBanDAO(ABC):
+    """DAO interface cho quản lý bàn (Admin)"""
+    
+    @abstractmethod
+    def find_all(self, session: Session, khu_vuc_id: int = None, trang_thai: str = None) -> List[Ban]:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, ban_id: int) -> Optional[Ban]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, ban: Ban) -> None:
+        pass
+    
+    @abstractmethod
+    def delete(self, session: Session, ban: Ban) -> None:
+        pass
+    
+    @abstractmethod
+    def check_has_active_phien(self, session: Session, ban_id: int) -> bool:
+        # Check xem bàn này có khách đang ngồi không
+        pass
+
+
+class IAdminThucDonDAO(ABC):
+    """DAO interface cho quản lý thực đơn (Admin)"""
+    
+    @abstractmethod
+    def find_thuc_don(self, session: Session) -> Optional[ThucDon]:
+        pass
+    
+    @abstractmethod
+    def find_all_nhom_mon(self, session: Session, thuc_don_id: int) -> List[NhomMon]:
+        pass
+    
+    @abstractmethod
+    def find_nhom_mon_by_id(self, session: Session, nhom_mon_id: int) -> Optional[NhomMon]:
+        pass
+    
+    @abstractmethod
+    def save_nhom_mon(self, session: Session, nhom_mon: NhomMon) -> None:
+        pass
+    
+    @abstractmethod
+    def delete_nhom_mon(self, session: Session, nhom_mon: NhomMon) -> None:
+        pass
+    
+    @abstractmethod
+    def find_all_mon(self, session: Session, nhom_mon_id: int = None) -> List[MoTaMon]:
+        pass
+    
+    @abstractmethod
+    def find_mon_by_id(self, session: Session, mon_id: int) -> Optional[MoTaMon]:
+        pass
+    
+    @abstractmethod
+    def save_mon(self, session: Session, mon: MoTaMon) -> None:
+        pass
+    
+    @abstractmethod
+    def check_ten_nhom_mon_exists(self, session: Session, ten: str, thuc_don_id: int, exclude_id: int = None) -> bool:
+        pass
+    
+    @abstractmethod
+    def check_ten_mon_exists(self, session: Session, ten: str, nhom_mon_id: int, exclude_id: int = None) -> bool:
+        pass
+    
+    @abstractmethod
+    def count_mon_in_nhom(self, session: Session, nhom_mon_id: int) -> int:
+        pass
+
+
+class IAdminKhuyenMaiDAO(ABC):
+    """DAO interface cho quản lý khuyến mãi (Admin)"""
+    
+    @abstractmethod
+    def find_all(self, session: Session, hoat_dong: bool = None) -> List[KhuyenMai]:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, khuyen_mai_id: int) -> Optional[KhuyenMai]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, khuyen_mai: KhuyenMai) -> None:
+        pass
+    
+    @abstractmethod
+    def delete(self, session: Session, khuyen_mai: KhuyenMai) -> None:
+        pass
+    
+    @abstractmethod
+    def check_has_doanhthu(self, session: Session, khuyen_mai_id: int) -> bool:
+        # Check xem mã này đã được dùng cho hóa đơn nào chưa
+        pass
+
+
+class IAdminCauHinhThueDAO(ABC):
+    """DAO interface cho quản lý cấu hình thuế (Admin)"""
+    
+    @abstractmethod
+    def find_all(self, session: Session) -> List[CauHinhThue]:
+        pass
+    
+    @abstractmethod
+    def find_by_id(self, session: Session, cau_hinh_id: int) -> Optional[CauHinhThue]:
+        pass
+    
+    @abstractmethod
+    def find_active(self, session: Session) -> Optional[CauHinhThue]:
+        pass
+    
+    @abstractmethod
+    def save(self, session: Session, cau_hinh: CauHinhThue) -> None:
+        pass
+    
+    @abstractmethod
+    def deactivate_all(self, session: Session) -> None:
+        # Tắt hết mấy cái cũ đi để bật cái mới
+        pass

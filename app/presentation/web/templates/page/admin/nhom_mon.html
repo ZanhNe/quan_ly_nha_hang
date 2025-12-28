@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Nhóm món - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/nhom_mon.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>📁 Quản lý Nhóm món</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm nhóm
+                </button>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên nhóm</th>
+                            <th>Số món</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for nm in ds_nhom_mon %}
+                        <tr data-id="{{ nm.id }}">
+                            <td>{{ nm.id }}</td>
+                            <td>{{ nm.ten }}</td>
+                            <td>{{ nm.ds_mon | length }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ nm.id }}" data-ten="{{ nm.ten }}">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="{{ nm.id }}" {% if nm.ds_mon |
+                                        length> 0 %}disabled title="Không thể xóa nhóm có món"{% endif %}>
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">📁</div>
+                                <h3>Chưa có nhóm món nào</h3>
+                                <p>Nhấn "Thêm nhóm" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm nhóm món</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên nhóm <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" placeholder="VD: Khai vị, Món chính..." required>
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Duyệt tài khoản - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/cho_duyet.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>⏳ Tài khoản chờ xét duyệt</h1>
+                </div>
+            </div>
+
+            <div class="pending-body" style="padding: 24px;">
+                {% if ds_cho_duyet and ds_cho_duyet|length > 0 %}
+                <div class="pending-grid">
+                    {% for tk in ds_cho_duyet %}
+                    <div class="pending-card" data-id="{{ tk.id }}">
+                        <div class="pending-card-header">
+                            <div class="user-info">
+                                <div class="user-avatar">👤</div>
+                                <div class="user-details">
+                                    <h4>{{ tk.ho_ten }}</h4>
+                                    <p>{{ tk.ten_tai_khoan }}</p>
+                                </div>
+                            </div>
+                            <div class="pending-badge">
+                                <span class="dot"></span>
+                                Chờ duyệt
+                            </div>
+                        </div>
+                        <div class="pending-card-body">
+                            <div class="pending-info">
+                                <span class="info-icon">📧</span>
+                                {{ tk.email }}
+                            </div>
+                            <div class="pending-info">
+                                <span class="info-icon">📅</span>
+                                Đăng ký: {{ tk.ngay_tao[:10] if tk.ngay_tao else 'N/A' }}
+                            </div>
+                            <div class="pending-info">
+                                <span class="info-icon">✅</span>
+                                {% if tk.is_xac_thuc %}
+                                <span style="color: #22C55E;">Đã xác thực email</span>
+                                {% else %}
+                                <span style="color: #EAB308;">Chưa xác thực email</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="pending-actions">
+                            <button class="btn-approve-pending" data-id="{{ tk.id }}" data-name="{{ tk.ho_ten }}">
+                                <span>✓</span> Duyệt & Phân quyền
+                            </button>
+                            <button class="btn-reject-pending" data-id="{{ tk.id }}">
+                                <span>✕</span> Từ chối
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🎉</div>
+                    <h3>Không có tài khoản chờ duyệt</h3>
+                    <p>Tất cả tài khoản đã được xử lý</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Selection Modal -->
+<div class="admin-modal-overlay" id="approvalModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3>Duyệt & Phân quyền tài khoản</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <p style="margin-bottom: 20px;">Chọn vai trò cho: <strong id="approvalUserName"></strong></p>
+            <div class="role-options">
+                <div class="role-option" data-role="PHUCVU">
+                    <span class="role-icon">🍽️</span>
+                    <span class="role-name">Phục vụ</span>
+                </div>
+                <div class="role-option" data-role="LETAN">
+                    <span class="role-icon">🎀</span>
+                    <span class="role-name">Lễ tân</span>
+                </div>
+                <div class="role-option" data-role="DAUBEP">
+                    <span class="role-icon">👨‍🍳</span>
+                    <span class="role-name">Đầu bếp</span>
+                </div>
+                <div class="role-option" data-role="THUNGAN">
+                    <span class="role-icon">💵</span>
+                    <span class="role-name">Thu ngân</span>
+                </div>
+                <div class="role-option" data-role="QUANLY">
+                    <span class="role-icon">📋</span>
+                    <span class="role-name">Quản lý</span>
+                </div>
+            </div>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="approveBtn" disabled>Xác nhận duyệt</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,15 +4,18 @@ const phieuBep = {
         sessionGrid: document.querySelector('.session-grid')
     },
     init: function () {
+        // Lấy danh sách phiếu chờ thô từ script tag
         const el = document.getElementById('tickets-raw');
         if (el) {
             try {
                 this.ds_phieu_mon = JSON.parse(el.textContent);
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Lỗi khi load danh sách phiếu bếp:", e);
+            }
         }
-
     },
     nhanThemPhieu: function (data) {
+        // Khi có phiếu mới từ phục vụ gửi xuống
         this.ds_phieu_mon = [...this.ds_phieu_mon, data];
         let inner = ``;
         this.ds_phieu_mon.forEach((phieu_mon) => {

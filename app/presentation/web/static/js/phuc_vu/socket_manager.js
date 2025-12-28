@@ -1,26 +1,28 @@
 import { headerJS } from '../header.js'
 
-// Cấu hình cơ bản
+// Kết nối SocketIO đến server
 const socket = io('http://127.0.0.1:5000', {
-    transports: ['websocket'], // dùng WebSocket ngay từ đầu (bỏ qua Long-polling) cho nhanh
-    autoConnect: true,         // Tự động kết nối ngay khi khởi tạo
+    transports: ['websocket'], // dùng luôn WebSocket cho nó nhanh, bỏ qua polling
+    autoConnect: true,         // Tự động kết nối luôn
 });
 
 // Lắng nghe sự kiện hệ thống
 socket.on('connect', () => {
-    console.log('Đã kết nối thành công! ID của tôi là:', socket.id);
+    console.log('Connect thành công! Socket ID:', socket.id);
+    console.log('Kết nối thành công! Socket ID:', socket.id);
 });
 
 socket.on('disconnect', (reason) => {
     console.log('Mất kết nối vì:', reason);
     if (reason === "io server disconnect") {
-        // Nếu server chủ động đá client, client sẽ không tự kết nối lại
-        // Phải gọi thủ công:
+        // Nếu máy chủ chủ động ngắt kết nối, client sẽ không tự động kết nối lại
+        // Cần phải gọi hàm kết nối thủ công:
         socket.connect();
     }
 });
 
 socket.on('hoan_thanh_phieu', (data) => {
+    // Nhận thông báo khi bếp hoàn thành món ăn
     headerJS.appendNewNotification(data);
     headerJS.playSound()
 });

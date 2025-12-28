@@ -1,307 +1,11 @@
-// const pos = {
-//     dsMon: [],      // Danh sách thực đơn (để tra cứu options)
-//     monGhi: [],          // Danh sách món trong phiếu
-//     ttPhieu: {},    // Info phiếu hiện tại
-//     prefix: 'http://127.0.0.1:5000',
-//     // State tạm của Modal
-//     monMenuHienTai: null, // Món đang edit trong modal (clone từ dsMon)
-//     soLuongMonMenuHienTai: 1,
-
-//     init: function() {
-//         // Load Data from HTML
-//         try {
-//             this.ttPhieu = JSON.parse(document.getElementById('ticket-data').textContent);
-//             this.dsMon = JSON.parse(document.getElementById('menu-data').textContent).ds_mo_ta_mon;
-//             this.monGhi = this.ttPhieu.ds_mon_ghi; // Load món cũ nếu có
-
-//             // Nếu phiếu đã khóa (Sent), disable các nút tương tác (logic renderCart lo)
-//             this.renderCart();
-//         } catch (e) { console.error("Init Error:", e); }
-//     },
-
-//     // --- 1. MODAL LOGIC ---
-
-//     openModal: function(menuId) {
-//         if (this.ttPhieu.trang_thai !== 'DANGGHI') return alert("Phiếu đã khóa!");
-
-//         // Tìm món trong thực đơn
-//         const monMenu = this.dsMon.find(i => i.id === menuId);
-//         if (!monMenu) return;
-
-//         // Reset state modal
-//         this.monMenuHienTai = monMenu;
-//         this.soLuongMonMenuHienTai = 1;
-
-//         // Render UI Modal
-//         document.getElementById('modalImg').src = monMenu.hinh || 'https://via.placeholder.com/150';
-//         document.getElementById('modalName').innerText = monMenu.ten;
-//         document.getElementById('modalBasePrice').innerText = monMenu.gia.toLocaleString() + 'đ';
-//         document.getElementById('modalNote').value = '';
-//         document.getElementById('modalQty').innerText = '1';
-
-//         // Render Option Groups
-//         this.renderOptionGroups(monMenu.ds_nhom_tuy_chon || []);
-
-//         // Show Modal
-//         document.getElementById('itemModal').classList.add('show');
-//         this.calculateModalTotal();
-//     },
-
-//     renderOptionGroups: function(groups) {
-//         const container = document.getElementById('modalOptionsContainer');
-//         container.innerHTML = '';
-
-//         groups.forEach(group => {
-//             const groupDiv = document.createElement('div');
-//             groupDiv.className = 'opt-group';
-
-//             // Header Group (vd: Topping - Chọn tối đa 2)
-//             let hint = group.loai === 'radio' ? '(Chọn 1)' : '(Chọn nhiều)';
-//             groupDiv.innerHTML = `<div class="opt-title">${group.ten} <small>${hint}</small></div>`;
-
-//             const listDiv = document.createElement('div');
-//             listDiv.className = 'opt-list';
-
-//             group.ds_tuy_chon.forEach(opt => {
-//                 const inputType = group.loai === 'radio' ? 'radio' : 'checkbox';
-//                 const inputName = `opt_grp_${group.id}`; // Group radio bằng name
-
-//                 listDiv.innerHTML += `
-//                     <label class="opt-item">
-//                         <input type="${inputType}" name="${inputName}" value="${opt.id}" 
-//                                data-price="${opt.gia}" data-name="${opt.ten}"
-//                                onchange="pos.calculateModalTotal()">
-//                         <div>
-//                             <div>${opt.ten}</div>
-//                             ${opt.gia > 0 ? `<div class="opt-price">+${opt.gia.toLocaleString()}đ</div>` : ''}
-//                         </div>
-//                     </label>
-//                 `;
-//             });
-
-//             groupDiv.appendChild(listDiv);
-//             container.appendChild(groupDiv);
-//         });
-//     },
-
-//     adjustModalQty: function(delta) {
-//         let newQty = this.soLuongMonMenuHienTai + delta;
-//         if (newQty < 1) newQty = 1;
-//         this.soLuongMonMenuHienTai = newQty;
-//         document.getElementById('modalQty').innerText = newQty;
-//         this.calculateModalTotal();
-//     },
-
-//     // Tính tổng tiền realtime trong modal
-//     calculateModalTotal: function() {
-//         if (!this.monMenuHienTai) return;
-
-//         let unitPrice = this.monMenuHienTai.gia; // Giá gốc
-
-//         // Cộng giá Options đang check
-//         const checkedInputs = document.querySelectorAll('#modalOptionsContainer input:checked');
-//         checkedInputs.forEach(input => {
-//             unitPrice += parseInt(input.getAttribute('data-price') || 0);
-//         });
-
-//         const total = unitPrice * this.soLuongMonMenuHienTai;
-//         document.getElementById('modalTotalPrice').innerText = total.toLocaleString() + 'đ';
-//     },
-
-//     closeModal: function() {
-//         document.getElementById('itemModal').classList.remove('show');
-//         this.monMenuHienTai = null;
-//     },
-
-//     // --- 2. ADD TO CART LOGIC ---
-
-//     addItemFromModal: function() {
-//         if (!this.monMenuHienTai) return;
-
-//         // 1. Thu thập Options đã chọn
-//         const selectedOptions = [];
-//         const checkedInputs = document.querySelectorAll('#modalOptionsContainer input:checked');
-//         checkedInputs.forEach(input => {
-//             selectedOptions.push({
-//                 tuy_chon_id: parseInt(input.value),
-//                 ten: input.getAttribute('data-name'),
-//                 gia: parseInt(input.getAttribute('data-price'))
-//             });
-//         });
-
-//         // 2. Lấy Note
-//         const ghi_chu = document.getElementById('modalNote').value.trim();
-
-//         // 3. Tạo Object Item mới
-//         const newItem = {
-//             // Tạo ID tạm thời (Date.now) để phân biệt các món giống nhau nhưng khác topping
-//             temp_id: Date.now(), 
-//             mo_ta_mon_id: this.monMenuHienTai.id,
-//             phieu_mon_id: this.ttPhieu.id,
-//             ten: this.monMenuHienTai.ten,
-//             gia: this.monMenuHienTai.gia,
-//             so_luong: this.soLuongMonMenuHienTai,
-//             ghi_chu: ghi_chu,
-//             ds_tuy_chon: selectedOptions
-//         };
-
-//         // 3. Logic Gộp Món (Generate Signature)
-//         const signature = this.generateSignature(newItem);
-
-//         // Tìm xem trong giỏ đã có món nào giống hệt chưa
-//         const existingItem = this.monGhi.find(item => this.generateSignature(item) === signature);
-
-//         if (existingItem) {
-//             existingItem.so_luong += newItem.so_luong; // Cộng dồn số lượng
-//         } else {
-//             this.monGhi.push(newItem); // Thêm mới
-//         }
-
-//         this.renderCart();
-//         this.closeModal();
-//     },
-
-//     // --- 3. RENDER CART LOGIC ---
-
-//     renderCart: function() {
-//         const container = document.getElementById('monGhiContainer');
-//         const totalEl = document.getElementById('totalAmount');
-//         container.innerHTML = '';
-
-//         let grandTotal = 0;
-
-//         if (this.monGhi.length === 0) {
-//             container.innerHTML = '<div style="text-align:center; padding:20px; color:#A0AEC0;">Chưa có món nào</div>';
-//             totalEl.innerText = '0đ';
-//             return;
-//         }
-
-//         this.monGhi.forEach((item, index) => {
-//             // Tính giá item: (Base + Option) * Qty
-//             let itemUnitPrice = item?.mo_ta_mon ? item.mo_ta_mon.gia : item.gia;
-//             let optionsHtml = '';
-
-//             if (item.ds_tuy_chon && item.ds_tuy_chon.length > 0) {
-//                 item.ds_tuy_chon.forEach(opt => {
-//                     itemUnitPrice += opt.gia;
-//                     optionsHtml += `<span style="display:inline-block; background:#EDF2F7; padding:2px 6px; border-radius:4px; margin-right:4px;">+ ${opt.ten}</span>`;
-//                 });
-//             }
-
-//             const itemTotal = itemUnitPrice * item.so_luong;
-//             grandTotal += itemTotal;
-
-//             // Nút xóa (chỉ hiện khi DANGGHI)
-//             const removeBtn = this.ttPhieu.trang_thai === 'DANGGHI' ? 
-//                 `<button onclick="pos.removeItem(${index})" style="color:#E53E3E; background:none; border:none; cursor:pointer; font-size:1.2em;">&times;</button>` : '';
-
-//             // Note HTML
-//             const ghi_chuHtml = item.ghi_chu ? `<div class="item-ghi_chu">📝 ${item.ghi_chu}</div>` : '';
-
-//             const html = `
-//                 <div class="monGhi-item">
-//                     <div style="font-weight:700; color:var(--primary-color); width:30px; text-align:center;">${item.so_luong}x</div>
-//                     <div class="monGhi-item-details">
-//                         <div class="item-name">${item?.mo_ta_mon ? item.mo_ta_mon.ten : item.ten}</div>
-//                         <div class="item-options">${optionsHtml}</div>
-//                         ${ghi_chuHtml}
-//                     </div>
-//                     <div style="text-align:right;">
-//                         <div class="item-price">${itemTotal.toLocaleString()}đ</div>
-//                         ${removeBtn}
-//                     </div>
-//                 </div>
-//             `;
-//             container.innerHTML += html;
-//         });
-
-//         totalEl.innerText = grandTotal.toLocaleString() + 'đ';
-//     },
-
-//     // Tạo chữ ký duy nhất cho món: ID + Note + SortedOptionIDs
-//     generateSignature: function(item) {
-//         const id = item.thuc_don_id;
-//         const ghi_chu = (item.ghi_chu || '').toLowerCase().trim();
-
-//         // Lấy list ID topping và sort
-//         let optIds = '';
-//         if (item.selected_options && item.selected_options.length > 0) {
-//             optIds = item.selected_options.map(o => o.id).sort((a,b) => a-b).join(',');
-//         }
-
-//         return `${id}|${ghi_chu}|${optIds}`;
-//     },
-
-//     removeItem: function(index) {
-//         if (!confirm("Xóa món này khỏi phiếu?")) return;
-//         this.monGhi.splice(index, 1);
-//         this.renderCart();
-//     },
-
-
-//     submitTicket: async function() {
-//         if (this.monGhi.length === 0) return alert("Chưa chọn món nào!");
-//         if (!confirm("Xác nhận gửi xuống bếp?")) return;
-
-
-//         const payload = {
-//             ds_mon_ghi: this.monGhi
-//         };
-
-//         try {
-//             const response = await fetch(`${this.prefix}/api/v1/phieu-mon/${this.ttPhieu.id}/mon-ghi`, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-type': 'application/json'
-//                 },
-//                 credentials: 'include',
-//                 body: JSON.stringify(payload)
-//             });
-
-//             if (!response.ok) {
-//             const errorData = await response.json();
-//             const errMsg = errorData.message;
-//             throw new Error(errMsg);
-//         }
-
-//             const data = await response.json();
-
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Thành công!',
-//                 text: 'Gửi phiếu cho bếp thành công!',
-//                 timer: 2000,              // Tự tắt sau 2 giây
-//                 showConfirmButton: false  // Không cần nút bấm
-//             });
-
-//             console.log(data);
-
-//         } catch (error) {
-//             Swal.fire({
-//                 icon: 'error',               
-//                 title: 'Úi chà!',            
-//                 text: error.message,         
-//                 confirmButtonText: 'Đóng'    
-//             });
-//         }
-
-//     }
-// };
-
-// document.addEventListener('DOMContentLoaded', () => pos.init());
-
-
-
-
-
 const pos = {
-    // Dữ liệu chính
+    // Data chính
     groupFoods: [],
-    ticketInfo: {}, // Thông tin phiếu (lấy ID phiếu, ID bàn...)
-    cart: [],       // Món Ghi (Local state)
+    ticketInfo: {}, // Info phiếu (bàn nào, ID phiếu là gì...)
+    cart: [],       // Danh sách món đang chọn (Local state)
 
-    // State của Modal
-    currentDish: null, // Món đang chọn (Object MoTaMon)
+    // State của Modal chọn món
+    currentDish: null, // Món đang mở modal
     modalQty: 1,
 
     init: function () {
@@ -312,20 +16,17 @@ const pos = {
                 this.groupFoods = JSON.parse(thucDonEl.textContent).ds_nhom_mon;
                 this.ticketInfo = JSON.parse(ticketEl.textContent);
 
-                // Load các món đã ghi trước đó (Server trả về ds_mon_ghi)
-                // Lưu ý: Backend cần trả về ds_mon_ghi đúng cấu trúc ta cần hoặc ta phải map lại
+                // Load lại các món đã ghi trước đó (nếu có)
                 this.cart = this.ticketInfo.ds_mon_ghi || [];
 
                 this.renderCart();
             } catch (e) {
-                console.error("Init Error:", e);
+                console.error("Lỗi khi khởi tạo POS:", e);
             }
         }
     },
 
-    // ============================================================
-    // 1. MENU FILTER (Tab Category)
-    // ============================================================
+    // --- 1. Lọc thực đơn theo nhóm (Tab) ---
     filterCategory: function (categoryName) {
         const sections = document.querySelectorAll('.menu-section');
         const tabs = document.querySelectorAll('.cat-tab');
@@ -349,9 +50,7 @@ const pos = {
         });
     },
 
-    // ============================================================
-    // 2. MODAL LOGIC
-    // ============================================================
+    // --- 2. Xử lý Modal chọn món & Topping ---
     openModal: function (dishId) {
         // dish ở đây là object MoTaMon
         if (this.ticketInfo.trang_thai !== 'DANGGHI') {
@@ -463,9 +162,7 @@ const pos = {
         this.currentDish = null;
     },
 
-    // ============================================================
-    // 3. CART LOGIC & PAYLOAD CONSTRUCTION
-    // ============================================================
+    // --- 3. Quản lý giỏ hàng & chuẩn bị Data gửi lên BE ---
 
     addItemFromModal: function () {
         if (!this.currentDish) return;
@@ -537,9 +234,7 @@ const pos = {
         }
     },
 
-    // ============================================================
-    // 4. RENDER CART UI
-    // ============================================================
+    // --- 4. Render giao diện giỏ hàng ---
     renderCart: function () {
         const container = document.getElementById('cartContainer');
         const totalEl = document.getElementById('totalAmount');
@@ -626,21 +321,19 @@ const pos = {
         countEl.innerText = totalQty;
     },
 
-    // ============================================================
-    // 4.1 CANCEL REQUEST MODAL
-    // ============================================================
-    openCancelModal: function(monGhiId, dishName, currentStatus) {
+    // --- 4.1 Modal yêu cầu hủy món (cho Quản lý duyệt) ---
+    openCancelModal: function (monGhiId, dishName, currentStatus) {
         document.getElementById('cancelMonGhiId').value = monGhiId;
         document.getElementById('cancelModalDishName').innerText = dishName;
         document.getElementById('cancelReason').value = '';
         document.getElementById('cancelRequestModal').classList.add('show');
     },
 
-    closeCancelModal: function() {
+    closeCancelModal: function () {
         document.getElementById('cancelRequestModal').classList.remove('show');
     },
 
-    submitCancelRequest: async function() {
+    submitCancelRequest: async function () {
         const monGhiId = document.getElementById('cancelMonGhiId').value;
         const lyDo = document.getElementById('cancelReason').value.trim();
 
@@ -709,9 +402,7 @@ const pos = {
         }
     },
 
-    // ============================================================
-    // 5. SUBMIT TO BACKEND
-    // ============================================================
+    // --- 5. Gửi phiếu xuống bếp ---
     submitTicket: function () {
         if (this.cart.length === 0) return alert("Vui lòng chọn món!");
         if (!confirm("Xác nhận gửi thực đơn này xuống bếp?")) return;
