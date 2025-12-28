@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Nhân viên - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/nhan_vien.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>👤 Quản lý Nhân viên</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm nhân viên
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Vai trò:</span>
+                    <select class="filter-select" id="filterRole">
+                        <option value="" {% if not vai_tro_filter %}selected{% endif %}>Tất cả</option>
+                        <option value="phuc_vu" {% if vai_tro_filter=='phuc_vu' %}selected{% endif %}>Phục vụ</option>
+                        <option value="le_tan" {% if vai_tro_filter=='le_tan' %}selected{% endif %}>Lễ tân</option>
+                        <option value="dau_bep" {% if vai_tro_filter=='dau_bep' %}selected{% endif %}>Đầu bếp</option>
+                        <option value="thu_ngan" {% if vai_tro_filter=='thu_ngan' %}selected{% endif %}>Thu ngân
+                        </option>
+                        <option value="quan_ly" {% if vai_tro_filter=='quan_ly' %}selected{% endif %}>Quản lý</option>
+                    </select>
+                </div>
+                <input type="text" class="filter-input search-input" id="searchInput" placeholder="Tìm theo tên...">
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ tên</th>
+                            <th>Vai trò</th>
+                            <th>Tài khoản</th>
+                            <th>Email</th>
+                            <th>Khu vực</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for item in items %}
+                        <tr data-id="{{ item.id }}" data-name="{{ item.ho_ten | lower }}">
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.ho_ten }}</td>
+                            <td>
+                                <span class="role-badge role-{{ item.type }}">
+                                    {{ item.type | replace('_', ' ') | title }}
+                                </span>
+                            </td>
+                            <td>{{ item.tai_khoan or '-' }}</td>
+                            <td>{{ item.email or '-' }}</td>
+                            <td>{{ item.khu_vuc or '-' }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ item.id }}"
+                                        data-hoten="{{ item.ho_ten }}" data-khuvuc="{{ item.khu_vuc_id or '' }}">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="{{ item.id }}">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr id="emptyRow">
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">👥</div>
+                                <h3>Chưa có nhân viên nào</h3>
+                                <p>Nhấn "Thêm nhân viên" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Thanh điều hướng phân trang -->
+            <div class="pagination" id="pagination">
+                {% if total > per_page %}
+                <div class="pagination-info">
+                    Hiển thị {{ ((page - 1) * per_page) + 1 }} - {{ [page * per_page, total] | min }} / {{ total }}
+                </div>
+                <div class="pagination-controls">
+                    {% if page > 1 %}
+                    <a href="?page={{ page - 1 }}{% if vai_tro_filter %}&vai_tro={{ vai_tro_filter }}{% endif %}"
+                        class="page-btn">←</a>
+                    {% endif %}
+
+                    {% for p in range(1, (total // per_page) + 2) %}
+                    {% if p <= (total // per_page) + 1 %} <a
+                        href="?page={{ p }}{% if vai_tro_filter %}&vai_tro={{ vai_tro_filter }}{% endif %}"
+                        class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if has_next %}
+                        <a href="?page={{ page + 1 }}{% if vai_tro_filter %}&vai_tro={{ vai_tro_filter }}{% endif %}"
+                            class="page-btn">→</a>
+                        {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hộp thoại (Modal) để Thêm mới hoặc Cập nhật thông tin nhân viên -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm nhân viên</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="employeeForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Họ tên <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="hoTen" required>
+                </div>
+                <div id="accountFields">
+                    <div class="form-group">
+                        <label>Tên tài khoản <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="tenTaiKhoan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu <span class="required">*</span></label>
+                        <input type="password" class="form-control" id="matKhau" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vai trò <span class="required">*</span></label>
+                        <select class="form-control" id="vaiTro" required>
+                            <option value="">Chọn vai trò</option>
+                            <option value="PHUCVU">Phục vụ</option>
+                            <option value="LETAN">Lễ tân</option>
+                            <option value="DAUBEP">Đầu bếp</option>
+                            <option value="THUNGAN">Thu ngân</option>
+                            <option value="QUANLY">Quản lý</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="khuVucGroup" style="display: none;">
+                    <label>Khu vực</label>
+                    <select class="form-control" id="khuVucId">
+                        <option value="">Chọn khu vực</option>
+                        {% for kv in ds_khu_vuc %}
+                        <option value="{{ kv.id }}">{{ kv.ten }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

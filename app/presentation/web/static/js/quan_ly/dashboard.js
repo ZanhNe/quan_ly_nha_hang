@@ -1,24 +1,18 @@
-/**
- * Quản Lý Dashboard - JavaScript Module
- * Xử lý logic tương tác cho trang dashboard của Quản lý
- */
+// --- Dashboard Quản lý ---
+// Xử lý các yêu cầu hủy món, phê duyệt, từ chối...
 
-// ========================================
-// STATE MANAGEMENT
-// ========================================
+// --- Quản lý State ---
 const state = {
     pendingRequests: [],
     currentAction: null, // { type: 'approve' | 'reject', ycId: number }
 };
 
-// ========================================
-// DOM ELEMENTS
-// ========================================
+// --- Các phần tử giao diện (DOM) ---
 const elements = {
     // Tabs
     tabBtns: document.querySelectorAll('.tab-btn'),
     tabContents: document.querySelectorAll('.tab-content'),
-    
+
     // Modal
     modal: document.getElementById('confirmModal'),
     modalTitle: document.getElementById('modalTitle'),
@@ -27,15 +21,13 @@ const elements = {
     modalConfirm: document.getElementById('modalConfirm'),
     modalCancel: document.getElementById('modalCancel'),
     modalClose: document.getElementById('modalClose'),
-    
+
     // Counters
     pendingCount: document.getElementById('pending-count'),
     tabPendingCount: document.getElementById('tab-pending-count'),
 };
 
-// ========================================
-// INITIALIZATION
-// ========================================
+// --- Khởi tạo trang ---
 document.addEventListener('DOMContentLoaded', () => {
     initializeData();
     setupTabNavigation();
@@ -43,9 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModal();
 });
 
-/**
- * Load dữ liệu yêu cầu từ JSON được inject vào page
- */
+// Đổ data yêu cầu từ JSON vào state
 function initializeData() {
     const dataElement = document.getElementById('yeu-cau-data');
     if (dataElement) {
@@ -59,20 +49,18 @@ function initializeData() {
     }
 }
 
-// ========================================
-// TAB NAVIGATION
-// ========================================
+// --- Chuyển đổi giữa các Tab ---
 function setupTabNavigation() {
     elements.tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.disabled) return;
-            
+
             const targetTab = btn.dataset.tab;
-            
+
             // Update active tab button
             elements.tabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
             // Update active tab content
             elements.tabContents.forEach(content => {
                 content.classList.remove('active');
@@ -85,14 +73,14 @@ function setupTabNavigation() {
 }
 
 // ========================================
-// REQUEST ACTIONS
+// XỬ LÝ CÁC HÀNH ĐỘNG YÊU CẦU
 // ========================================
 function setupRequestActions() {
     document.querySelectorAll('.btn-action').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const action = btn.dataset.action;
             const ycId = btn.dataset.ycId;
-            
+
             if (action === 'approve') {
                 showConfirmModal('approve', ycId);
             } else if (action === 'reject') {
@@ -103,20 +91,20 @@ function setupRequestActions() {
 }
 
 // ========================================
-// MODAL HANDLING
+// XỬ LÝ HỘP THOẠI XÁC NHẬN (MODAL)
 // ========================================
 function setupModal() {
-    // Close modal handlers
+    // Xử lý đóng modal
     elements.modalCancel?.addEventListener('click', hideModal);
     elements.modalClose?.addEventListener('click', hideModal);
     elements.modal?.addEventListener('click', (e) => {
         if (e.target === elements.modal) hideModal();
     });
-    
-    // Confirm action handler
+
+    // Xử lý xác nhận hành động
     elements.modalConfirm?.addEventListener('click', handleConfirmAction);
-    
-    // ESC key to close
+
+    // Đóng modal khi nhấn phím ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && elements.modal?.classList.contains('show')) {
             hideModal();
@@ -124,11 +112,12 @@ function setupModal() {
     });
 }
 
+// Hiển thị hộp thoại xác nhận
 function showConfirmModal(action, ycId) {
     state.currentAction = { type: action, ycId: parseInt(ycId) };
-    
+
     const request = state.pendingRequests.find(r => r.id === state.currentAction.ycId);
-    
+
     if (action === 'approve') {
         elements.modalTitle.textContent = '✅ Xác nhận Chấp thuận';
         elements.modalMessage.textContent = 'Bạn có chắc chắn muốn CHẤP THUẬN yêu cầu này?';
@@ -140,74 +129,76 @@ function showConfirmModal(action, ycId) {
         elements.modalConfirm.className = 'btn-modal btn-confirm reject';
         elements.modalConfirm.textContent = 'Từ chối';
     }
-    
-    // Show request details
+
+    // Hiển thị chi tiết yêu cầu
     if (request) {
         elements.modalDetails.innerHTML = `
             <strong>Yêu cầu #${request.id}</strong><br>
             Lý do: ${request.ly_do || 'Không có lý do'}
         `;
     }
-    
+
     elements.modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; // Ngăn cuộn trang khi modal mở
 }
 
+// Ẩn hộp thoại xác nhận
 function hideModal() {
     elements.modal?.classList.remove('show');
-    document.body.style.overflow = '';
+    document.body.style.overflow = ''; // Cho phép cuộn trang trở lại
     state.currentAction = null;
 }
 
 // ========================================
-// API HANDLERS
+// XỬ LÝ GỌI API
 // ========================================
 async function handleConfirmAction() {
     if (!state.currentAction) return;
-    
+
     const { type, ycId } = state.currentAction;
     const card = document.querySelector(`.request-card[data-yc-id="${ycId}"]`);
     const approveBtn = card?.querySelector('.btn-approve');
     const rejectBtn = card?.querySelector('.btn-reject');
-    
-    // Show loading state
+
+    // Hiển thị trạng thái đang tải và ẩn modal
     hideModal();
     if (approveBtn) approveBtn.classList.add('loading');
     if (rejectBtn) rejectBtn.classList.add('loading');
     if (card) card.classList.add('processing');
-    
+
     try {
-        const endpoint = type === 'approve' 
+        const endpoint = type === 'approve'
             ? `/api/v1/yeu-cau/${ycId}/chap-thuan`
             : `/api/v1/yeu-cau/${ycId}/tu-choi`;
-        
+
         const response = await fetch(endpoint, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             handleActionSuccess(type, ycId, card);
         } else {
             handleActionError(data.message || 'Có lỗi xảy ra', card, approveBtn, rejectBtn);
         }
     } catch (error) {
-        console.error('Error processing request:', error);
-        handleActionError('Lỗi kết nối server', card, approveBtn, rejectBtn);
+        console.error('Lỗi khi xử lý yêu cầu:', error);
+        handleActionError('Lỗi kết nối máy chủ', card, approveBtn, rejectBtn);
     }
 }
 
+// Xử lý khi hành động thành công
 function handleActionSuccess(type, ycId, card) {
-    // Update card UI
+    // Cập nhật giao diện thẻ yêu cầu
     if (card) {
         card.classList.remove('processing');
         card.classList.add(type === 'approve' ? 'approved' : 'rejected');
-        
-        // Update status badge
+
+        // Cập nhật huy hiệu trạng thái
         const statusBadge = card.querySelector('.request-status');
         if (statusBadge) {
             statusBadge.className = `request-status ${type === 'approve' ? 'status-approved' : 'status-rejected'}`;
@@ -216,8 +207,8 @@ function handleActionSuccess(type, ycId, card) {
                 ${type === 'approve' ? 'Đã chấp thuận' : 'Đã từ chối'}
             `;
         }
-        
-        // Hide action buttons
+
+        // Ẩn các nút hành động
         const actionsContainer = card.querySelector('.request-actions');
         if (actionsContainer) {
             actionsContainer.innerHTML = `
@@ -227,51 +218,53 @@ function handleActionSuccess(type, ycId, card) {
             `;
         }
     }
-    
-    // Update counters
+
+    // Cập nhật bộ đếm yêu cầu đang chờ
     updatePendingCount(-1);
-    
-    // Show success notification
+
+    // Hiển thị thông báo thành công
     showNotification(
         type === 'approve' ? 'Đã chấp thuận yêu cầu!' : 'Đã từ chối yêu cầu!',
         type === 'approve' ? 'success' : 'info'
     );
-    
-    // Remove from state
+
+    // Xóa yêu cầu khỏi state
     state.pendingRequests = state.pendingRequests.filter(r => r.id !== ycId);
-    
-    // Fade out card after a delay
+
+    // Làm mờ và xóa thẻ yêu cầu sau một khoảng thời gian
     setTimeout(() => {
         if (card) {
             card.style.transition = 'all 0.5s ease';
             card.style.opacity = '0';
             card.style.transform = 'scale(0.9)';
-            
+
             setTimeout(() => {
                 card.remove();
-                checkEmptyState();
+                checkEmptyState(); // Kiểm tra trạng thái rỗng sau khi xóa thẻ
             }, 500);
         }
     }, 2000);
 }
 
+// Xử lý khi hành động thất bại
 function handleActionError(message, card, approveBtn, rejectBtn) {
-    // Remove loading states
+    // Xóa trạng thái đang tải
     if (approveBtn) approveBtn.classList.remove('loading');
     if (rejectBtn) rejectBtn.classList.remove('loading');
     if (card) card.classList.remove('processing');
-    
-    // Show error notification
+
+    // Hiển thị thông báo lỗi
     showNotification(message, 'error');
 }
 
 // ========================================
-// UTILITY FUNCTIONS
+// CÁC HÀM TIỆN ÍCH
 // ========================================
+// Cập nhật số lượng yêu cầu đang chờ
 function updatePendingCount(delta) {
     const currentCount = parseInt(elements.pendingCount?.textContent || '0');
     const newCount = Math.max(0, currentCount + delta);
-    
+
     if (elements.pendingCount) {
         elements.pendingCount.textContent = newCount;
     }
@@ -280,10 +273,11 @@ function updatePendingCount(delta) {
     }
 }
 
+// Kiểm tra và hiển thị trạng thái rỗng nếu không còn yêu cầu nào
 function checkEmptyState() {
     const requestGrid = document.querySelector('.request-grid');
     const remainingCards = document.querySelectorAll('.request-card');
-    
+
     if (remainingCards.length === 0 && requestGrid) {
         const tabContent = document.getElementById('tab-pending');
         if (tabContent) {
@@ -298,8 +292,9 @@ function checkEmptyState() {
     }
 }
 
+// Hiển thị thông báo (sử dụng SweetAlert2 nếu có)
 function showNotification(message, type = 'info') {
-    // Use SweetAlert2 if available
+    // Sử dụng SweetAlert2 nếu thư viện có sẵn
     if (typeof Swal !== 'undefined') {
         const icons = {
             success: 'success',
@@ -307,7 +302,7 @@ function showNotification(message, type = 'info') {
             info: 'info',
             warning: 'warning'
         };
-        
+
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -328,14 +323,14 @@ function showNotification(message, type = 'info') {
 // ========================================
 function setupSocketIO() {
     if (typeof io === 'undefined') return;
-    
+
     const socket = io('http://localhost:5000', { transports: ['websocket'] });
-    
+
     socket.on('connect', () => {
         console.log('Socket connected for Manager dashboard');
         socket.emit('join_room', { room: 'manager_room' });
     });
-    
+
     // Listen for new requests
     socket.on('new_request', (data) => {
         console.log('New request received:', data);

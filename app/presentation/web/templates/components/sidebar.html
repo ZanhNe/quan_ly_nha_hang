@@ -17,7 +17,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a href="#" class="nav-link">
+      <a href="{{url_for('index.dat_ban')}}" class="nav-link">
         <span class="icon">📅</span> Quản lý Đặt Bàn (Lễ tân)
       </a>
     </li>
@@ -67,7 +67,7 @@
     </li>
     {% elif session.get('current_user')['vai_tro'] == 'ADMIN' %}
     <li class="nav-item">
-      <a href="/admin" class="nav-link" target="_blank">
+      <a href="{{url_for('admin.admin_dashboard')}}" class="nav-link" target="_blank">
         <span class="icon">⚙️</span> Quản Trị Hệ Thống
       </a>
     </li>

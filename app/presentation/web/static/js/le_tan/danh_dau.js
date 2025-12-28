@@ -1,6 +1,4 @@
-// ============================================================
-// 1. KHỞI TẠO DỮ LIỆU & ELEMENTS
-// ============================================================
+// --- 1. Khởi tạo data & DOM elements ---
 const dataElement = document.getElementById("table-data-json");
 const dsKhuVuc = JSON.parse(dataElement.textContent);
 
@@ -21,9 +19,7 @@ const els = {
   closeBtn: document.getElementById("btn-close"),
 };
 
-// ============================================================
-// 2. EVENT DELEGATION - Xử lý click trên TẤT CẢ các bàn
-// ============================================================
+// --- 2. Xử lý sự kiện click trên các bàn ---
 els.zonesContainer.addEventListener("click", (e) => {
   const tableEl = e.target.closest(".table");
   if (tableEl) {
@@ -68,9 +64,7 @@ function handleTableClick(tableId) {
   updateFooterButton();
 }
 
-// ============================================================
-// 3. HÀM RENDER NỘI DUNG DRAWER (Cái bạn đang cần)
-// ============================================================
+// --- 3. Render thông tin chi tiết bàn vào Drawer ---
 
 function renderDrawerContent(ban) {
   // 1. Cập nhật tiêu đề
@@ -89,10 +83,11 @@ function renderDrawerContent(ban) {
                 <div class="timeline-item">
                     <div class="timeline-time">Hiện tại</div>
                     <div class="timeline-content" style="background: #FFF5F5; border-color: #FEB2B2;">
-                        <strong style="color: #C53030;">Đang phục vụ khách</strong>
-                        <div style="font-size: 0.9em; color: #555; margin-top: 4px;">
-                            Vui lòng đợi khách thanh toán.
-                        </div>
+                        <strong style="color: #C53030;">🍽️ Đang phục vụ khách</strong>
+          <div style="font-size: 0.9em; color: #555; margin-top: 4px;">
+            Đợi khách thanh toán xong mới đặt tiếp được nhé.
+          </div>
+              </div>
                     </div>
                 </div>
             `;
@@ -146,9 +141,7 @@ function renderDrawerContent(ban) {
   els.timelineList.innerHTML = htmlContent;
 }
 
-// ============================================================
-// 4. HÀM LOGIC NÚT BẤM & VALIDATION (Client-side)
-// ============================================================
+// --- 4. Logic kiểm tra và cập nhật nút bấm ở footer ---
 
 function updateFooterButton() {
   // 1. Nếu chưa chọn bàn nào
@@ -201,6 +194,8 @@ function updateFooterButton() {
 // 5. CÁC HÀM TIỆN ÍCH KHÁC (DRAWER, SUBMIT)
 // ============================================================
 
+// --- Quản lý đặt bàn (Lễ tân) ---
+
 function openDrawer() {
   els.drawer.classList.add("open");
   els.overlay.classList.add("show");
@@ -237,7 +232,7 @@ function updateTable(data) {
   closeDrawer();
 }
 
-// SỰ KIỆN GỬI DỮ LIỆU (Khi bấm nút Xác nhận)
+// Gửi API để đánh dấu bàn đã có khách vào ngồi
 els.btnAction.addEventListener("click", function () {
   if (selectedTableIds.length === 0) return;
 

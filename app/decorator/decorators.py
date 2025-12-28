@@ -52,7 +52,7 @@ def verification_required(f):
                     "message": "Tài khoản chưa xác thực email (Email verification required)",
                     "code": 403
                 }), 403
-            return redirect(url_for('auth.xac_thuc_email'))
+            return redirect(url_for('auth.yeu_cau_xac_thuc'))
         
         # Check 2: Đã xác thực email nhưng chưa được Admin duyệt (vai trò VODANH)
         if current_user.get('vai_tro') == 'VODANH':

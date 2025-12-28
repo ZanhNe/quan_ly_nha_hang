@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - Sakura Restaurant{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/dashboard.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <!-- Thanh tiêu đề (Header) của Dashboard -->
+        <header class="admin-header">
+            <div class="admin-header-info">
+                <h1>
+                    <span class="title-icon">🏯</span>
+                    Admin Dashboard
+                </h1>
+                <p>Quản lý hệ thống nhà hàng Sakura</p>
+            </div>
+            <div class="admin-stats">
+                <div class="stat-badge">
+                    <span class="icon">📋</span>
+                    <span class="text">Chờ duyệt: <strong id="pendingCount">{{ pending_count }}</strong></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Các lối tắt hành động nhanh -->
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.admin_tai_khoan_cho_duyet') }}" class="quick-action-btn primary">
+                <span class="action-icon">⏳</span>
+                Duyệt tài khoản mới
+            </a>
+            <a href="{{ url_for('admin.admin_nhan_vien') }}" class="quick-action-btn">
+                <span class="action-icon">👤</span>
+                Thêm nhân viên
+            </a>
+            <a href="{{ url_for('admin.admin_mon') }}" class="quick-action-btn">
+                <span class="action-icon">🍣</span>
+                Thêm món mới
+            </a>
+        </div>
+
+        <!-- Khu vực hiển thị danh sách tài khoản đang chờ phê duyệt -->
+        {% if ds_cho_duyet and ds_cho_duyet|length > 0 %}
+        <section class="pending-section">
+            <div class="pending-header">
+                <h2>
+                    <span>⏳</span>
+                    Tài khoản chờ xét duyệt
+                </h2>
+                <span class="pending-count">{{ ds_cho_duyet|length }} chờ duyệt</span>
+            </div>
+            <div class="pending-body">
+                <div class="pending-grid">
+                    {% for tk in ds_cho_duyet[:4] %}
+                    <div class="pending-card" data-id="{{ tk.id }}">
+                        <div class="pending-card-header">
+                            <div class="user-info">
+                                <div class="user-avatar">👤</div>
+                                <div class="user-details">
+                                    <h4>{{ tk.ho_ten }}</h4>
+                                    <p>{{ tk.ten_tai_khoan }}</p>
+                                </div>
+                            </div>
+                            <div class="pending-badge">
+                                <span class="dot"></span>
+                                Chờ duyệt
+                            </div>
+                        </div>
+                        <div class="pending-card-body">
+                            <div class="pending-info">
+                                <span class="info-icon">📧</span>
+                                {{ tk.email }}
+                            </div>
+                            <div class="pending-info">
+                                <span class="info-icon">📅</span>
+                                Đăng ký: {{ tk.ngay_tao[:10] if tk.ngay_tao else 'N/A' }}
+                            </div>
+                        </div>
+                        <div class="pending-actions">
+                            <button class="btn-approve-pending" data-id="{{ tk.id }}" data-name="{{ tk.ho_ten }}">
+                                <span>✓</span> Duyệt
+                            </button>
+                            <button class="btn-reject-pending" data-id="{{ tk.id }}">
+                                <span>✕</span> Từ chối
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if ds_cho_duyet|length > 4 %}
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="{{ url_for('admin.admin_tai_khoan_cho_duyet') }}" class="quick-action-btn">
+                        Xem tất cả ({{ ds_cho_duyet|length }})
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Phân nhóm các chức năng quản lý chính -->
+        <div class="domain-groups">
+            <!-- Quản lý Tài khoản & Người dùng -->
+            <div class="domain-group">
+                <div class="domain-header">
+                    <div class="domain-icon">👥</div>
+                    <div>
+                        <h3>Tài khoản & Người dùng</h3>
+                        <p>Quản lý tài khoản, nhân viên, phân quyền</p>
+                    </div>
+                </div>
+                <div class="domain-links">
+                    <a href="{{ url_for('admin.admin_tai_khoan') }}" class="domain-link">
+                        <div class="link-icon">🔐</div>
+                        <div class="link-text">
+                            <strong>Tài khoản</strong>
+                            <span>Quản lý đăng nhập, xác thực</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_nhan_vien') }}" class="domain-link">
+                        <div class="link-icon">👤</div>
+                        <div class="link-text">
+                            <strong>Nhân viên</strong>
+                            <span>Phục vụ, Lễ tân, Đầu bếp, Thu ngân</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_tai_khoan_cho_duyet') }}" class="domain-link">
+                        <div class="link-icon">⏳</div>
+                        <div class="link-text">
+                            <strong>Chờ xét duyệt</strong>
+                            <span>Duyệt tài khoản mới đăng ký</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quản lý Cơ sở vật chất -->
+            <div class="domain-group">
+                <div class="domain-header">
+                    <div class="domain-icon">🏠</div>
+                    <div>
+                        <h3>Cơ sở vật chất</h3>
+                        <p>Quản lý khu vực, bàn ăn</p>
+                    </div>
+                </div>
+                <div class="domain-links">
+                    <a href="{{ url_for('admin.admin_khu_vuc') }}" class="domain-link">
+                        <div class="link-icon">📍</div>
+                        <div class="link-text">
+                            <strong>Khu vực</strong>
+                            <span>Sân vườn, Trong nhà, VIP...</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_ban') }}" class="domain-link">
+                        <div class="link-icon">🪑</div>
+                        <div class="link-text">
+                            <strong>Bàn</strong>
+                            <span>Quản lý bàn, số ghế, trạng thái</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quản lý Thực đơn -->
+            <div class="domain-group">
+                <div class="domain-header">
+                    <div class="domain-icon">🍱</div>
+                    <div>
+                        <h3>Thực đơn</h3>
+                        <p>Quản lý nhóm món, món ăn, tùy chọn</p>
+                    </div>
+                </div>
+                <div class="domain-links">
+                    <a href="{{ url_for('admin.admin_nhom_mon') }}" class="domain-link">
+                        <div class="link-icon">📁</div>
+                        <div class="link-text">
+                            <strong>Nhóm món</strong>
+                            <span>Khai vị, Chính, Tráng miệng...</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_mon') }}" class="domain-link">
+                        <div class="link-icon">🍣</div>
+                        <div class="link-text">
+                            <strong>Món ăn</strong>
+                            <span>Thêm, sửa, xóa món</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quản lý Khuyến mãi & Thuế -->
+            <div class="domain-group">
+                <div class="domain-header">
+                    <div class="domain-icon">💰</div>
+                    <div>
+                        <h3>Khuyến mãi & Thuế</h3>
+                        <p>Quản lý giảm giá, cấu hình thuế</p>
+                    </div>
+                </div>
+                <div class="domain-links">
+                    <a href="{{ url_for('admin.admin_khuyen_mai') }}" class="domain-link">
+                        <div class="link-icon">🎁</div>
+                        <div class="link-text">
+                            <strong>Khuyến mãi</strong>
+                            <span>Giảm giá phần trăm, giảm cứng</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_cau_hinh_thue') }}" class="domain-link">
+                        <div class="link-icon">📊</div>
+                        <div class="link-text">
+                            <strong>Cấu hình thuế</strong>
+                            <span>VAT, thuế dịch vụ</span>
+                        </div>
+                        <span class="link-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hộp thoại (Modal) để chọn vai trò khi phê duyệt tài khoản -->
+<div class="admin-modal-overlay" id="approvalModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3>Duyệt tài khoản</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <p style="margin-bottom: 20px;">Chọn vai trò cho tài khoản: <strong id="approvalUserName"></strong></p>
+            <div class="role-options">
+                <div class="role-option" data-role="PHUCVU">
+                    <span class="role-icon">🍽️</span>
+                    <span class="role-name">Phục vụ</span>
+                </div>
+                <div class="role-option" data-role="LETAN">
+                    <span class="role-icon">🎀</span>
+                    <span class="role-name">Lễ tân</span>
+                </div>
+                <div class="role-option" data-role="DAUBEP">
+                    <span class="role-icon">👨‍🍳</span>
+                    <span class="role-name">Đầu bếp</span>
+                </div>
+                <div class="role-option" data-role="THUNGAN">
+                    <span class="role-icon">💵</span>
+                    <span class="role-name">Thu ngân</span>
+                </div>
+                <div class="role-option" data-role="QUANLY">
+                    <span class="role-icon">📋</span>
+                    <span class="role-name">Quản lý</span>
+                </div>
+            </div>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="approveBtn" disabled>Xác nhận duyệt</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

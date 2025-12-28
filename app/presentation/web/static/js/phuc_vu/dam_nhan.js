@@ -1,6 +1,5 @@
-// 1. Tìm thẻ chứa dữ liệu
+// Lấy data phiên từ script tag mà Jinja2 đã render
 const dataElement = document.getElementById("phien-data-json");
-// Nhận dữ liệu từ Flask (Jinja2 convert sang JSON Object)
 let dsPhienBan = JSON.parse(dataElement.textContent);
 const prefix = 'http://127.0.0.1:5000'
 const sessionGridElm = document.querySelector('.session-grid');
@@ -9,8 +8,7 @@ const sessionGridElm = document.querySelector('.session-grid');
 sessionGridElm.addEventListener('click', function (e) {
     const confirmBtn = e.target.closest('button.btn-confirm');
     if (confirmBtn) {
-        const confirmMsg = `Bạn có chắc chắn muốn đảm nhận cho phiên bàn?`;
-        if (!confirm(confirmMsg)) return;
+        if (!confirm(`Bạn có chắc muốn đảm nhận phiên này không?`)) return;
 
         const phienId = confirmBtn.dataset.phienId;
 
@@ -21,7 +19,7 @@ sessionGridElm.addEventListener('click', function (e) {
 async function xuLyDamNhan(phienId) {
     try {
         const response = await fetch(`${prefix}/api/v1/phien-ban/${phienId}/dam-nhan`, {
-            method: 'POST',
+            method: 'PUT',
             credentials: 'include',
             headers: {
                 'Content-type': 'application/json',
@@ -34,6 +32,7 @@ async function xuLyDamNhan(phienId) {
         }
 
         const data = await response.json();
+        // Cập nhật lại list phiên cục bộ sau khi nhận data mới từ server
         dsPhienBan = dsPhienBan.map((phien) => {
             if (phien.id !== data.id) return phien;
             else return data;

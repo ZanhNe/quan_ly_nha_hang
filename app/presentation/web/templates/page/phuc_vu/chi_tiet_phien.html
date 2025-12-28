@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block content %}
+<!-- Nút quay lại màn hình danh sách các phiên bàn đang phục vụ -->
 <a href="{{url_for('index.danh_sach_phien')}}"
     style="color: #718096; text-decoration: none; display: inline-block; margin-bottom: 15px;">
     ← Quay lại danh sách
@@ -61,7 +62,8 @@
     {% for phieu_mon in phien_ban.ds_phieu_mon %}
     <a href="{{url_for('index.chi_tiet_phieu_mon', phien_ban_id=phieu_mon.phien_ban_id, phieu_mon_id=phieu_mon.id)}}"
         class="session-card">
-        <div class="card-header">
+        <!-- Cột bên phải: Tóm tắt thông tin và trạng thái của Phiếu món -->
+        <div class="kds-summary-panel">
             <strong style="color: #2D3748;">Phiếu #{{ phieu_mon.id }}</strong>
             {% if phieu_mon.trang_thai == 'DANGGHI' %}
             <span class="badge badge-draft">Đang ghi món</span>

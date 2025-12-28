@@ -4,11 +4,11 @@ from typing import List, Optional
 from flask_sqlalchemy.session import Session
 from app.data.models import (KhuVuc, Ban, NguoiDung, PhucVu, PhienBan, TaiKhoan, VaiTro, PhanCong, TrangThai, ThucDon, PhieuMon
                              , TuyChonMon, TrangThaiPhieu, MonGhi, ThongBao, KhuyenMai, CauHinhThue, DoanhThu, YeuCau, TrangThaiYeuCau
-                             , TrangThaiDoanhThu, TrangThaiMonGhi, MoTaMon, NhomMon)
+                             , TrangThaiDoanhThu, TrangThaiMonGhi, MoTaMon, NhomMon, DatBan)
 from app.data.dao.interfaces.interfaces import (IBanDAO, IKhuVucDAO, INguoiDungDAO, IPhienBanDAO, ITaiKhoanDAO, IVaiTroDAO
                                                 , IThucDonDAO, ITuyChonMonReadDAO, IPhieuMonReadDAO, IMonGhiReadDAO
                                                 , IThongBaoReadDAO, IKhuyenMaiDAO, ICauHinhThueDAO, IDoanhThuDAO, IYeuCauReadDAO
-                                                , IBaoCaoDAO)
+                                                , IBaoCaoDAO, IDatBanDAO)
 
 
 class ThongBaoReadDAO(IThongBaoReadDAO):
@@ -32,6 +32,29 @@ class KhuVucDAO(IKhuVucDAO):
         ds_khuvuc = session.execute(statement=stmt).scalars().all()
 
         return ds_khuvuc
+
+class DatBanDAO(IDatBanDAO):
+
+    def save(self, session: Session, dat_ban: DatBan):
+        session.add(dat_ban)
+        session.flush()
+
+    def find_all_active(self, session: Session) -> List[DatBan]:
+        # Lấy mấy cái lịch đặt bàn đang mở, ưu tiên ông nào mới đặt lên đầu
+        stmt = (
+            select(DatBan)
+            .where(DatBan.trang_thai == TrangThai.MO)
+            .order_by(DatBan.ngay_tao.desc())
+        )
+        ds_dat_ban = session.execute(statement=stmt).scalars().all()
+        return ds_dat_ban
+
+    def find_by_id(self, session: Session, dat_ban_id: int) -> DatBan:
+        """Lấy đặt bàn theo ID"""
+        dat_ban = session.get(DatBan, ident=dat_ban_id)
+        return dat_ban
+        
+
 
 class BanDAO(IBanDAO):
 
@@ -177,7 +200,7 @@ class TaiKhoanDAO(ITaiKhoanDAO):
         return tai_khoan
     
     def find_cho_xet_duyet(self, session: Session) -> List[TaiKhoan]:
-        """Tìm tất cả tài khoản đã xác thực email nhưng chưa được Admin duyệt (vai trò VODANH)"""
+        # Tìm mấy ông đã xác thực mail nhưng chưa được admin cấp quyền
         from app.data.models import TenVaiTro
         stmt = (
             select(TaiKhoan)
@@ -271,7 +294,7 @@ class BaoCaoDAO(IBaoCaoDAO):
         )
         result_dt = session.execute(stmt_doanh_thu).first()
 
-        # Đếm số phiên bàn (số lượt khách)
+        # Đếm lượt khách đã ăn xong (phù hợp để tính doanh thu)
         stmt_khach = (
             select(func.count(PhienBan.id))
             .where(PhienBan.trang_thai == TrangThai.HOANTHANH)

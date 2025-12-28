@@ -3,11 +3,11 @@ from injector import inject
 import jwt
 import datetime as dt
 from app.data.models import (KhuVuc, Ban, PhienBan, LeTan, PhucVu, ThuNgan, DauBep, QuanLy, TaiKhoan, TenVaiTro, NguoiDung, ThucDon, PhieuMon
-                             , HoanThanhMon, HuyMon, DoanhThu, CauHinhThue, KhuyenMai, TrangThaiDoanhThu, TrangThaiTaiKhoan)
+                             , HoanThanhMon, HuyMon, DoanhThu, CauHinhThue, KhuyenMai, TrangThaiDoanhThu, TrangThaiTaiKhoan, DatBan, TrangThai)
 from app.data.dao.interfaces.interfaces import (IKhuVucDAO, IBanDAO, INguoiDungDAO, IPhienBanDAO, ITaiKhoanDAO, IVaiTroDAO
                                                 , IThucDonDAO, ITuyChonMonReadDAO, IPhieuMonReadDAO, IMonGhiReadDAO
                                                 , IThongBaoReadDAO, IKhuyenMaiDAO, ICauHinhThueDAO, IDoanhThuDAO, IYeuCauReadDAO
-                                                , IBaoCaoDAO)
+                                                , IBaoCaoDAO, IDatBanDAO)
 from app.domain.services.interfaces.interfaces import (IBoChonNhanVien, IBanService, IKhuVucService, ITaiKhoanService,
                                                        IPhienBanService, IThucDonService, IThemMonService, INguoiDungService,
                                                        IDoanhThuThanhToanService, IDoanhThuService, IKhuyenMaiService, IBaoCaoService)
@@ -19,7 +19,8 @@ from app.schemas.init_schema import (khuvucs_out_schema, ds_ban_out_schema, phuc
                                      , le_tan_out_schema, nguoi_dung_out_schema, phien_ban_out_less_schema
                                      , phien_ban_out_schema, thuc_don_out_schema, phieu_mon_out_schema
                                      , phieu_mon_out_less_schema, mon_ghi_out_schema, thong_bao_out_schema, doanh_thu_out_less_schema
-                                     , khuyen_mai_out_schema, doanh_thu_out_schema, yc_mon_ghi_out_schema, convert_yeu_cau)
+                                     , khuyen_mai_out_schema, doanh_thu_out_schema, yc_mon_ghi_out_schema, convert_yeu_cau
+                                     , dat_ban_out_schema)
 from app.utils.helper import IHelper
 
 
@@ -48,20 +49,18 @@ class BoChonNhanVien(IBoChonNhanVien):
 
         phucvu = None
 
-        for pv in ds_phucvu:
-            if pv.so_ban_dang_phuc_vu <= 2 and pv.so_ban_dang_phuc_vu < tai_thap_nhat:
+        for pv in ds_phucvu: # Chọn ra ông nào đang ít việc nhất để giao (đỡ tị nạnh :v)
+            if pv.so_ban_dang_phuc_vu <= 2 and pv.so_ban_dang_phuc_vu < tai_thap_nhat: #Phục vụ chỉ tối đa 3 bàn
                 tai_thap_nhat = pv.so_ban_dang_phuc_vu
                 phucvu = pv
+
         return phucvu
     
 
 
 
-
-
-# Service
-
 class TaiKhoanService(ITaiKhoanService):
+    # Xử lý các luồng đăng ký, đăng nhập, xác thực...
     @inject
     def __init__(self, tai_khoan_dao: ITaiKhoanDAO, vai_tro_dao: IVaiTroDAO, helper: IHelper):
         self.tai_khoan_dao = tai_khoan_dao
@@ -78,18 +77,19 @@ class TaiKhoanService(ITaiKhoanService):
             if tai_khoan:
                 raise Exception('Tài khoản đã tồn tại!')
 
-
-            
             vo_danh = self.vai_tro_dao.find_by_ten_vai_tro(session=session, ten_vai_tro=TenVaiTro.VODANH)
             mat_khau_hash = self.helper.hass_pass(tai_khoan_create['mat_khau'])
             
             token = self.helper.generate_token(email=tai_khoan_create['email'])
 
-            nguoi_dung = NguoiDung(ho_ten="Chưa có tên", tai_khoan=tai_khoan)
             tai_khoan = TaiKhoan(email=tai_khoan_create['email'], ten_tai_khoan=tai_khoan_create['ten_tai_khoan'], \
-                                 mat_khau=mat_khau_hash, xac_thuc_token=token, vai_tro=vo_danh, nguoi_dung=nguoi_dung)
+                                 mat_khau=mat_khau_hash, xac_thuc_token=token, vai_tro=vo_danh)
+            nguoi_dung = NguoiDung(ho_ten="Chưa có tên", tai_khoan=tai_khoan)
+
             
             self.tai_khoan_dao.save(session=session, tai_khoan=tai_khoan)
+
+            print(tai_khoan.nguoi_dung)
 
             self.helper.send_verification_email(user_email=tai_khoan.email, token=token)
 
@@ -101,9 +101,7 @@ class TaiKhoanService(ITaiKhoanService):
                 return False
             
             tai_khoan = self.tai_khoan_dao.find_by_xac_thuc_token(session=session, token=token)
-            print(tai_khoan)
             info = self.helper.verify_token(token=token)
-            print('Infor trả ra: ', info)
             
             if not tai_khoan or not info:
                 return False
@@ -119,13 +117,14 @@ class TaiKhoanService(ITaiKhoanService):
             if not tai_khoan:
                 raise Exception('Tài khoản không tồn tại')
             
+            if tai_khoan.trang_thai == TrangThaiTaiKhoan.KHOA:
+                raise Exception('Tài khoản đã bị khóa')
             
             flag = self.helper.check_pass(plain=tai_khoan_login['mat_khau'], hashed_pass=tai_khoan.mat_khau)
             if not flag:
                 raise Exception('Mật khẩu không chính xác')
             
             nguoi_dung = tai_khoan.nguoi_dung
-            print(nguoi_dung)
             nguoi_dung_dto = None
 
             if isinstance(nguoi_dung, PhucVu):
@@ -135,16 +134,14 @@ class TaiKhoanService(ITaiKhoanService):
             elif isinstance(nguoi_dung, NguoiDung):
                 nguoi_dung_dto = nguoi_dung_out_schema.dump(nguoi_dung)
 
-            print(nguoi_dung_dto)
             return nguoi_dung_dto
-    
+
     def lay_danh_sach_cho_xet_duyet(self) -> List[Dict[str, Any]]:
-        """Lấy danh sách tài khoản chờ Admin xét duyệt"""
+        # Lấy mấy tài khoản vừa đăng ký đang chờ admin duyệt
         with transaction_manager.transaction('Lỗi khi lấy danh sách tài khoản chờ xét duyệt') as session:
             ds_tai_khoan = self.tai_khoan_dao.find_cho_xet_duyet(session=session)
             
-            # Serialize danh sách tài khoản
-            from app.schemas.init_schema import tai_khoan_out_schema
+            # Bọc lại data theo schema cho chuẩn bài
             ds_tai_khoan_out = []
             for tk in ds_tai_khoan:
                 tk_dict = {
@@ -161,7 +158,7 @@ class TaiKhoanService(ITaiKhoanService):
             return ds_tai_khoan_out
     
     def xu_ly_duyet_tai_khoan(self, admin_id: int, tai_khoan_id: int, vai_tro_ten: str) -> Dict[str, Any]:
-        """Admin duyệt tài khoản và gán vai trò"""
+        # Luồng duyệt tài khoản: Check Admin -> Check User -> Gán Role -> Re-create Profile
         with transaction_manager.transaction('Lỗi khi duyệt tài khoản') as session:
             # Kiểm tra admin
             admin = self.tai_khoan_dao.find_by_id(session=session, tai_khoan_id=admin_id)
@@ -173,7 +170,7 @@ class TaiKhoanService(ITaiKhoanService):
             if not tai_khoan:
                 raise Exception('Tài khoản không tồn tại.')
             
-            # Kiểm tra tài khoản đã xác thực email và đang có vai trò VODANH
+            # Phải xác thực email rồi mới cho duyệt tiếp
             if not tai_khoan.is_xac_thuc:
                 raise Exception('Tài khoản chưa xác thực email.')
             
@@ -185,19 +182,27 @@ class TaiKhoanService(ITaiKhoanService):
             if not vai_tro_moi:
                 raise Exception(f'Vai trò {vai_tro_ten} không tồn tại.')
             
-            if vai_tro_ten == TenVaiTro.VODANH:
+            if vai_tro_ten == 'VODANH':
                 raise Exception('Không thể gán vai trò VODANH.')
             
             # Gán vai trò mới
             tai_khoan.vai_tro = vai_tro_moi
             
-            # Tạo đối tượng người dùng tương ứng với vai trò
+            # Gán info người dùng tương ứng với role (Phục vụ, Đầu bếp...)
             nguoi_dung = tai_khoan.nguoi_dung
             if not nguoi_dung:
                 raise Exception('Người dùng không tồn tại.')
             
-            # Nếu cần tạo đối tượng cụ thể (PhucVu, LeTan, etc.)
-            # Hiện tại chỉ cập nhật vai trò trong TaiKhoan là đủ
+            # Lưu thông tin cũ
+            ho_ten = nguoi_dung.ho_ten
+            
+            # Xóa nguoi_dung cũ (base class)
+            session.delete(nguoi_dung)
+            session.flush()
+            
+            # Tạo nguoi_dung mới với đúng subclass
+            new_nguoi_dung = self._tao_nguoi_dung_theo_vai_tro(vai_tro_ten, ho_ten, tai_khoan.id)
+            session.add(new_nguoi_dung)
             
             self.tai_khoan_dao.save(session=session, tai_khoan=tai_khoan)
             
@@ -206,11 +211,29 @@ class TaiKhoanService(ITaiKhoanService):
                 'ten_tai_khoan': tai_khoan.ten_tai_khoan,
                 'email': tai_khoan.email,
                 'vai_tro': vai_tro_moi.vai_tro.value,
+                'ho_ten': ho_ten,
                 'message': 'Duyệt tài khoản thành công.'
             }
     
+    def _tao_nguoi_dung_theo_vai_tro(self, vai_tro_ten: str, ho_ten: str, tai_khoan_id: int):
+        # Factory này để tạo đúng loại nhân viên (Phục vụ, Đầu bếp...)
+        from app.data.models import PhucVu, LeTan, DauBep, ThuNgan, QuanLy, NguoiDung
+        
+        if vai_tro_ten == 'PHUCVU':
+            return PhucVu(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'LETAN':
+            return LeTan(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'DAUBEP':
+            return DauBep(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'THUNGAN':
+            return ThuNgan(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        elif vai_tro_ten == 'QUANLY':
+            return QuanLy(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+        else:
+            return NguoiDung(ho_ten=ho_ten, tai_khoan_id=tai_khoan_id)
+    
     def xu_ly_tu_choi_tai_khoan(self, admin_id: int, tai_khoan_id: int) -> bool:
-        """Admin từ chối tài khoản (khóa tài khoản)"""
+        # Không thích thì khóa luôn cho nhanh
         with transaction_manager.transaction('Lỗi khi từ chối tài khoản') as session:
             # Kiểm tra admin
             admin = self.tai_khoan_dao.find_by_id(session=session, tai_khoan_id=admin_id)
@@ -229,19 +252,6 @@ class TaiKhoanService(ITaiKhoanService):
             
             return True
 
-            
-        
-            
-            
-            
-            
-            
-            
-
-
-            
-
-        
 
 class KhuVucService(IKhuVucService):
 
@@ -255,15 +265,16 @@ class KhuVucService(IKhuVucService):
             ds_khuvuc_schema = khuvucs_out_schema.dump(obj=ds_khuvuc)
 
             return ds_khuvuc_schema
-        
+
     
 class BanService(IBanService):
     @inject
-    def __init__(self, bo_chon_nhan_vien: IBoChonNhanVien, phien_ban_dao: IPhienBanDAO, nguoidung_dao: INguoiDungDAO, ban_dao: IBanDAO):
+    def __init__(self, bo_chon_nhan_vien: IBoChonNhanVien, phien_ban_dao: IPhienBanDAO, nguoidung_dao: INguoiDungDAO, ban_dao: IBanDAO, dat_ban_dao: IDatBanDAO):
         self.phien_ban_dao = phien_ban_dao
         self.nguoidung_dao = nguoidung_dao
         self.ban_dao = ban_dao
         self.bo_chon_nhan_vien = bo_chon_nhan_vien
+        self.dat_ban_dao = dat_ban_dao
 
     def get_ban_details(self, ban_schemas_in: List[Dict[str, Any]]) -> List[Ban]:
         with transaction_manager.transaction('Lỗi khi lấy ra danh sách bàn') as session:
@@ -280,13 +291,59 @@ class BanService(IBanService):
             
             return ds_ban
     
+    def xu_ly_dat_ban(self, letan_id: int, dat_ban_create_schema: Dict[str, Any]) -> Dict[str, Any]:
+        with transaction_manager.transaction("Lỗi khi xử lý đặt bàn") as session:
+            ds_ban = self.get_ban_details(ban_schemas_in=dat_ban_create_schema['ds_ban'])
+
+            print(ds_ban)
+            if not len(ds_ban):
+                raise Exception("Vui lòng chọn ít nhất 1 bàn")
+            
+            for ban in ds_ban:
+                if not ds_ban[0].kiem_tra_thuoc_cung_khu_vuc(ban=ban):
+                    raise Exception('Trường hợp đặt nhiều bàn thì phải cùng 1 khu vực! Vui lòng chọn lại!')
+                if not ban.kiem_tra_thoi_gian_danh_dau(tg=dat_ban_create_schema['tg_den']):
+                    raise Exception(f'Bàn {ban.ten} hiện đang chuẩn bị cho khách đặt trước! Vui lòng chọn lại!')
+
+            letan = self.nguoidung_dao.find_by_id(session=session, id=letan_id)
+            if not letan:
+                raise Exception('Không tồn tại lễ tân này trong hệ thống!')
+            print("QUA ĐƯỢC ĐÂY")
+            # Extract customer info from nested khach_hang object
+            khach_hang = dat_ban_create_schema['khach_hang']
+            ten_khach = khach_hang['ten']
+            sdt = khach_hang['sdt']
+            so_luong = khach_hang['so_luong']
+            
+            db = None
+            if isinstance(letan, LeTan):
+                db = letan.dat_ban(tg_den=dat_ban_create_schema['tg_den'], ten_khach=ten_khach\
+                                   , sdt=sdt, so_luong=so_luong, ds_ban=ds_ban)
+
+                self.dat_ban_dao.save(session=session, dat_ban=db)
+
+                print(db)
+            
+            dat_ban_out = dat_ban_out_schema.dump(db)
+            print(dat_ban_out)
+
+            return dat_ban_out
+            
+            
+
+                
+            
+
+            
+
     def xu_ly_chon_ban(self, letan_id: int, ban_schemas_in: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        # Gán bàn cho khách lúc mới vào (khai trương phiên mới)
         with transaction_manager.transaction('Lỗi khi xử lý chọn bàn') as session:
             phien = None
             
-            ds_ban = self.get_ban_details(ban_schemas_in=ban_schemas_in)
+            ds_ban = self.get_ban_details(ban_schemas_in=ban_schemas_in) #Lấy ra danh sách bàn từ client chỉ định sang
             
-            tg_bat_dau = dt.datetime.now()
+            tg_bat_dau = dt.datetime.now() # Lấy giờ hiện tại để bắt đầu tính tiền/phục vụ :v
 
             if not len(ds_ban):
                 raise Exception('Vui lòng chọn ít nhất 1 bàn để có thể đánh dấu!')
@@ -294,16 +351,17 @@ class BanService(IBanService):
             
 
             for ban in ds_ban:
-                if not ban.kiem_tra_ban_trong():
+                if not ban.kiem_tra_ban_trong(): # Check xem bàn có ai đang ngồi chưa
                     raise Exception(f'Bàn {ban.ten} hiện đang được sử dụng! Vui lòng chọn lại!')
-                if not ds_ban[0].kiem_tra_thuoc_cung_khu_vuc(ban=ban):
+                if not ds_ban[0].kiem_tra_thuoc_cung_khu_vuc(ban=ban): # Phải cùng một tầng/khu vực mới dễ quản lý
                     raise Exception('Trường hợp đặt nhiều bàn thì phải cùng 1 khu vực! Vui lòng chọn lại!')
-                if not ban.kiem_tra_thoi_gian_danh_dau(tg=tg_bat_dau):
+                if not ban.kiem_tra_thoi_gian_danh_dau(tg=tg_bat_dau): # Check xem sắp tới giờ của khách đặt trước chưa
                     raise Exception(f'Bàn {ban.ten} hiện đang chuẩn bị cho khách đặt trước! Vui lòng chọn lại!')
                 
-            letan = self.nguoidung_dao.find_by_id(session=session, id=letan_id)
-            ds_phucvu = self.nguoidung_dao.find_by_khuvuc_id(session=session, khuvuc_id=ds_ban[0].khu_vuc_id)
+            letan = self.nguoidung_dao.find_by_id(session=session, id=letan_id) #Lấy ra lễ tân từ client chỉ định sang
+            ds_phucvu = self.nguoidung_dao.find_by_khuvuc_id(session=session, khuvuc_id=ds_ban[0].khu_vuc_id) #Lấy ra danh sách nhân viên phục vụ từ client chỉ định sang
             
+
             if not letan:
                 raise Exception('Không tồn tại lễ tân này trong hệ thống!')
             if not len(ds_phucvu):
@@ -318,10 +376,12 @@ class BanService(IBanService):
             khung_gio = phien.khung_gio
 
             for ban in ds_ban:
-                ban.them_khung_gio(khung_gio=khung_gio)
+                ban.them_khung_gio(khung_gio=khung_gio) # Đánh dấu khung giờ cho từng bàn
             
-            for ban in ds_ban:
-                phucvu = self.bo_chon_nhan_vien.chon_phuc_vu(ds_phucvu=ds_phucvu)
+
+
+            for ban in ds_ban: # Điều phối nhân viên phục vụ (ai đang rảnh thì giao việc)
+                phucvu = self.bo_chon_nhan_vien.chon_phuc_vu(ds_phucvu=ds_phucvu) # Ưu tiên ông đang ít bàn nhất
                 phien.phan_cong(phuc_vu=phucvu, ban=ban)
             
             self.phien_ban_dao.save(session=session, phien=phien)
@@ -330,6 +390,95 @@ class BanService(IBanService):
 
             
             return ds_ban_dto
+
+    def lay_danh_sach_dat_ban_active(self, letan_id: int) -> List[Dict[str, Any]]:
+        # Xem những ông nào đã đặt nhưng chưa tới
+        with transaction_manager.transaction('Lỗi khi lấy danh sách đặt bàn') as session:
+            letan = self.nguoidung_dao.find_by_id(session=session, id=letan_id)
+            if not letan:
+                raise Exception('Không tồn tại lễ tân này trong hệ thống!')
+            
+            ds_dat_ban = self.dat_ban_dao.find_all_active(session=session)
+            ds_dat_ban_out = dat_ban_out_schema.dump(ds_dat_ban, many=True)
+            
+            return ds_dat_ban_out
+    
+    def xu_ly_xac_nhan_khach_den(self, letan_id: int, dat_ban_id: int) -> Dict[str, Any]:
+        """
+        Xác nhận khách đặt bàn đã đến.
+        Logic xử lý khách đến trễ: dùng thời gian hiện tại, kiểm tra xung đột với các khung giờ khác.
+        """
+        with transaction_manager.transaction('Lỗi khi xác nhận khách đến') as session:
+            # 1. Validate lễ tân và đặt bàn
+            letan = self.nguoidung_dao.find_by_id(session=session, id=letan_id)
+            if not letan:
+                raise Exception('Không tồn tại lễ tân này trong hệ thống!')
+            if not isinstance(letan, LeTan):
+                raise Exception('Không phải lễ tân để có thể xác nhận!')
+            
+            dat_ban = self.dat_ban_dao.find_by_id(session=session, dat_ban_id=dat_ban_id)
+            if not dat_ban:
+                raise Exception('Đặt bàn không tồn tại!')
+            if dat_ban.trang_thai != TrangThai.MO:
+                raise Exception('Đặt bàn này đã được xử lý hoặc đã hủy!')
+            
+            ds_ban = dat_ban.ds_ban_dat
+            if not len(ds_ban):
+                raise Exception('Không có bàn nào trong đặt bàn này!')
+            
+            # 2. Thời gian hiện tại (khách đến)
+            tg_bat_dau = dt.datetime.now()
+            
+            # 3. Kiểm tra bàn trống và xung đột khung giờ
+            for ban in ds_ban:
+                if not ban.kiem_tra_ban_trong():
+                    raise Exception(f'Bàn {ban.ten} hiện đang có khách! Không thể xác nhận.')
+                
+                # Kiểm tra xung đột với các khung giờ khác (bỏ qua khung giờ đặt bàn hiện tại)
+                for kg in ban.ds_khung_gio:
+                    if kg.id != dat_ban.khung_gio_id:
+                        if not kg.thoi_gian_hop_le(tg=tg_bat_dau):
+                            raise Exception(f'Bàn {ban.ten} có lịch đặt trước lúc {kg.tg_bat_dau.strftime("%H:%M")}. Khách đến trễ quá, không thể xử lý!')
+            
+            # Bọc lại data theo schema cho chuẩn bài
+            # 4. Lấy danh sách phục vụ của khu vực
+            ds_phucvu = self.nguoidung_dao.find_by_khuvuc_id(session=session, khuvuc_id=ds_ban[0].khu_vuc_id)
+            if not len(ds_phucvu):
+                raise Exception('Không tồn tại nhân viên nào của khu vực để phục vụ!')
+            
+            # 5. Hủy khung giờ đặt bàn cũ
+            khung_gio_dat_ban = dat_ban.khung_gio
+            if khung_gio_dat_ban:
+                khung_gio_dat_ban.trang_thai = TrangThai.HOANTHANH
+            
+            # 6. Tạo phiên bàn mới (giống xu_ly_chon_ban)
+            phien = letan.tao_phien(tg_bat_dau=tg_bat_dau)
+            khung_gio_an = phien.khung_gio
+            
+            # 7. Thêm khung giờ ăn cho các bàn và đánh dấu có khách
+            for ban in ds_ban:
+                ban.them_khung_gio(khung_gio=khung_gio_an)
+            
+            # 8. Phân công phục vụ
+            for ban in ds_ban:
+                phucvu = self.bo_chon_nhan_vien.chon_phuc_vu(ds_phucvu=ds_phucvu)
+                phien.phan_cong(phuc_vu=phucvu, ban=ban)
+            
+            # 9. Cập nhật trạng thái đặt bàn
+            dat_ban.trang_thai = TrangThai.HOANTHANH
+            
+            # 10. Lưu phiên
+            self.phien_ban_dao.save(session=session, phien=phien)
+            
+            # 11. Trả về kết quả
+            result = {
+                'dat_ban': dat_ban_out_schema.dump(dat_ban),
+                'ds_ban': ds_ban_out_schema.dump(ds_ban),
+                'phien_ban_id': phien.id,
+                'message': f'Xác nhận thành công! Phiên #{phien.id} đã được tạo.'
+            }
+            
+            return result
 
 
 class PhienBanService(IPhienBanService):
@@ -360,7 +509,7 @@ class PhienBanService(IPhienBanService):
                 raise Exception('Phiên bàn không tồn tại.')
             if not phien_ban.kiem_tra_phien_dang_hoat_dong():
                 raise Exception('Phiên bàn này đã đóng.')
-            #Cần kiểm tra xem phiên bàn đó thuộc về lễ tân/phục vụ nào trong phiên thì mới được lấy ra
+            # Chỉ ông nào có liên quan (Lễ tân/Phục vụ) mới được xem chi tiết
             # if not phien_ban.thuoc_phien_ban(user_id=user_id):
             #     raise Exception('Bạn không thuộc về phiên bàn này.')
             phien_ban_out = phien_ban_out_schema.dump(phien_ban)
@@ -407,7 +556,7 @@ class PhienBanService(IPhienBanService):
                     raise Exception('Không tồn tại phục vụ.')
                 if not isinstance(phucvu, PhucVu):
                     raise Exception('Người dùng không thuộc phục vụ.')
-                if not phucvu.kiem_tra_chua_dam_nhan_phien_nao():
+                if not phucvu.kiem_tra_chua_dam_nhan_phien_nao(): # Mỗi ông chỉ nên ôm 1 phiên tại 1 thời điểm thôi
                     raise Exception('Phục vụ hiện đang đảm nhận bàn khác, vui lòng không đảm nhận thêm.')
                 phien_ban.chon_phuc_vu_dam_nhan(phuc_vu=phucvu)
 
@@ -430,7 +579,7 @@ class PhienBanService(IPhienBanService):
                 raise Exception('Phiên bàn không phải do phục vụ này đảm nhận.')
             if phien_ban.dang_co_phieu_mo():
                 raise Exception('Hiện tại phiên bàn đang có 1 phiếu mở, vui lòng xử lý phiếu đấy trước khi mở phiếu khác.')
-            if not phien_ban.chua_ton_tai_doanh_thu():
+            if not phien_ban.chua_ton_tai_doanh_thu(): #Phiên bàn đã tồn tại doanh thu, chuẩn bị thanh toán
                 raise Exception("Phiên bàn đã tồn tại doanh thu cho chuẩn bị thanh toán, không thể tạo thêm phiếu món.")
             
             phien_ban.tao_phieu_mon()
@@ -438,11 +587,11 @@ class PhienBanService(IPhienBanService):
             phieu_mon = phien_ban.ds_phieu_mon[-1]
             phieu_mon_out = phieu_mon_out_schema.dump(phieu_mon)
             return phieu_mon_out
-            #Chưa xong
+            
     
     def xu_ly_them_mon_ghi_phieu_mon(self, phucvu_id: int, phieu_mon_id: int, mon_ghi_create_schemas: List[Dict[str, Any]]) -> Dict[str, Any]:
         with transaction_manager.transaction('Lỗi khi thêm món vào phiếu') as session:
-            if not len(mon_ghi_create_schemas['ds_mon_ghi']):
+            if not len(mon_ghi_create_schemas['ds_mon_ghi']):  #Nếu như bên client gửi sang phiếu món mà không có món nào thì sẽ quăng ra lỗi nha
                 raise Exception('Phải thêm ít nhất 1 món.')
             
             phien_ban = self.phien_ban_dao.find_by_phieu_mon_id(session=session, phieu_mon_id=phieu_mon_id)
@@ -451,7 +600,7 @@ class PhienBanService(IPhienBanService):
             if not phien_ban.kiem_tra_phien_dang_hoat_dong():
                 raise Exception('Phiên bàn đã đóng.')
             
-            if not phien_ban.kiem_tra_nguoi_dam_nhan(phucvu_id=phucvu_id):
+            if not phien_ban.kiem_tra_nguoi_dam_nhan(phucvu_id=phucvu_id): #KIểm tra xem người gửi phiếu có phải người đảm nhận không
                 raise Exception('Bạn không phải người đảm nhận của phiên bàn này để có thể thêm món vào phiếu')
             
             phieu_mon = phien_ban.lay_phieu_mon(phieu_mon_id=phieu_mon_id)
@@ -462,9 +611,9 @@ class PhienBanService(IPhienBanService):
                 raise Exception('Hiện tại phiếu không mở.')
             
             phieu_mon = self.them_mon_service.them_mon_ghi(phieu_mon=phieu_mon, mon_ghi_create_schemas=mon_ghi_create_schemas)
-            phieu_mon.gui_phieu()
+            phieu_mon.gui_phieu() #Gửi phiếu sau khi đã thêm các món ghi vào phiếu
 
-            self.phien_ban_dao.save(session=session, phien=phien_ban)
+            self.phien_ban_dao.save(session=session, phien=phien_ban) #Lưu phiên bàn xuống DB
 
             phieu_mon_out = phieu_mon_out_schema.dump(phieu_mon)
             phieu_mon_out_less = phieu_mon_out_less_schema.dump(phieu_mon)
@@ -550,6 +699,7 @@ class PhienBanService(IPhienBanService):
             return yc_out
     
     def lay_danh_sach_yeu_cau(self, quan_ly_id: int) -> List[Dict[str, Any]]:
+        # Quản lý xem có đứa nào gửi yêu cầu hỗ trợ/hủy món không
         with transaction_manager.transaction("Lỗi khi đang lấy danh sách yêu cầu") as session:
             #Kiểm tra quản lý --> chưa làm
             ds_yeu_cau = self.yeu_cau_read_dao.find_all_by_pending(session=session)
@@ -613,15 +763,15 @@ class ThemMonService(IThemMonService):
             if not thuc_don:
                 raise Exception("Thực đơn chưa tồn tại để chọn món.")
             
-            hmap = {}
-            ds_tuy_chon_id = []
+            hmap = {} # Dùng map để lọc trùng tùy chọn món cho nhanh
+            ds_tuy_chon_id = [] #Dùng để lưu danh sách tùy chọn món ID từ Hmap
             for mon_ghi in mon_ghi_create_schemas['ds_mon_ghi']:
                 for tuy_chon in mon_ghi['ds_tuy_chon']:
                     if not hmap.get(tuy_chon['tuy_chon_id']):
-                        hmap[f'{tuy_chon['tuy_chon_id']}'] = tuy_chon['tuy_chon_id']
+                        hmap[f'{tuy_chon['tuy_chon_id']}'] = tuy_chon['tuy_chon_id'] 
             
             for k, v in hmap.items():
-                ds_tuy_chon_id.append(v)
+                ds_tuy_chon_id.append(v) #Gắn vào danh sách để đưa xuống tầng DB
             
             ds_tuy_chon = self.tuy_chon_mon_dao.find_by_ids(session=session, tuy_chon_mon_ids=ds_tuy_chon_id)
 
@@ -634,17 +784,17 @@ class ThemMonService(IThemMonService):
                 raise Exception('Tùy chọn món không hợp lệ, vui lòng chọn lại.')
             
             for tuy_chon in ds_tuy_chon:
-                hmap[f'{tuy_chon.id}'] = tuy_chon
+                hmap[f'{tuy_chon.id}'] = tuy_chon #Lưu ngược lại trong hmap để khi duyệt qua lại có thể truy vấn ra
             
 
             
             for mon_ghi in mon_ghi_create_schemas['ds_mon_ghi']:
                 ds_tc = []
-                mo_ta_mon = thuc_don.lay_mo_ta_mon(mo_ta_mon_id=mon_ghi['mo_ta_mon_id'])
+                mo_ta_mon = thuc_don.lay_mo_ta_mon(mo_ta_mon_id=mon_ghi['mo_ta_mon_id']) #Lấy ra mô tả món tương ứng để liên kết cho món ghi, xong lưu món ghi xuống DB
                 if not mo_ta_mon:
                     raise Exception('Món không tồn tại.')
                 for tuy_chon_requested in mon_ghi['ds_tuy_chon']:
-                    ds_tc.append(hmap[f'{tuy_chon_requested['tuy_chon_id']}'])
+                    ds_tc.append(hmap[f'{tuy_chon_requested['tuy_chon_id']}']) #Lấy ra tùy chọn món từ hmap để liên kết cho món ghi
                 phieu_mon.them_mon_ghi(so_luong=mon_ghi['so_luong'], ghi_chu=mon_ghi['ghi_chu'], mo_ta_mon=mo_ta_mon, ds_tuy_chon=ds_tc)
 
             return phieu_mon
@@ -873,7 +1023,6 @@ class DoanhThuThanhToanService(IDoanhThuThanhToanService):
                 so_tien_giam_1 = km.tinh_so_tien_duoc_giam(tong_tien)
                 tien_giam_gia += so_tien_giam_1
                 khuyen_mai_id_1 = km.id
-                
                 break
         if ds_khuyen_mai_tuy_chon:
             for km in ds_khuyen_mai_tuy_chon:
@@ -882,6 +1031,8 @@ class DoanhThuThanhToanService(IDoanhThuThanhToanService):
                     tien_giam_gia += so_tien_giam_2
                     khuyen_mai_id_2 = km.id
                     break
+                else: 
+                    raise Exception("Không đủ điều kiện để sử dụng")
 
         
         tien_sau_giam = tong_tien - tien_giam_gia

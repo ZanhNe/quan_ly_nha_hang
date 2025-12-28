@@ -1,18 +1,9 @@
-{% extends "base.html" %} {% block title %} Sơ đồ bàn {% endblock %} {% block
-styles %} {{ super() }}
-<link
-  rel="stylesheet"
-  href="{{url_for('static', filename='css/danh_dau.css')}}"
-/>
+{% extends "base.html" %} {% block title %} Sơ đồ bàn {% endblock %}
+{% block styles %} {{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/danh_dau.css')}}" />
 {% endblock%} {% block scripts %}
-<script
-  type="module"
-  src="{{url_for('static', filename='js/le_tan/socket_manager.js')}}"
-></script>
-<script
-  type="module"
-  src="{{url_for('static', filename='js/le_tan/danh_dau.js')}}"
-></script>
+<script type="module" src="{{url_for('static', filename='js/le_tan/socket_manager.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/le_tan/danh_dau.js')}}"></script>
 <script defer id="table-data-json" type="application/json">
   {{ ds_khuvuc | default('[]') | tojson }}
 </script>
@@ -30,17 +21,14 @@ styles %} {{ super() }}
       </p>
     </div>
 
+    <!-- Hiển thị sơ đồ bàn cho từng khu vực -->
     <div id="allZonesContainer">
       {% for kv in ds_khuvuc %}
       <div class="zone">
         <h3>🌸 Khu Vực {{kv.ten}}</h3>
         <div class="table-map-container table-grid">
           {% for ban in kv.ds_ban %}
-          <div
-            class="table status-{{ ban.trang_thai | lower }}"
-            data-table-id="{{ ban.id }}"
-            id="table-{{ ban.id }}"
-          >
+          <div class="table status-{{ ban.trang_thai | lower }}" data-table-id="{{ ban.id }}" id="table-{{ ban.id }}">
             <span class="table-name">{{ ban.ten }}</span>
             <span class="table-capacity">{{ ban.so_ghe }} người</span>
 
@@ -60,28 +48,23 @@ styles %} {{ super() }}
     </div>
   </div>
 
+  <!-- Bảng điều khiển (Sidebar) hiển thị chi tiết khi chọn bàn -->
   <aside class="side-drawer" id="drawer">
     <div class="drawer-header">
       <h3 style="margin: 0" id="drawerTitle">Chi tiết bàn</h3>
-      <button
-        id="btn-close"
-        style="
+      <button id="btn-close" style="
           border: none;
           background: none;
           font-size: 1.5em;
           cursor: pointer;
           color: #999;
-        "
-      >
+        ">
         ×
       </button>
     </div>
 
     <div class="drawer-body">
-      <h4
-        id="focusTableName"
-        style="color: var(--primary-color); margin-top: 0"
-      >
+      <h4 id="focusTableName" style="color: var(--primary-color); margin-top: 0">
         Chưa chọn bàn
       </h4>
       <p style="font-size: 0.85em; color: #666; margin-bottom: 20px">
@@ -92,31 +75,24 @@ styles %} {{ super() }}
     </div>
 
     <div class="drawer-footer">
-      <div
-        class="selection-summary"
-        id="selectionSummary"
-        style="
+      <div class="selection-summary" id="selectionSummary" style="
           margin-bottom: 10px;
           font-size: 0.9em;
           color: #555;
           text-align: center;
-        "
-      >
+        ">
         Chưa chọn bàn nào
       </div>
       <button id="btnAction" class="btn-confirm" style="width: 100%" disabled>
         Chọn bàn để tiếp tục
       </button>
-      <div
-        id="errorMsg"
-        style="
+      <div id="errorMsg" style="
           color: var(--color-error);
           font-size: 0.8em;
           margin-top: 8px;
           text-align: center;
           display: none;
-        "
-      ></div>
+        "></div>
     </div>
   </aside>
 </main>

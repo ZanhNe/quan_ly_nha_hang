@@ -95,7 +95,8 @@
                     👨‍🍳 Gửi Bếp
                 </button>
                 {% else %}
-                <div class="sent-info" style="text-align: center; padding: 10px; background: #FFF5F5; border-radius: 8px; margin-bottom: 10px;">
+                <div class="sent-info"
+                    style="text-align: center; padding: 10px; background: #FFF5F5; border-radius: 8px; margin-bottom: 10px;">
                     <span style="color: #C53030;">🔒 Phiếu đã gửi bếp</span>
                     <p style="font-size: 0.8em; color: #718096; margin: 5px 0 0;">Nhấn vào món để yêu cầu hủy</p>
                 </div>
@@ -144,7 +145,7 @@
     </div>
 </div>
 
-<!-- Modal Yêu Cầu Hủy Món -->
+<!-- Hộp thoại (Modal) để nhân viên phục vụ gửi yêu cầu hủy món -->
 <div class="modal-overlay" id="cancelRequestModal">
     <div class="item-modal" style="max-width: 400px;">
         <div class="modal-header" style="background: #FFF5F5; border-bottom: 1px solid #FEB2B2;">
@@ -160,16 +161,16 @@
 
         <div class="modal-body">
             <input type="hidden" id="cancelMonGhiId">
-            
+
             <div class="opt-group">
                 <div class="opt-title">📝 Lý do hủy món <span style="color: #E53E3E;">*</span></div>
-                <textarea id="cancelReason" class="modal-note-input" rows="4" 
+                <textarea id="cancelReason" class="modal-note-input" rows="4"
                     placeholder="Nhập lý do hủy món (bắt buộc)...&#10;Ví dụ: Khách đợi lâu, khách đổi ý..."></textarea>
             </div>
 
             <div style="background: #FFFAF0; padding: 12px; border-radius: 8px; border: 1px solid #F6AD55;">
                 <p style="margin: 0; font-size: 0.85em; color: #744210;">
-                    <strong>Lưu ý:</strong> Yêu cầu sẽ được gửi đến Quản lý để duyệt. 
+                    <strong>Lưu ý:</strong> Yêu cầu sẽ được gửi đến Quản lý để duyệt.
                     Món ăn sẽ tạm ngưng cho đến khi có phản hồi.
                 </p>
             </div>
@@ -179,7 +180,8 @@
             <button onclick="pos.submitCancelRequest()" class="btn-submit" style="background: #E53E3E; width: 100%;">
                 📤 Gửi yêu cầu hủy
             </button>
-            <button onclick="pos.closeCancelModal()" style="background: #A0AEC0; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%;">
+            <button onclick="pos.closeCancelModal()"
+                style="background: #A0AEC0; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%;">
                 Hủy bỏ
             </button>
         </div>

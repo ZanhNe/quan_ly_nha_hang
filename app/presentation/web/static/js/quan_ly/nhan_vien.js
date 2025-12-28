@@ -1,6 +1,4 @@
-/**
- * Hiệu suất Nhân viên - JavaScript Module
- */
+// --- Thống kê Hiệu suất Nhân viên ---
 
 document.addEventListener('DOMContentLoaded', () => {
     initDatePickers();
@@ -143,7 +141,7 @@ function initStaffChart() {
 
     const dataScript = document.getElementById('nhan-vien-data');
 
-    // Nếu không có thẻ data thì thôi
+    // Kiểm tra xem thẻ chứa data có tồn tại không
     if (!dataScript) return;
 
     let data = [];
@@ -154,7 +152,7 @@ function initStaffChart() {
         return;
     }
 
-    // Xử lý hiển thị khi không có dữ liệu
+    // Nếu không có dữ liệu nhân viên thì báo rỗng
     if (data.length === 0) {
         if (canvas.parentElement) {
             canvas.parentElement.innerHTML = '<div class="empty-panel" style="text-align:center; padding: 20px;"><span>📭</span><p>Chưa có dữ liệu nhân viên</p></div>';
@@ -213,7 +211,7 @@ function initStaffChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // Đã xóa indexAxis: 'y' để biểu đồ đứng thẳng (chuẩn cho Bar + Line)
+            // Đã ẩn trục dọc để biểu đồ đứng thẳng (chuẩn cho dạng Cột + Đường kết hợp)
             interaction: {
                 mode: 'index',
                 intersect: false

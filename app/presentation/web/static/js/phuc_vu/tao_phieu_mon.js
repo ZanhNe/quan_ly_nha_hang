@@ -1,7 +1,6 @@
 const phieuForm = document.querySelector('#phieu-form')
-// 1. Tìm thẻ chứa dữ liệu
+// Lấy data danh sách phiếu từ script tag
 const dataElement = document.getElementById("dsphieu-data-json");
-// Nhận dữ liệu từ Flask (Jinja2 convert sang JSON Object)
 let dsPhieuMon = JSON.parse(dataElement.textContent);
 const prefix = 'http://127.0.0.1:5000'
 console.log(dsPhieuMon)
@@ -32,6 +31,7 @@ phieuForm.addEventListener('submit', async function (e) {
 
         const data = await response.json();
 
+        // Thêm phiếu mới vừa tạo vào danh sách hiển thị
         dsPhieuMon = [...dsPhieuMon, data]
 
         let inner = ``
@@ -63,10 +63,10 @@ phieuForm.addEventListener('submit', async function (e) {
         sessionGridElm.innerHTML = inner
         Swal.fire({
             icon: 'success',
-            title: 'Thành công!',
-            text: 'Tạo phiếu món thành công!',
-            timer: 2000,              // Tự tắt sau 2 giây
-            showConfirmButton: false  // Không cần nút bấm
+            title: 'Ngon lành!',
+            text: 'Đã tạo xong phiếu món mới!',
+            timer: 2000,
+            showConfirmButton: false
         });
         console.log(data);
 

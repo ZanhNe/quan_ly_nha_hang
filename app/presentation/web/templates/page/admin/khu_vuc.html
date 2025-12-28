@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Khu vực - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/khu_vuc.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>📍 Quản lý Khu vực</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm khu vực
+                </button>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên khu vực</th>
+                            <th>Số bàn</th>
+                            <th>Số nhân viên</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for kv in ds_khu_vuc %}
+                        <tr data-id="{{ kv.id }}">
+                            <td>{{ kv.id }}</td>
+                            <td>{{ kv.ten }}</td>
+                            <td>{{ kv.so_ban }}</td>
+                            <td>{{ kv.so_phuc_vu }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-id="{{ kv.id }}" data-ten="{{ kv.ten }}">
+                                        ✏️
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="{{ kv.id }}" {% if kv.so_ban> 0 or
+                                        kv.so_phuc_vu > 0 %}disabled title="Không thể xóa khu vực có bàn/phục vụ"{%
+                                        endif %}>
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">📍</div>
+                                <h3>Chưa có khu vực nào</h3>
+                                <p>Nhấn "Thêm khu vực" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm khu vực</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên khu vực <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" placeholder="VD: Sân vườn, Phòng VIP..." required>
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,7 +16,7 @@ const headerJS = {
             this.audio = new Audio(NOTIFY_SOUND_URL);
         }
         else {
-            // Fallback (dự phòng) nếu quên khai báo
+            // Dự phòng nếu quên khai báo đường dẫn âm thanh
             this.audio = new Audio('/static/sounds/notification.mp3');
         }
         // Đóng dropdown khi click ra ngoài
@@ -58,7 +58,7 @@ const headerJS = {
         document.getElementById('notifyDropdown').classList.remove('show');
     },
 
-    // Logic Load More (CSR)
+    // Logic Load More thông báo cũ
     loadMoreNotify: function () {
         if (this.isLoading) return;
 
@@ -69,13 +69,10 @@ const headerJS = {
         // Trang tiếp theo
         const nextPage = this.page + 1;
 
-        // Fetch API
+        // Gọi API lấy thêm tin
         fetch(`/api/notifications?page=${nextPage}&limit=${this.limit}`)
             .then(res => res.json())
             .then(data => {
-                // data.notifications: Array of objects
-                // data.has_more: boolean
-
                 if (data.notifications.length > 0) {
                     this.appendNotifications(data.notifications);
                     this.page = nextPage;
@@ -106,7 +103,7 @@ const headerJS = {
             const li = document.createElement('li');
             li.className = `notify-item ${noti.is_read ? '' : 'unread'}`;
 
-            // Icon logic (đơn giản hóa)
+            // Chọn icon tương ứng với loại thông báo
             const icon = noti.type.includes('order') ? '🍲' : '📢';
 
             li.innerHTML = `
@@ -134,7 +131,6 @@ const headerJS = {
             const li = document.createElement('li');
             li.className = `notify-item ${noti.da_doc ? '' : 'unread'}`;
 
-            // Icon logic (đơn giản hóa)
             const icon = noti.phan_loai.includes('HOANTHANHPHIEU') ? '✅' : '📢';
 
             const innerHTML = `
@@ -153,9 +149,8 @@ const headerJS = {
         } else {
             iconBtn.innerHTML = `🔔 <span class="badge-count" id="notifyCount">1</span>`
             const empty = document.querySelector('.empty-state');
-            empty.remove();
+            if (empty) empty.remove();
 
-            // Icon logic (đơn giản hóa)
             const icon = noti.phan_loai.includes('HOANTHANHPHIEU') ? '✅' : '📢';
 
             const innerHTML = `
@@ -171,23 +166,21 @@ const headerJS = {
             `;
             container.insertAdjacentHTML('afterbegin', innerHTML);
         }
-
-
     },
     playSound: function () {
         if (this.audio) {
-            // Reset về đầu (để nếu tin đến dồn dập thì nó vẫn kêu lại từ đầu)
+            // Reset về đầu để kêu liên tục được
             this.audio.currentTime = 0;
 
-            // Play và xử lý lỗi chặn Auto-play
+            // Chạy âm thanh (có thể bị trình duyệt chặn nếu chưa tương tác)
             this.audio.play().catch(error => {
-                console.warn("Trình duyệt chặn phát tiếng do người dùng chưa tương tác trang web.");
+                console.warn("Trình duyệt chặn phát tiếng do người dùng chưa tương tác.");
             });
         }
     },
 };
 
-// Init
+// Khởi chạy khi trang load xong
 document.addEventListener('DOMContentLoaded', () => headerJS.init());
 
 export { headerJS };

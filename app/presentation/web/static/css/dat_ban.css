@@ -1,0 +1,902 @@
+/* =========================================
+   ĐẶT BÀN - Table Reservation Styles
+   ========================================= */
+
+/* =========================================
+   1. PAGE LAYOUT
+   ========================================= */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.header-content {
+    flex: 1;
+}
+
+.content-title {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.content-subtitle {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.95em;
+}
+
+/* Legend */
+.legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85em;
+    color: var(--text-light);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot-trong {
+    background: #48BB78;
+}
+
+.dot-cokhach {
+    background: #ECC94B;
+}
+
+.dot-giucho {
+    background: #ED8936;
+}
+
+/* =========================================
+   2. ZONES & TABLE GRID
+   ========================================= */
+.zones-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.zone {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.zone-title {
+    margin: 0 0 16px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.table-map-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+/* Table Card */
+.table {
+    border: 2px solid #E2E8F0;
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s ease;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.table:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.table-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-color);
+}
+
+.table-capacity {
+    font-size: 0.8em;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* =========================================
+   3. TABLE STATUS COLORS
+   ========================================= */
+.table.status-trong {
+    border-color: #48BB78;
+    background: linear-gradient(135deg, #F0FFF4 0%, #C6F6D5 100%);
+}
+
+.table.status-trong:hover {
+    border-color: #38A169;
+}
+
+.table.status-cokhach {
+    border-color: #ECC94B;
+    background: linear-gradient(135deg, #FFFFF0 0%, #FEFCBF 100%);
+    opacity: 0.85;
+    cursor: not-allowed;
+}
+
+.table.status-giucho {
+    border-color: #ED8936;
+    background: linear-gradient(135deg, #FFFAF0 0%, #FEEBC8 100%);
+}
+
+/* Status Tags */
+.status-tag {
+    font-size: 0.7em;
+    padding: 4px 8px;
+    border-radius: 20px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+.tag-occupied {
+    background: #FED7D7;
+    color: #C53030;
+}
+
+.tag-reserved {
+    background: #FEEBC8;
+    color: #C05621;
+}
+
+.booking-tag {
+    font-size: 0.7em;
+    background: #E9D8FD;
+    color: #6B46C1;
+    padding: 4px 8px;
+    border-radius: 20px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+/* =========================================
+   4. MULTI-SELECT EFFECT
+   ========================================= */
+.table.is-selected {
+    border-color: var(--primary-color) !important;
+    background: linear-gradient(135deg, #FFEFF7 0%, #FED7E2 100%) !important;
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.25);
+    transform: translateY(-5px);
+}
+
+.table.is-selected::after {
+    content: '✓';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--primary-color);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(255, 105, 180, 0.4);
+}
+
+/* =========================================
+   5. DRAWER TABS
+   ========================================= */
+.drawer-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-close {
+    border: none;
+    background: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.btn-close:hover {
+    color: var(--primary-color);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   6. DRAWER CONTENT - DETAILS TAB
+   ========================================= */
+.focus-table-name {
+    color: var(--primary-color);
+    margin: 0 0 8px 0;
+    font-size: 1.2em;
+}
+
+.timeline-label {
+    font-size: 0.85em;
+    color: #666;
+    margin: 0 0 16px 0;
+}
+
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Timeline Items */
+.timeline-item {
+    display: flex;
+    gap: 16px;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 85px;
+    top: 30px;
+    bottom: -12px;
+    width: 2px;
+    background: #eee;
+    z-index: 0;
+}
+
+.timeline-time {
+    min-width: 70px;
+    font-weight: 700;
+    color: #555;
+    text-align: right;
+    padding-top: 8px;
+    font-size: 0.9em;
+}
+
+.timeline-content {
+    flex: 1;
+    background: #f7fafc;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #edf2f7;
+    z-index: 1;
+}
+
+.timeline-content strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #2d3748;
+}
+
+.timeline-empty {
+    text-align: center;
+    padding: 24px;
+    background: #F0FFF4;
+    border: 2px dashed #48BB78;
+    border-radius: 12px;
+}
+
+.timeline-empty-icon {
+    font-size: 2em;
+    margin-bottom: 8px;
+}
+
+.timeline-empty-text {
+    color: #2F855A;
+    font-weight: 600;
+    margin: 0;
+}
+
+.timeline-empty-sub {
+    color: #555;
+    font-size: 0.85em;
+    margin: 4px 0 0 0;
+}
+
+/* =========================================
+   7. DRAWER CONTENT - BOOKING FORM
+   ========================================= */
+.selected-tables-summary {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #FED7E2 100%);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.summary-label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.summary-value {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.label-icon {
+    font-size: 1em;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 12px 16px;
+    border: 2px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 0.95em;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.15);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #A0AEC0;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Validation Styles */
+.form-group input:invalid:not(:placeholder-shown) {
+    border-color: var(--color-error);
+}
+
+.form-group input:valid:not(:placeholder-shown) {
+    border-color: var(--color-success);
+}
+
+/* =========================================
+   8. DRAWER FOOTER
+   ========================================= */
+.drawer-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.selection-count {
+    background: var(--primary-color);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.selection-label {
+    color: var(--text-light);
+    font-size: 0.9em;
+}
+
+.error-message {
+    color: var(--color-error);
+    font-size: 0.85em;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #FED7D7;
+    border-radius: 8px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 50px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+}
+
+.btn-submit:disabled {
+    background: #CBD5E0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-submit.warning {
+    background: var(--color-warning);
+}
+
+.btn-submit.warning:hover:not(:disabled) {
+    background: #B7791F;
+}
+
+/* =========================================
+   9. RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .legend {
+        justify-content: flex-start;
+    }
+
+    .table-map-container {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+
+    .side-drawer {
+        width: 100%;
+        right: -100%;
+    }
+
+    .drawer-tabs {
+        flex: 1;
+    }
+
+    .tab-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* =========================================
+   10. RESERVATION SECTION
+   ========================================= */
+.reservation-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-top: 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.btn-refresh {
+    border: none;
+    background: var(--primary-light);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s ease;
+}
+
+.btn-refresh:hover {
+    background: var(--primary-color);
+    transform: rotate(180deg);
+}
+
+.reservation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-light);
+}
+
+.empty-reservation {
+    text-align: center;
+    padding: 32px;
+    background: #F7FAFC;
+    border: 2px dashed #E2E8F0;
+    border-radius: 12px;
+    color: var(--text-light);
+}
+
+/* Reservation Card */
+.reservation-card {
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.reservation-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transform: translateX(4px);
+}
+
+.reservation-time {
+    min-width: 70px;
+    text-align: center;
+}
+
+.reservation-time .time {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.reservation-time .date {
+    font-size: 0.75em;
+    color: var(--text-light);
+}
+
+.reservation-info {
+    flex: 1;
+}
+
+.reservation-customer {
+    font-weight: 600;
+    font-size: 1em;
+    margin-bottom: 4px;
+}
+
+.reservation-details {
+    font-size: 0.85em;
+    color: var(--text-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.reservation-details span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.reservation-tables {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.table-badge {
+    background: linear-gradient(135deg, #FED7E2 0%, #FEEBC8 100%);
+    color: #C05621;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.reservation-action {
+    padding: 10px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.reservation-action:hover {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+/* =========================================
+   11. CONFIRMATION MODAL
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.modal-close {
+    border: none;
+    background: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--primary-color);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: 50vh;
+}
+
+.modal-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.modal-info-row:last-child {
+    border-bottom: none;
+}
+
+.modal-info-icon {
+    font-size: 1.2em;
+    min-width: 24px;
+}
+
+.modal-info-label {
+    font-weight: 600;
+    color: var(--text-light);
+    min-width: 100px;
+}
+
+.modal-info-value {
+    flex: 1;
+    color: var(--text-color);
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    background: #F7FAFC;
+}
+
+.btn-cancel {
+    padding: 12px 24px;
+    border: 2px solid #E2E8F0;
+    background: white;
+    color: var(--text-color);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    border-color: #CBD5E0;
+    background: #F7FAFC;
+}
+
+.btn-confirm-arrival {
+    padding: 12px 24px;
+    border: none;
+    background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-confirm-arrival:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+}
+
+.btn-confirm-arrival:disabled {
+    background: #CBD5E0;
+    cursor: not-allowed;
+    transform: none;
+}

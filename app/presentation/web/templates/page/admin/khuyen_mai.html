@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Khuyến mãi - Admin{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_custom.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/admin/khuyen_mai.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-main">
+        <div class="management-page">
+            <div class="management-header">
+                <div class="management-header-left">
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">←</a>
+                    <h1>🎁 Quản lý Khuyến mãi</h1>
+                </div>
+                <button class="add-btn" id="btnAdd">
+                    <span>+</span> Thêm khuyến mãi
+                </button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-label">Trạng thái:</span>
+                    <select class="filter-select" id="filterHoatDong">
+                        <option value="" {% if hoat_dong_filter is none %}selected{% endif %}>Tất cả</option>
+                        <option value="true" {% if hoat_dong_filter=='true' %}selected{% endif %}>Đang hoạt động
+                        </option>
+                        <option value="false" {% if hoat_dong_filter=='false' %}selected{% endif %}>Đã tắt</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Đơn tối thiểu</th>
+                            <th>Tự động</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for km in ds_khuyen_mai %}
+                        <tr data-id="{{ km.id }}">
+                            <td>{{ km.id }}</td>
+                            <td>
+                                <strong>{{ km.ten }}</strong>
+                                {% if km.mo_ta %}
+                                <br><small style="color: #718096;">{{ km.mo_ta }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if km.loai == 'phan_tram' %}
+                                <span class="role-badge">Phần trăm</span>
+                                {% else %}
+                                <span class="role-badge">Cố định</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if km.loai == 'phan_tram' %}
+                                {{ km.ti_le | int }}%
+                                {% else %}
+                                {{ "{:,.0f}".format(km.so_tien_giam or 0) }} đ
+                                {% endif %}
+                            </td>
+                            <td>{{ "{:,.0f}".format(km.gia_tri_don_hang_toi_thieu or 0) }} đ</td>
+                            <td>
+                                {% if km.tu_dong_ap_dung %}
+                                <span style="color: #22C55E;">✓</span>
+                                {% else %}
+                                <span style="color: #9CA3AF;">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if km.hoat_dong %}
+                                <span class="status-badge status-open">Hoạt động</span>
+                                {% else %}
+                                <span class="status-badge status-closed">Đã tắt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-edit" data-km='{{ km | tojson }}'>
+                                        ✏️
+                                    </button>
+                                    {% if km.hoat_dong %}
+                                    <button class="btn-action btn-toggle" data-id="{{ km.id }}" data-activate="false"
+                                        title="Tắt">
+                                        🔒
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-action btn-toggle" data-id="{{ km.id }}" data-activate="true"
+                                        title="Bật">
+                                        🔓
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">
+                                <div class="empty-icon">🎁</div>
+                                <h3>Chưa có khuyến mãi nào</h3>
+                                <p>Nhấn "Thêm khuyến mãi" để bắt đầu</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="admin-modal-overlay" id="formModal">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <h3 id="modalTitle">Thêm khuyến mãi</h3>
+            <button class="admin-modal-close" id="btnCloseModal">&times;</button>
+        </div>
+        <div class="admin-modal-body">
+            <form id="dataForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Tên khuyến mãi <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="ten" required>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea class="form-control" id="moTa" rows="2"></textarea>
+                </div>
+                <div class="form-group" id="loaiGroup">
+                    <label>Loại <span class="required">*</span></label>
+                    <select class="form-control" id="loai" required>
+                        <option value="phan_tram">Giảm theo %</option>
+                        <option value="cung">Giảm số tiền cố định</option>
+                    </select>
+                </div>
+                <div class="form-group" id="tiLeGroup">
+                    <label>Tỷ lệ giảm (%) <span class="required">*</span></label>
+                    <input type="number" class="form-control" id="tiLe" min="1" max="100">
+                </div>
+                <div class="form-group" id="soTienGiamGroup" style="display:none;">
+                    <label>Số tiền giảm (VNĐ) <span class="required">*</span></label>
+                    <input type="number" class="form-control" id="soTienGiam" min="1000">
+                </div>
+                <div class="form-group">
+                    <label>Giá trị đơn tối thiểu (VNĐ)</label>
+                    <input type="number" class="form-control" id="giaTriToiThieu" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Thứ tự ưu tiên (Cao hơn sẽ được áp dụng trước)</label>
+                    <input type="number" class="form-control" id="thuTuUuTien" value="0">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
+                    <input type="checkbox" id="tuDongApDung" style="width: auto; margin: 0;">
+                    <label for="tuDongApDung" style="margin: 0; cursor: pointer;">Tự động áp dụng cho đơn hàng đủ điều
+                        kiện</label>
+                </div>
+            </form>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" id="btnCancel">Hủy</button>
+            <button class="btn btn-primary" id="btnSave">Lưu</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
